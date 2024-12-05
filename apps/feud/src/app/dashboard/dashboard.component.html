@@ -1,0 +1,9 @@
+<h1>{{ game.title }}</h1>
+
+<div class="rounds">
+  @for (round of game.rounds; track round.title) {
+    <div class="round">
+      <h2>{{ round.title }}</h2>
+    </div>
+  }
+</div>
