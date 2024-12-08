@@ -1,0 +1,7 @@
+<p>home works!</p>
+
+<ul>
+  @for (route of routes; track route.path) {
+    <li><a [routerLink]="route.path">{{ route.path }}</a></li>
+  }
+</ul>

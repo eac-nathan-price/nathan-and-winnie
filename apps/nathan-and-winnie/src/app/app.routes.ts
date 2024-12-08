@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { HomeComponent } from './home/home.component';
 import { CardifyComponent } from '@nathan-and-winnie/cardify';
 import { FeudComponent } from '@nathan-and-winnie/feud';
 
@@ -14,6 +15,6 @@ export const appRoutes: Route[] = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'cardify',
-  },
+    component: HomeComponent,
+  }
 ];
