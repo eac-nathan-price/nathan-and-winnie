@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
 import { pages } from '../app.routes';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterModule, MatCardModule, MatGridListModule],
+  imports: [CommonModule, RouterModule, MatCardModule, MatGridListModule, MatIconModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
