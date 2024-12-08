@@ -8,7 +8,7 @@ type Team = {
 };
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'lib-dashboard',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.component.html',
