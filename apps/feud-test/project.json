@@ -1,28 +1,28 @@
 {
-  "name": "feud",
+  "name": "feud-test",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "apps/feud/src",
+  "sourceRoot": "apps/feud-test/src",
   "tags": [],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/feud",
-        "index": "apps/feud/src/index.html",
-        "browser": "apps/feud/src/main.ts",
+        "outputPath": "dist/apps/feud-test",
+        "index": "apps/feud-test/src/index.html",
+        "browser": "apps/feud-test/src/main.ts",
         "polyfills": ["zone.js"],
-        "tsConfig": "apps/feud/tsconfig.app.json",
+        "tsConfig": "apps/feud-test/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
-            "input": "apps/feud/public"
+            "input": "apps/feud-test/public"
           }
         ],
-        "styles": ["apps/feud/src/styles.scss"],
+        "styles": ["apps/feud-test/src/styles.scss"],
         "scripts": []
       },
       "configurations": {
@@ -53,10 +53,10 @@
       "executor": "@angular-devkit/build-angular:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "feud:build:production"
+          "buildTarget": "feud-test:build:production"
         },
         "development": {
-          "buildTarget": "feud:build:development"
+          "buildTarget": "feud-test:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -64,7 +64,7 @@
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "buildTarget": "feud:build"
+        "buildTarget": "feud-test:build"
       }
     },
     "lint": {
@@ -74,15 +74,15 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/feud/jest.config.ts"
+        "jestConfig": "apps/feud-test/jest.config.ts"
       }
     },
     "serve-static": {
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "feud:build",
+        "buildTarget": "feud-test:build",
         "port": 4200,
-        "staticFilePath": "dist/apps/feud/browser",
+        "staticFilePath": "dist/apps/feud-test/browser",
         "spa": true
       }
     }
