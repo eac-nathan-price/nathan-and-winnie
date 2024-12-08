@@ -1,1 +1,1 @@
-export * from './lib/cardify/cardify.component';
+export * from './lib/cardify.component';

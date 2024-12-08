@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@nathan-and-winnie/cardify": ["libs/nw/feature-cardify/src/index.ts"]
+      "@nathan-and-winnie/cardify": ["libs/nw/feature-cardify/src/index.ts"],
+      "@nathan-and-winnie/feud": ["libs/nw/feature-feud/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
