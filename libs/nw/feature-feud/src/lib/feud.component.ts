@@ -6,13 +6,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { hf24 } from './data/hf24';
+import { MatIconModule } from '@angular/material/icon';
 import { Game, Team, Round, Question } from './data/_types';
+import { hf24 } from './data/hf24';
 
 
 @Component({
   selector: 'lib-feud',
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatOptionModule],
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatOptionModule, MatIconModule],
   templateUrl: './feud.component.html',
   styleUrl: './feud.component.scss',
 })
@@ -30,20 +31,28 @@ export class FeudComponent {
   selectedRound?: Round;
   selectedQuestion?: Question;
 
+  teamsForm = this.fb.group({
+    teams: this.fb.array(this.initialTeams.map(team => this.createTeamFormGroup(team)))
+  });
+
+  get teams() {
+    return this.teamsForm.get('teams') as FormArray;
+  }
+
+  addTeam() {
+    this.teams.push(this.createTeamFormGroup({ name: 'New Team', score: 0 }));
+  }
+
+  removeTeam(index: number) {
+    this.teams.removeAt(index);
+  }
+
   createTeamFormGroup(team: Team): FormGroup {
     return this.fb.group({
       name: [team.name],
       score: [team.score]
     });
   }
-
-  // addTeam() {
-  //   this.teams.push(this.createTeamFormGroup({ name: '', score: 0 }));
-  // }
-
-  // removeTeam(index: number) {
-  //   this.teams.removeAt(index);
-  // }
 
   get gridRows(): number {
     return this.selectedQuestion ? Math.ceil(this.selectedQuestion.answers.length / 2) : 0;

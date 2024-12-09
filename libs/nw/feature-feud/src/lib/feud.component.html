@@ -44,3 +44,26 @@
     }
   }
 }
+
+<form [formGroup]="teamsForm">
+  <div formArrayName="teams">
+    <div *ngFor="let team of teams.controls; let i=index" [formGroupName]="i" class="team-row">
+      <mat-form-field>
+        <input matInput formControlName="name" placeholder="Team Name">
+      </mat-form-field>
+      
+      <mat-form-field>
+        <input matInput type="number" formControlName="score" placeholder="Score">
+      </mat-form-field>
+      
+      <button mat-icon-button (click)="removeTeam(i)">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+  
+  <button mat-button (click)="addTeam()">
+    <mat-icon>add</mat-icon>
+    Add Team
+  </button>
+</form>

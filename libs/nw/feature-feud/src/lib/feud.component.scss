@@ -12,3 +12,10 @@
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
