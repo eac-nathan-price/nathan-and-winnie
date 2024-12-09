@@ -1,1 +1,46 @@
-<p>feud works!</p>
+<mat-form-field>
+  <mat-label>Select Game</mat-label>
+  <mat-select [(value)]="game">
+    @for (game of games; track game) {
+      <mat-option [value]="game">
+        {{ game.title }}
+      </mat-option>
+    }
+  </mat-select>
+</mat-form-field>
+
+@if (game) {
+  <mat-form-field>
+    <mat-label>Select Round</mat-label>
+    <mat-select [(value)]="selectedRound">
+      @for (round of game.rounds; track round; let i = $index) {
+        <mat-option [value]="round">
+          Round {{i + 1}}
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (selectedRound) {
+    <mat-form-field>
+      <mat-label>Select Question</mat-label>
+      <mat-select [(value)]="selectedQuestion">
+        @for (question of selectedRound.questions; track question) {
+          <mat-option [value]="question">
+            {{ question.text }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (selectedQuestion) {
+      <div class="answers-grid" [style.grid-template-rows]="'repeat(' + gridRows + ', auto)'">
+        @for (answer of selectedQuestion.answers; track answer) {
+          <div class="answer-item">
+            <span>{{ answer.text }} ({{ answer.points * selectedRound.multiplier }})</span>
+          </div>
+        }
+      </div>
+    }
+  }
+}

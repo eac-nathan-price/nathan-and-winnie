@@ -23,3 +23,8 @@ export type Game = {
   rounds: Round[];
   notes?: string;
 };
+
+export type Team = {
+  name: string;
+  score: number;
+};
