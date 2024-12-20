@@ -1,11 +1,13 @@
-<mat-toolbar>
-  <button mat-icon-button [routerLink]="''">
-    <mat-icon>home</mat-icon>
-  </button>
-  <span>{{ currentPage.title }}</span>
-  <span style="margin-left: 8px; font-size: 14px; opacity: 0.8">
-    {{ currentPage.description }}
-  </span>
-</mat-toolbar>
+@if (!currentPage.hideToolbar) {
+  <mat-toolbar>
+    <button mat-icon-button [routerLink]="''">
+      <mat-icon>home</mat-icon>
+    </button>
+    <span>{{ currentPage.title }}</span>
+    <span style="margin-left: 8px; font-size: 14px; opacity: 0.8">
+      {{ currentPage.description }}
+    </span>
+  </mat-toolbar>
+}
 
 <router-outlet></router-outlet>

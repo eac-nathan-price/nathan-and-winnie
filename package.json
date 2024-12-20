@@ -2,7 +2,13 @@
   "name": "@nathan-and-winnie/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "checks": "npx nx run-many --target=lint,test,e2e --all --parallel",
+    "e2es": "npx nx run-many --target=e2e --all --parallel",
+    "lints": "npx nx run-many --target=lint --all --parallel",
+    "material": "npx nx g @angular/material:ng-add --project=$npm_config_project",
+    "tests": "npx nx run-many --target=test --all --parallel"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "~19.0.3",

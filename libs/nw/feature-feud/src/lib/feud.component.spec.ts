@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FeudComponent } from './feud.component';
 
 describe('FeudComponent', () => {
@@ -7,7 +8,7 @@ describe('FeudComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FeudComponent],
+      imports: [FeudComponent, BrowserAnimationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FeudComponent);

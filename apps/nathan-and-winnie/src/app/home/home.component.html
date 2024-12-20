@@ -1,13 +1,20 @@
 <mat-grid-list cols="3" rowHeight="200px" gutterSize="16px">
-  @for (page of pages; track page.path) {
+  @for (card of cards; track card.path) {
     <mat-grid-tile>
-      <mat-card style="width: 100%; height: 100%; cursor: pointer;" [routerLink]="page.path">
+      <mat-card style="width: 100%; height: 100%; cursor: pointer;" [routerLink]="card.path">
         <mat-card-header>
-          <mat-icon mat-card-avatar>{{ page.icon }}</mat-icon>
-          <mat-card-title>{{ page.title }}</mat-card-title>
+          <mat-icon mat-card-avatar>{{ card.icon }}</mat-icon>
+          <mat-card-title>{{ card.title }}</mat-card-title>
+          <mat-card-subtitle>
+            <mat-chip-set aria-label="tags">
+              @for (tag of card.tags; track tag) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </mat-chip-set>
+          </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          {{ page.description }}
+          {{ card.description }}
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>
