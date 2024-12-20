@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@nathan-and-winnie/cardify": ["libs/nw/feature-cardify/src/index.ts"],
+      "@nathan-and-winnie/contact": ["libs/nw/feature-contact/src/index.ts"],
       "@nathan-and-winnie/feud": ["libs/nw/feature-feud/src/index.ts"]
     }
   },
