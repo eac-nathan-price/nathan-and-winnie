@@ -1,4 +1,4 @@
-<mat-form-field>
+<!-- <mat-form-field>
   <mat-label>Select Game</mat-label>
   <mat-select [(value)]="game">
     @for (game of games; track game) {
@@ -66,4 +66,7 @@
     <mat-icon>add</mat-icon>
     Add Team
   </button>
-</form>
+</form> -->
+@for (game of games; track game) {
+  <div>{{ game.title }}</div>
+}

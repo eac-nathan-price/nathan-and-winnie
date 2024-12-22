@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +13,7 @@ import { Game, Team, Round, Question } from './data/_types';
 import { hf24 } from './data/hf24';
 
 
+
 @Component({
   selector: 'lib-feud',
   imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatOptionModule, MatIconModule],
@@ -19,6 +22,8 @@ import { hf24 } from './data/hf24';
 })
 export class FeudComponent {
   fb = inject(FormBuilder);
+  route = inject(ActivatedRoute);
+  q = toSignal(this.route.queryParams);
 
   games = [hf24];
   game?: Game;
