@@ -1,22 +1,21 @@
-<mat-grid-list cols="3" rowHeight="200px" gutterSize="16px">
+<div class="cards">
   @for (card of cards; track card.path) {
-    <mat-grid-tile>
-      <mat-card style="width: 100%; height: 100%; cursor: pointer;" [routerLink]="card.path">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>{{ card.icon }}</mat-icon>
-          <mat-card-title>{{ card.title }}</mat-card-title>
-          <mat-card-subtitle>
-            <mat-chip-set aria-label="tags">
-              @for (tag of card.tags; track tag) {
-                <mat-chip>{{ tag }}</mat-chip>
-              }
-            </mat-chip-set>
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          {{ card.description }}
-        </mat-card-content>
-      </mat-card>
-    </mat-grid-tile>
+    <mat-card [routerLink]="card.path">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>{{ card.icon }}</mat-icon>
+        <mat-card-title>{{ card.title }}</mat-card-title>
+        <mat-card-subtitle>{{ card.subtitle }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        {{ card.description }}
+      </mat-card-content>
+      <mat-card-footer>
+        <mat-chip-set aria-label="tags">
+          @for (tag of card.tags; track tag) {
+            <mat-chip>{{ tag }}</mat-chip>
+          }
+        </mat-chip-set>
+      </mat-card-footer>
+    </mat-card>
   }
-</mat-grid-list>
+</div>

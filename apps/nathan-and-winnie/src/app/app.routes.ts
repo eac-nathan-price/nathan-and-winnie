@@ -6,7 +6,8 @@ import { ContactComponent } from '@nathan-and-winnie/contact';
 
 export type Page = Route & {
   title: string,
-  description: string,
+  subtitle?: string,
+  description?: string,
   icon: string,
   tags: string[],
   hideToolbar?: boolean,
@@ -18,26 +19,29 @@ export const pages: Page[] = [
     path: 'cardify',
     component: CardifyComponent,
     title: 'Cardify',
+    subtitle: '2025',
     description: 'Generate printable cards from a spreadsheet',
     icon: 'cards',
     tags: ['tool']
   },
   {
+    path: 'feud',
+    component: FeudComponent,
+    title: 'Feud',
+    subtitle: 'December 2024',
+    description: 'Present custom Feud games',
+    icon: 'co_present',
+    tags: ['game']
+  },
+  {
     path: 'contact',
     component: ContactComponent,
     title: 'Contact',
+    subtitle: 'July 2024',
     description: 'Create a digital contact card with QR code',
     icon: 'person',
     tags: ['tool'],
     hideToolbar: true
-  },
-  {
-    path: 'feud',
-    component: FeudComponent,
-    title: 'Feud',
-    description: 'Present custom Feud games',
-    icon: 'co_present',
-    tags: ['game']
   },
   {
     path: '',
