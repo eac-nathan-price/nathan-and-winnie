@@ -19,7 +19,9 @@ export type Round = {
 };
 
 export type Game = {
+  id: string;
   title: string;
+  password?: string;
   rounds: Round[];
   notes?: string;
 };
