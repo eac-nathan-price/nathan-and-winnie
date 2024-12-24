@@ -29,3 +29,10 @@ mat-icon {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   font-display: swap;
 }
+
+mat-toolbar.primary {
+  @include mat.toolbar-overrides((
+    container-background-color: var(--mat-sys-primary-container),
+    container-text-color: var(--mat-sys-on-primary-container)
+  ));
+}
