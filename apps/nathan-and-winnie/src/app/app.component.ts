@@ -5,9 +5,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { filter } from 'rxjs';
 import { pages } from './app.routes';
+import { ToolbarComponent } from '@nathan-and-winnie/toolbar';
 
 @Component({
-  imports: [RouterModule, MatToolbarModule, MatIconModule, MatButtonModule],
+  imports: [
+    RouterModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    ToolbarComponent
+  ],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
