@@ -88,55 +88,61 @@
     </div>
   } @else {
     <div class="form-row">
-      <mat-form-field appearance="outline">
-        <input matInput [(ngModel)]="teams[0].name" placeholder="Team 1">
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <input type="number" matInput [(ngModel)]="teams[0].score" placeholder="Score">
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <input matInput [(ngModel)]="teams[1].name" placeholder="Team 2">
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <input type="number" matInput [(ngModel)]="teams[1].score" placeholder="Score">
-      </mat-form-field>
-    </div>
-    <div class="form-row">
-      <button mat-flat-button (click)="currRound.set(null)" [disabled]="!currRound()">Title</button>
-      @for (round of game_.rounds; track round;) {
-        <button mat-flat-button (click)="currRound.set(round)" [disabled]="currRound() === round">{{ round.title }}</button>
+      <button mat-flat-button (click)="openMirrorWindow()">Open Popup</button>
+      @for (team of teams; track team; let i = $index) {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <input matInput [(ngModel)]="team.name" placeholder="Team {{i + 1}}">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <input type="number" matInput [(ngModel)]="team.score" placeholder="Score">
+        </mat-form-field>
       }
     </div>
-    @if (!currRound()) {
-      <div class="title">
-        <div class="title-row">
-          @for (text of game_.title1; track text) {
-            <span [attr.data-text]="text">{{ text }}</span>
-          }
-        </div>
-        <div class="title-row">
-          @for (text of game_.title2; track text) {
-            <span [attr.data-text]="text">{{ text }}</span>
-          }
-        </div>
-      </div>
-      <div class="subtitle">
-        <span>
-          @for (text of game_.subtitle; track text) {
-            {{ text }}
-          }
-        </span>
-      </div>
-      <div class="teams">
-        @for (team of teams; track team) {
-          <div class="team-row">
-            <div class="team">{{ team.name }}</div>
-            <div class="points">{{ team.score }}</div>
+ 
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
+      <mat-tab label="Title">
+        <div class="tab">
+          <div class="title">
+            <div class="title-row">
+              @for (text of game_.title1; track text) {
+                <span [attr.data-text]="text">{{ text }}</span>
+              }
+            </div>
+            <div class="title-row">
+              @for (text of game_.title2; track text) {
+                <span [attr.data-text]="text">{{ text }}</span>
+              }
+            </div>
           </div>
-        }
-      </div>
-    } @else {
-      <h1>{{ currRound()?.title }}</h1>
-    }
+          <div class="subtitle">
+            <span>
+              @for (text of game_.subtitle; track text) {
+                {{ text }}
+              }
+            </span>
+          </div>
+          <div class="teams">
+            @for (team of teams; track team) {
+              <div class="team-row">
+                <div class="team">{{ team.name }}</div>
+                <div class="points">{{ team.score }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+      @for (round of game_.rounds; track round;) {
+        <mat-tab [label]="round.title">
+          <div class="tab">
+            <h1>{{ round.title }}</h1>
+            @for (question of round.questions; track question) {
+              <div class="question">
+                <h2>{{ question.text }}</h2>
+              </div>
+            }
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
   }
 }
