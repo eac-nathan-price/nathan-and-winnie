@@ -67,14 +67,14 @@
     Add Team
   </button>
 </form> -->
-@let game_ = game();
+@let game_ = currGame();
 @if (!game_) {
   <div class="games">
     <h3>Games:</h3>
-    @for (g of games; track g) {
+    @for (game of games; track game) {
       <ul>
         <li>
-          <a [routerLink]="['/feud', { id: g.id }]">{{ g.title }}</a>
+          <a [routerLink]="['/feud', { id: game.id }]">{{ game.title }}</a>
         </li>
       </ul>
     }
@@ -82,15 +82,61 @@
 } @else {
   @if (game_.password && password !== game_.password) {
     <div class="password">
-      <mat-form-field>
+      <mat-form-field appearance="outline">
         <input matInput [(ngModel)]="password" placeholder="Password">
       </mat-form-field>
     </div>
   } @else {
-    <div class="rounds">
-      @for (r of game_.rounds; track r;) {
-        <button mat-flat-button (click)="round.set(r)" [disabled]="round() === r">{{ r.title }}</button>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <input matInput [(ngModel)]="teams[0].name" placeholder="Team 1">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <input type="number" matInput [(ngModel)]="teams[0].score" placeholder="Score">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <input matInput [(ngModel)]="teams[1].name" placeholder="Team 2">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <input type="number" matInput [(ngModel)]="teams[1].score" placeholder="Score">
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <button mat-flat-button (click)="currRound.set(null)" [disabled]="!currRound()">Title</button>
+      @for (round of game_.rounds; track round;) {
+        <button mat-flat-button (click)="currRound.set(round)" [disabled]="currRound() === round">{{ round.title }}</button>
       }
     </div>
+    @if (!currRound()) {
+      <div class="title">
+        <div class="title-row">
+          @for (text of game_.title1; track text) {
+            <span [attr.data-text]="text">{{ text }}</span>
+          }
+        </div>
+        <div class="title-row">
+          @for (text of game_.title2; track text) {
+            <span [attr.data-text]="text">{{ text }}</span>
+          }
+        </div>
+      </div>
+      <div class="subtitle">
+        <span>
+          @for (text of game_.subtitle; track text) {
+            {{ text }}
+          }
+        </span>
+      </div>
+      <div class="teams">
+        @for (team of teams; track team) {
+          <div class="team-row">
+            <div class="team">{{ team.name }}</div>
+            <div class="points">{{ team.score }}</div>
+          </div>
+        }
+      </div>
+    } @else {
+      <h1>{{ currRound()?.title }}</h1>
+    }
   }
 }

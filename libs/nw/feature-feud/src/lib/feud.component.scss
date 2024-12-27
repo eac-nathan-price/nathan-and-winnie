@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   padding: 16px;
+  align-items: center;
 }
 
 .games {
@@ -10,13 +11,127 @@
   margin: 16px auto;
 }
 
-.password {
-  margin: 64px auto;
+// .password {
+//   margin: 64px auto;
+// }
+
+.form-row {
+  display: flex;
+  gap: 16px;
 }
 
-.rounds {
+.title {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  margin-top: 64px;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -16px;
+    width: 110%;
+    height: 110%;
+    background: 
+      radial-gradient(#fff4 3px, transparent 3px) 0 0 / 20px 20px,
+      linear-gradient(180deg, royalblue 0%, navy 100%);
+    border-radius: 50%;
+    z-index: -1;
+    box-shadow:
+      inset 0 0 0 4px white,
+      0 0 0 8px firebrick,
+      0 -2px 20px 8px blue;
+  }
+}
+
+.title-row {
+  font-family: "Montagu Slab", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  line-height: 0.75;
+  letter-spacing: 0.25em;
+
+  span {
+    font-size: 400%;
+    background: linear-gradient(180deg, orangered 0%, yellow 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+
+    &::before {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      color: red;
+      text-shadow: 
+        -1px -1px 0 red,
+        1px -1px 0 red,
+        -1px 1px 0 red,
+        1px 1px 0 red,
+        -2px -2px 0 red,
+        2px -2px 0 red,
+        -2px 2px 0 red,
+        2px 2px 0 red;
+    }
+    
+    &:nth-of-type(odd) {
+      font-size: 600%;
+    }
+  }
+}
+
+.subtitle {
+  font-family: "Boogaloo", serif;
+  font-size: 400%;
+  font-weight: 500;
+  font-style: italic;
+  margin-top: -24px;
+  letter-spacing: 0.05em;
+  transform: rotate(-5deg);
+  text-shadow:
+    -1px -1px 4px cornflowerblue,
+    1px -1px 4px cornflowerblue,
+    -1px 1px 4px cornflowerblue,
+    1px 1px 4px cornflowerblue,
+    -2px -2px 4px cornflowerblue,
+    2px -2px 4px cornflowerblue,
+    -2px 2px 4px cornflowerblue,
+    2px 2px 4px cornflowerblue;
+}
+
+.teams {
+  display: flex;
+  width: 100%;
+  font-size: 300%;
+
+  .team-row {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .team {
+    font-family: "Caveat Brush", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  .points {
+    font-size: 200%;
+  }
 }
 
 /*

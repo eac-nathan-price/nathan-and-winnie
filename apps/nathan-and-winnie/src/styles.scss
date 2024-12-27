@@ -31,11 +31,29 @@ mat-icon {
   font-family: 'Material Symbols Outlined' !important;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   font-display: swap;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: normal;
+  font-style: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
 }
 
 mat-toolbar.primary {
   @include mat.toolbar-overrides((
     container-background-color: var(--mat-sys-primary-container),
     container-text-color: var(--mat-sys-on-primary-container)
+  ));
+}
+
+mat-form-field[appearance="outline"] {
+  @include mat.form-field-overrides((
+    outlined-container-shape: 28px
   ));
 }

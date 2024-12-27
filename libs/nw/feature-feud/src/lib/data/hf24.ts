@@ -3,6 +3,9 @@ import { Game } from './_types';
 export const hf24 = {
   id: '768e612f-3578-48d5-bdaa-774e0a9d5175',
   title: 'Hanukkah Feud 2024',
+  title1: ['H', 'anukkah'],
+  title2: ['F', 'eud'],
+  subtitle: ['2024'],
   password: 'hf24',
   rounds: [
     {

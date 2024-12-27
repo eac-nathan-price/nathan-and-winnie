@@ -45,18 +45,17 @@ export class FeudComponent implements OnInit {
     });
   }
 
-  params = toSignal(this.route.params);
-
   games = [hf24];
-  game = computed(() => this.games.find(g => g.id === this.params()?.['id']));
-  round = linkedSignal({
-    source: () => this.game(),
-    computation: (game) => game?.rounds[0]
-  });
-
   password = '';
 
-  initialTeams: Team[] = [
+  params = toSignal(this.route.params);
+  currGame = computed(() => this.games.find(g => g.id === this.params()?.['id']));
+  currRound = linkedSignal({
+    source: () => this.currGame(),
+    computation: () => null as Round | null
+  });
+
+  teams: Team[] = [
     { name: 'Team 1', score: 0 },
     { name: 'Team 2', score: 0 }
   ];
@@ -64,21 +63,21 @@ export class FeudComponent implements OnInit {
   selectedRound?: Round;
   selectedQuestion?: Question;
 
-  teamsForm = this.fb.group({
-    teams: this.fb.array(this.initialTeams.map(team => this.createTeamFormGroup(team)))
-  });
+  // teamsForm = this.fb.group({
+  //   teams: this.fb.array(this.initialTeams.map(team => this.createTeamFormGroup(team)))
+  // });
 
-  get teams() {
-    return this.teamsForm.get('teams') as FormArray;
-  }
+  // get teams() {
+  //   return this.teamsForm.get('teams') as FormArray;
+  // }
 
-  addTeam() {
-    this.teams.push(this.createTeamFormGroup({ name: 'New Team', score: 0 }));
-  }
+  // addTeam() {
+  //   this.teams.push(this.createTeamFormGroup({ name: 'New Team', score: 0 }));
+  // }
 
-  removeTeam(index: number) {
-    this.teams.removeAt(index);
-  }
+  // removeTeam(index: number) {
+  //   this.teams.removeAt(index);
+  // }
 
   createTeamFormGroup(team: Team): FormGroup {
     return this.fb.group({
@@ -93,7 +92,7 @@ export class FeudComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      const game = this.game();
+      const game = this.currGame();
       this.toolbar.patch(2, game ? { label: game.title } : undefined);
     });
   }
