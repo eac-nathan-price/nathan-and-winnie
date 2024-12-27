@@ -1,11 +1,12 @@
-@if (!toolbar.hide) {
+@if (toolbar.enabled) {
   <mat-toolbar class="primary">
-    <!-- <button mat-icon-button [routerLink]="''">
-      <mat-icon>home</mat-icon>
-    </button>
-    <span>{{ currentPage.title }}</span>
-    <span style="margin-left: 8px; font-size: 14px; opacity: 0.8">
-      {{ currentPage.description }}
-    </span> -->
+    @for (item of toolbar.items; track item.label) {
+      <div [title]="item.title" [routerLink]="item.route">
+        @if (item.icon) {
+          <button mat-icon-button><mat-icon>{{ item.icon }}</mat-icon></button>
+        }
+        <span [ngClass]="{ text: !item.icon }">{{ item.label }}</span>
+      </div>
+    }
   </mat-toolbar>
 }

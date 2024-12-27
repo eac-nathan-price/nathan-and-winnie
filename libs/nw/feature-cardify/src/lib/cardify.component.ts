@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ToolbarService } from '@nathan-and-winnie/toolbar';
 
 @Component({
   selector: 'lib-cardify',
@@ -8,4 +9,15 @@ import { CommonModule } from '@angular/common';
   styleUrl: './cardify.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CardifyComponent {}
+export class CardifyComponent implements OnInit {
+  toolbar = inject(ToolbarService);
+
+  ngOnInit() {
+    this.toolbar.patch(1, {
+      icon: 'cards',
+      label: 'Cardify',
+      title: 'Cardify',
+      route: '/cardify'
+    });
+  }
+}

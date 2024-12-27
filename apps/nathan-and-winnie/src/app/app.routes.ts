@@ -10,8 +10,7 @@ export type Page = Route & {
   description?: string,
   icon: string,
   tags: string[],
-  hideToolbar?: boolean,
-  hideCard?: boolean;
+  hideCard?: boolean
 };
 
 export const pages: Page[] = [
@@ -40,8 +39,7 @@ export const pages: Page[] = [
     subtitle: 'July 2024',
     description: 'Create a digital contact card with QR code',
     icon: 'person',
-    tags: ['tool'],
-    hideToolbar: true
+    tags: ['tool']
   },
   {
     path: '',
