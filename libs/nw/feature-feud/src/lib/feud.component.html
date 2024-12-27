@@ -88,7 +88,10 @@
     </div>
   } @else {
     <div class="form-row">
-      <button mat-flat-button (click)="openMirrorWindow()">Open Popup</button>
+      <button mat-flat-button (click)="openPopup()">Open Popup</button>
+      <button mat-flat-button (click)="syncPopup()">Sync Popup</button>
+    </div>
+    <div class="form-row">
       @for (team of teams; track team; let i = $index) {
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <input matInput [(ngModel)]="team.name" placeholder="Team {{i + 1}}">
@@ -101,7 +104,7 @@
  
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
       <mat-tab label="Title">
-        <div class="tab">
+        <div class="tab mirror">
           <div class="title">
             <div class="title-row">
               @for (text of game_.title1; track text) {
@@ -138,6 +141,9 @@
             @for (question of round.questions; track question) {
               <div class="question">
                 <h2>{{ question.text }}</h2>
+                @for (team of teams; track team) {
+                  <button mat-flat-button>{{ team.name }}</button>
+                }
               </div>
             }
           </div>
