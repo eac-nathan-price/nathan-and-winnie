@@ -67,18 +67,30 @@
     Add Team
   </button>
 </form> -->
-@let selectedGame = game();
-@if (!selectedGame) {
-  @for (game of games; track game) {
-    <a [routerLink]="['/feud', { id: game.id }]">{{ game.title }}</a>
-  }
+@let game_ = game();
+@if (!game_) {
+  <div class="games">
+    <h3>Games:</h3>
+    @for (g of games; track g) {
+      <ul>
+        <li>
+          <a [routerLink]="['/feud', { id: g.id }]">{{ g.title }}</a>
+        </li>
+      </ul>
+    }
+  </div>
 } @else {
-  <div>{{ selectedGame.title }}</div>
-  @if (selectedGame.password && password !== selectedGame.password) {
-    <mat-form-field>
-      <input matInput [(ngModel)]="password" placeholder="Password">
-    </mat-form-field>
+  @if (game_.password && password !== game_.password) {
+    <div class="password">
+      <mat-form-field>
+        <input matInput [(ngModel)]="password" placeholder="Password">
+      </mat-form-field>
+    </div>
   } @else {
-    <div>{{ selectedGame | json }}</div>
+    <div class="rounds">
+      @for (r of game_.rounds; track r;) {
+        <button mat-flat-button (click)="round.set(r)" [disabled]="round() === r">{{ r.title }}</button>
+      }
+    </div>
   }
 }

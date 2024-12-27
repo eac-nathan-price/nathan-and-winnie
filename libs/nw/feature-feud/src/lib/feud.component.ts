@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit } from '@angular/core';
+import { Component, computed, effect, inject, linkedSignal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -49,6 +49,11 @@ export class FeudComponent implements OnInit {
 
   games = [hf24];
   game = computed(() => this.games.find(g => g.id === this.params()?.['id']));
+  round = linkedSignal({
+    source: () => this.game(),
+    computation: (game) => game?.rounds[0]
+  });
+
   password = '';
 
   initialTeams: Team[] = [

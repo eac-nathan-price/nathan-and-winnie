@@ -1,3 +1,25 @@
+:host {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.games {
+  font-size: 150%;
+  margin: 16px auto;
+}
+
+.password {
+  margin: 64px auto;
+}
+
+.rounds {
+  display: flex;
+  justify-content: space-around;
+}
+
+/*
 .answers-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -18,4 +40,4 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
-}
+}*/
