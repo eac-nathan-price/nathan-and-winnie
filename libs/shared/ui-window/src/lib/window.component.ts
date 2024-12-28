@@ -1,4 +1,14 @@
-import { Component, viewChild, OnDestroy, inject, Injector, AfterViewInit, TemplateRef, ViewContainerRef, input } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  Injector,
+  input,
+  OnDestroy,
+  TemplateRef,
+  viewChild,
+  ViewContainerRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 
@@ -8,13 +18,20 @@ import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
   imports: [CommonModule],
   template: `
     <ng-template #templatePortal>
-      <ng-content></ng-content>
+      <ng-container>
+        <ng-content></ng-content>
+      </ng-container>
     </ng-template>
+
+    @if (mirror()) {
+      <!-- <ng-container *ngTemplateOutlet="templatePortal"></ng-container> -->
+    }
   `,
 })
 export class WindowComponent implements AfterViewInit, OnDestroy {
+  mirror = input(false);
   windowTitle = input('');
-
+  
   private injector = inject(Injector);
 
   templateRef = viewChild.required<TemplateRef<unknown>>('templatePortal');
