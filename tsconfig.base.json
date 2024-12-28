@@ -20,7 +20,8 @@
       "@nathan-and-winnie/feature-toolbar": [
         "libs/shared/feature-toolbar/src/index.ts"
       ],
-      "@nathan-and-winnie/feud": ["libs/nw/feature-feud/src/index.ts"]
+      "@nathan-and-winnie/feud": ["libs/nw/feature-feud/src/index.ts"],
+      "@nathan-and-winnie/ui-window": ["libs/shared/ui-window/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -19,6 +19,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
+import { WindowComponent } from '@nathan-and-winnie/ui-window';
 import { Team } from './data/_types';
 import { hf24 } from './data/hf24';
 
@@ -36,6 +37,7 @@ import { hf24 } from './data/hf24';
     MatTabsModule,
     ReactiveFormsModule,
     RouterModule,
+    WindowComponent,
   ],
   templateUrl: './feud.component.html',
   styleUrl: './feud.component.scss',

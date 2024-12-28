@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ToolbarService } from './toolbar.service';
 import { RouterModule } from '@angular/router';
+
 @Component({
   selector: 'lib-toolbar',
   imports: [
