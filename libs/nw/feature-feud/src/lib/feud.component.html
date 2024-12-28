@@ -90,6 +90,22 @@
     <div class="form-row">
       <button mat-flat-button (click)="openPopup()">Open Popup</button>
       <button mat-flat-button (click)="syncPopup()">Sync Popup</button>
+      <audio controls>
+        <source src="https://ia600907.us.archive.org/0/items/tvtunes_33032/Family%20Feud%20-%20Harvey%20Era.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      <button mat-fab class="no" (click)="no(1)">
+        <mat-icon class="large">disabled_by_default</mat-icon>
+      </button>
+      <button mat-fab class="no" (click)="no(2)">
+        <mat-icon class="medium">disabled_by_default</mat-icon>
+        <mat-icon class="medium">disabled_by_default</mat-icon>
+      </button>
+      <button mat-fab class="no" (click)="no(3)">
+        <mat-icon>disabled_by_default</mat-icon>
+        <mat-icon>disabled_by_default</mat-icon>
+        <mat-icon>disabled_by_default</mat-icon>
+      </button>
     </div>
     <div class="form-row">
       @for (team of teams; track team; let i = $index) {
@@ -101,51 +117,77 @@
         </mat-form-field>
       }
     </div>
- 
+
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
       <mat-tab label="Title">
-        <div class="tab mirror">
-          <div class="title">
-            <div class="title-row">
-              @for (text of game_.title1; track text) {
-                <span [attr.data-text]="text">{{ text }}</span>
-              }
-            </div>
-            <div class="title-row">
-              @for (text of game_.title2; track text) {
-                <span [attr.data-text]="text">{{ text }}</span>
-              }
-            </div>
-          </div>
-          <div class="subtitle">
-            <span>
-              @for (text of game_.subtitle; track text) {
-                {{ text }}
-              }
-            </span>
-          </div>
-          <div class="teams">
-            @for (team of teams; track team) {
-              <div class="team-row">
-                <div class="team">{{ team.name }}</div>
-                <div class="points">{{ team.score }}</div>
+        <div class="mirror">
+          <div class="col">
+            <div class="title">
+              <div class="title-row">
+                @for (text of game_.title1; track text) {
+                  <span [attr.data-text]="text">{{ text }}</span>
+                }
               </div>
-            }
+              <div class="title-row">
+                @for (text of game_.title2; track text) {
+                  <span [attr.data-text]="text">{{ text }}</span>
+                }
+              </div>
+            </div>
+            <div class="subtitle">
+              <span>
+                @for (text of game_.subtitle; track text) {
+                  {{ text }}
+                }
+              </span>
+            </div>
+            <div class="teams">
+              @for (team of teams; track team) {
+                <div class="team-row">
+                  <div class="team">{{ team.name }}</div>
+                  <div class="points">{{ team.score }}</div>
+                </div>
+              }
+            </div>
           </div>
         </div>
       </mat-tab>
+
       @for (round of game_.rounds; track round;) {
         <mat-tab [label]="round.title">
-          <div class="tab">
-            <h1>{{ round.title }}</h1>
-            @for (question of round.questions; track question) {
-              <div class="question">
-                <h2>{{ question.text }}</h2>
-                @for (team of teams; track team) {
-                  <button mat-flat-button>{{ team.name }}</button>
-                }
-              </div>
-            }
+          <div class="mirror">
+            <div class="col">
+              @if (round.type === 'tossup') {
+                <h1>{{ round.title }} - {{ round.multiplier }}x Points</h1>
+              } @else if (round.type === 'tiebreak') {
+                <h1>{{ round.title }} - Highest Score Wins</h1>
+              } @else if (round.type === 'rapid') {
+                <h1>{{ round.title }}</h1>
+              }
+              @for (question of round.questions; track question) {
+                <div class="question">
+                  <h2>{{ question.text }}</h2>
+                  @if (round.type === 'tossup') {
+                    @for (team of teams; track team) {
+                      <button mat-flat-button class="admin-only">{{ team.name }}</button>
+                    }
+                  } @else if (round.type === 'tiebreak') {
+                    <button mat-flat-button class="admin-only">Tiebreak</button>
+                  }
+                </div>
+              }
+            </div>
+            <div class="overlay">
+              @if (nos() > 0) {
+                <mat-icon>disabled_by_default</mat-icon>
+              }
+              @if (nos() > 1) {
+                <mat-icon>disabled_by_default</mat-icon>
+              }
+              @if (nos() > 2) {
+                <mat-icon>disabled_by_default</mat-icon>
+              }
+            </div>
           </div>
         </mat-tab>
       }

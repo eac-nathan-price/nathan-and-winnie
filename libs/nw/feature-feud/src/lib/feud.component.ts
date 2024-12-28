@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -32,10 +32,12 @@ import { hf24 } from './data/hf24';
   templateUrl: './feud.component.html',
   styleUrl: './feud.component.scss',
 })
-export class FeudComponent implements OnInit, OnDestroy {
+export class FeudComponent implements OnInit, OnDestroy, AfterViewChecked {
+  cdr = inject(ChangeDetectorRef);
   fb = inject(FormBuilder);
   route = inject(ActivatedRoute);
   toolbar = inject(ToolbarService);
+
 
   games = [hf24];
   password = '';
@@ -117,13 +119,11 @@ export class FeudComponent implements OnInit, OnDestroy {
             ${fontLinks}
             <style>${styles}</style>
             <style>
-              body {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+              .admin-only {
+                display: none;
+                visibility: hidden;
               }
             </style>
-            <link rel="stylesheet" href="/styles.css">
           </head>
           <body></body>
         </html>
@@ -137,13 +137,28 @@ export class FeudComponent implements OnInit, OnDestroy {
     }
   }
 
+  endAudio = new Audio('media/family-feud-end.mp3');
+  noAudio = new Audio('media/family-feud-no.mp3');
+  yesAudio = new Audio('media/family-feud-yes.mp3');
+  nos = signal<number>(0);
+
+  no(num: number) {
+    this.noAudio.currentTime = 1;
+    this.noAudio.play();
+    setTimeout(() => {
+      this.nos.set(num);
+    }, 200);
+    setTimeout(() => {
+      this.nos.set(0);
+    }, 1500);
+  }
+
   syncPopup() {
     if (!this.popupWindow) return;
     const mirrorContent = document.querySelector('.mirror');
     const mirrorContainer = this.popupWindow.document.body;
-    if (mirrorContent && mirrorContainer) {
-      mirrorContainer.innerHTML = mirrorContent.innerHTML;
-    }
+    if (!mirrorContent || !mirrorContainer) return;
+    mirrorContainer.innerHTML = mirrorContent.innerHTML;
   }
 
   ngOnInit() {
@@ -167,5 +182,11 @@ export class FeudComponent implements OnInit, OnDestroy {
       const game = this.currGame();
       this.toolbar.patch(2, game ? { label: game.title } : undefined);
     });
+  }
+
+  ngAfterViewChecked() {
+    this.syncPopup();
+    // Prevent potential ExpressionChangedAfterItHasBeenCheckedError
+    this.cdr.detectChanges();
   }
 }
