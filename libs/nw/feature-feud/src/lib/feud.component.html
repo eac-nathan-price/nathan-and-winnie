@@ -87,15 +87,43 @@
       </mat-form-field>
     </div>
   } @else {
+    <lib-window [windowTitle]="game_.title">
+      <div class="col">
+        <div class="title">
+          <div class="title-row">
+            @for (text of game_.title1; track text) {
+              <span [attr.data-text]="text">{{ text }}</span>
+            }
+          </div>
+          <div class="title-row">
+            @for (text of game_.title2; track text) {
+              <span [attr.data-text]="text">{{ text }}</span>
+            }
+          </div>
+        </div>
+        <div class="subtitle">
+          <span>
+            @for (text of game_.subtitle; track text) {
+              {{ text }}
+            }
+          </span>
+        </div>
+        <div class="teams">
+          @for (team of teams; track team) {
+            <div class="team-row">
+              <div class="team">{{ team.name }}</div>
+              <div class="points">{{ team.score }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    </lib-window>
+    
     <div class="form-row">
-      <!-- <button mat-flat-button (click)="openPopup()">
+      <button mat-flat-button (click)="reopenWindow()">
         <mat-icon>open_in_new</mat-icon>
-        <span>Open Popup</span>
+        <span>Reopen Window</span>
       </button>
-      <button mat-flat-button (click)="syncPopup()">
-        <mat-icon>sync</mat-icon>
-        <span>Sync Popup</span>
-      </button> -->
       <audio controls>
         <source src="https://ia600907.us.archive.org/0/items/tvtunes_33032/Family%20Feud%20-%20Harvey%20Era.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
@@ -204,7 +232,3 @@
     </mat-tab-group>
   }
 }
-
-<lib-window>
-  <div>test</div>
-</lib-window>
