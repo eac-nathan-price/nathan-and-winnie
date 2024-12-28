@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { ToolbarComponent } from '@nathan-and-winnie/toolbar';
+import { ToolbarComponent } from '@nathan-and-winnie/feature-toolbar';
 
 @Component({
   imports: [
@@ -11,11 +11,10 @@ import { ToolbarComponent } from '@nathan-and-winnie/toolbar';
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
-    ToolbarComponent
+    ToolbarComponent,
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
-export class AppComponent {
-}
+export class AppComponent {}

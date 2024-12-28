@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 
 export type ToolbarItem = {
-  icon?: string,
-  label: string,
-  title?: string,
-  route?: string
-}
+  icon?: string;
+  label: string;
+  title?: string;
+  route?: string;
+};
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToolbarService {
   items: ToolbarItem[] = [
@@ -16,13 +16,17 @@ export class ToolbarService {
       icon: 'home',
       label: 'Home',
       title: 'Home',
-      route: '/'
-    }
+      route: '/',
+    },
   ];
-  
+
   enabled = true;
 
   public patch(index: number, item?: ToolbarItem) {
-    this.items.splice(index, this.items.length - index, ...(item ? [item] : []));
+    this.items.splice(
+      index,
+      this.items.length - index,
+      ...(item ? [item] : []),
+    );
   }
 }

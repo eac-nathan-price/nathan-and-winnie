@@ -3,7 +3,9 @@
     @for (item of toolbar.items; track item.label) {
       <div [title]="item.title" [routerLink]="item.route">
         @if (item.icon) {
-          <button mat-icon-button><mat-icon>{{ item.icon }}</mat-icon></button>
+          <button mat-icon-button>
+            <mat-icon>{{ item.icon }}</mat-icon>
+          </button>
         }
         <span [ngClass]="{ text: !item.icon }">{{ item.label }}</span>
       </div>

@@ -12,7 +12,7 @@ import { RouterModule } from '@angular/router';
     MatButtonModule,
     MatIconModule,
     MatToolbarModule,
-    RouterModule
+    RouterModule,
   ],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss',

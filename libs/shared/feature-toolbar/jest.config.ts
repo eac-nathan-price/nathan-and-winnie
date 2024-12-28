@@ -1,8 +1,8 @@
 export default {
-  displayName: 'toolbar',
+  displayName: 'feature-toolbar',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/nw/feature-toolbar',
+  coverageDirectory: '../../../coverage/libs/shared/feature-toolbar',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

@@ -6,7 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { pages } from '../app.routes';
-import { ToolbarService } from '@nathan-and-winnie/toolbar';
+import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +16,7 @@ import { ToolbarService } from '@nathan-and-winnie/toolbar';
     MatCardModule,
     MatChipsModule,
     MatGridListModule,
-    MatIconModule
+    MatIconModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -24,11 +24,11 @@ import { ToolbarService } from '@nathan-and-winnie/toolbar';
 export class HomeComponent implements OnInit {
   toolbar = inject(ToolbarService);
 
-  cards = pages.filter(page => !page.hideCard);
+  cards = pages.filter((page) => !page.hideCard);
 
   ngOnInit() {
     this.toolbar.patch(1, {
-      label: 'Nathan & Winnie'
+      label: 'Nathan & Winnie',
     });
   }
 }

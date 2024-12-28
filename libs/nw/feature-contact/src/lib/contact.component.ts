@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ToolbarService } from '@nathan-and-winnie/toolbar';
+import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 
 @Component({
   selector: 'lib-contact',
@@ -10,7 +10,7 @@ import { ToolbarService } from '@nathan-and-winnie/toolbar';
 })
 export class ContactComponent implements OnInit, OnDestroy {
   toolbar = inject(ToolbarService);
-  
+
   ngOnInit() {
     this.toolbar.enabled = false;
   }

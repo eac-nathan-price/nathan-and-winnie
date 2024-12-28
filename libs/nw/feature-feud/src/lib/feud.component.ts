@@ -1,4 +1,12 @@
-import { Component, computed, effect, inject, OnInit, signal, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -10,7 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { ToolbarService } from '@nathan-and-winnie/toolbar';
+import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import { Team } from './data/_types';
 import { hf24 } from './data/hf24';
 
@@ -27,7 +35,7 @@ import { hf24 } from './data/hf24';
     MatIconModule,
     MatTabsModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
   ],
   templateUrl: './feud.component.html',
   styleUrl: './feud.component.scss',
@@ -38,16 +46,17 @@ export class FeudComponent implements OnInit {
   route = inject(ActivatedRoute);
   toolbar = inject(ToolbarService);
 
-
   games = [hf24];
   password = '';
   teams: Team[] = [
     { name: 'Team 1', score: 0 },
-    { name: 'Team 2', score: 0 }
+    { name: 'Team 2', score: 0 },
   ];
 
   params = toSignal(this.route.params);
-  currGame = computed(() => this.games.find(g => g.id === this.params()?.['id']));
+  currGame = computed(() =>
+    this.games.find((g) => g.id === this.params()?.['id']),
+  );
 
   // selectedRound?: Round;
   // selectedQuestion?: Question;
@@ -170,7 +179,7 @@ export class FeudComponent implements OnInit {
       icon: 'co_present',
       label: 'Feud',
       title: 'Feud',
-      route: '/feud'
+      route: '/feud',
     });
   }
 
