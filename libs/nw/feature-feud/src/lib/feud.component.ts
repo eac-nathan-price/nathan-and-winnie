@@ -1,7 +1,7 @@
-import { Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,7 +11,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ToolbarService } from '@nathan-and-winnie/toolbar';
-import { Team, Round, Question } from './data/_types';
+import { Team } from './data/_types';
 import { hf24 } from './data/hf24';
 
 @Component({
@@ -32,7 +32,7 @@ import { hf24 } from './data/hf24';
   templateUrl: './feud.component.html',
   styleUrl: './feud.component.scss',
 })
-export class FeudComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class FeudComponent implements OnInit {
   cdr = inject(ChangeDetectorRef);
   fb = inject(FormBuilder);
   route = inject(ActivatedRoute);
@@ -79,63 +79,71 @@ export class FeudComponent implements OnInit, OnDestroy, AfterViewChecked {
   //   return this.selectedQuestion ? Math.ceil(this.selectedQuestion.answers.length / 2) : 0;
   // }
 
-  popupWindow: Window | null = null;
+  // popupWindow: Window | null = null;
 
-  openPopup() {
-    const game = this.currGame();
-    if (!game) return;
-    this.popupWindow = window.open(
-      '_blank',
-      game.title,
-      'width=1920,height=1080,resizable=yes,scrollbars=yes,status=yes'
-    );
-    if (this.popupWindow) {
-      // Get all font stylesheet links
-      const fontLinks = Array.from(document.getElementsByTagName('link'))
-        .filter(link => link.rel === 'stylesheet' || link.rel === 'preconnect')
-        .map(link => link.outerHTML)
-        .join('\n');
+  // openPopup() {
+  //   const game = this.currGame();
+  //   if (!game) return;
+  //   this.popupWindow = window.open(
+  //     '_blank',
+  //     game.title,
+  //     'width=1920,height=1080,resizable=yes,scrollbars=yes,status=yes'
+  //   );
+  //   if (this.popupWindow) {
+  //     // Get all font stylesheet links
+  //     const fontLinks = Array.from(document.getElementsByTagName('link'))
+  //       .filter(link => link.rel === 'stylesheet' || link.rel === 'preconnect')
+  //       .map(link => link.outerHTML)
+  //       .join('\n');
 
-      // Get accessible stylesheet rules
-      const styles = Array.from(document.styleSheets)
-        .filter(styleSheet => {
-          try {
-            return !!styleSheet.cssRules;
-          } catch {
-            return false;
-          }
-        })
-        .map(styleSheet => {
-          return Array.from(styleSheet.cssRules)
-            .map(rule => rule.cssText)
-            .join('\n');
-        })
-        .join('\n');
+  //     // Get accessible stylesheet rules
+  //     const styles = Array.from(document.styleSheets)
+  //       .filter(styleSheet => {
+  //         try {
+  //           return !!styleSheet.cssRules;
+  //         } catch {
+  //           return false;
+  //         }
+  //       })
+  //       .map(styleSheet => {
+  //         return Array.from(styleSheet.cssRules)
+  //           .map(rule => rule.cssText)
+  //           .join('\n');
+  //       })
+  //       .join('\n');
 
-      this.popupWindow.document.write(`
-        <html>
-          <head>
-            <title>${game.title}</title>
-            ${fontLinks}
-            <style>${styles}</style>
-            <style>
-              .admin-only {
-                display: none;
-                visibility: hidden;
-              }
-            </style>
-          </head>
-          <body></body>
-        </html>
-      `);
+  //     this.popupWindow.document.write(`
+  //       <html>
+  //         <head>
+  //           <title>${game.title}</title>
+  //           ${fontLinks}
+  //           <style>${styles}</style>
+  //           <style>
+  //             .admin-only {
+  //               display: none;
+  //               visibility: hidden;
+  //             }
+  //           </style>
+  //         </head>
+  //         <body></body>
+  //       </html>
+  //     `);
 
-      this.popupWindow.onbeforeunload = () => {
-        this.popupWindow = null;
-      };
+  //     this.popupWindow.onbeforeunload = () => {
+  //       this.popupWindow = null;
+  //     };
 
-      this.syncPopup();
-    }
-  }
+  //     this.syncPopup();
+  //   }
+  // }
+
+  // syncPopup() {
+  //   if (!this.popupWindow) return;
+  //   const mirrorContent = document.querySelector('.mirror');
+  //   const mirrorContainer = this.popupWindow.document.body;
+  //   if (!mirrorContent || !mirrorContainer) return;
+  //   mirrorContainer.innerHTML = mirrorContent.innerHTML;
+  // }
 
   endAudio = new Audio('media/family-feud-end.mp3');
   noAudio = new Audio('media/family-feud-no.mp3');
@@ -153,12 +161,8 @@ export class FeudComponent implements OnInit, OnDestroy, AfterViewChecked {
     }, 1500);
   }
 
-  syncPopup() {
-    if (!this.popupWindow) return;
-    const mirrorContent = document.querySelector('.mirror');
-    const mirrorContainer = this.popupWindow.document.body;
-    if (!mirrorContent || !mirrorContainer) return;
-    mirrorContainer.innerHTML = mirrorContent.innerHTML;
+  end() {
+    this.endAudio.play();
   }
 
   ngOnInit() {
@@ -170,12 +174,12 @@ export class FeudComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  ngOnDestroy() {
-    if (this.popupWindow) {
-      this.popupWindow.close();
-      this.popupWindow = null;
-    }
-  }
+  // ngOnDestroy() {
+  //   if (this.popupWindow) {
+  //     this.popupWindow.close();
+  //     this.popupWindow = null;
+  //   }
+  // }
 
   constructor() {
     effect(() => {
@@ -184,9 +188,9 @@ export class FeudComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  ngAfterViewChecked() {
-    this.syncPopup();
-    // Prevent potential ExpressionChangedAfterItHasBeenCheckedError
-    this.cdr.detectChanges();
-  }
+  // ngAfterViewChecked() {
+  //   this.syncPopup();
+  //   // Prevent potential ExpressionChangedAfterItHasBeenCheckedError
+  //   this.cdr.detectChanges();
+  // }
 }

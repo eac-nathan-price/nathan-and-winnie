@@ -88,8 +88,14 @@
     </div>
   } @else {
     <div class="form-row">
-      <button mat-flat-button (click)="openPopup()">Open Popup</button>
-      <button mat-flat-button (click)="syncPopup()">Sync Popup</button>
+      <!-- <button mat-flat-button (click)="openPopup()">
+        <mat-icon>open_in_new</mat-icon>
+        <span>Open Popup</span>
+      </button>
+      <button mat-flat-button (click)="syncPopup()">
+        <mat-icon>sync</mat-icon>
+        <span>Sync Popup</span>
+      </button> -->
       <audio controls>
         <source src="https://ia600907.us.archive.org/0/items/tvtunes_33032/Family%20Feud%20-%20Harvey%20Era.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
@@ -106,6 +112,10 @@
         <mat-icon>disabled_by_default</mat-icon>
         <mat-icon>disabled_by_default</mat-icon>
       </button>
+      <button mat-flat-button (click)="end()">
+        <mat-icon>music_note</mat-icon>
+        <span>End</span>
+      </button>
     </div>
     <div class="form-row">
       @for (team of teams; track team; let i = $index) {
@@ -118,9 +128,9 @@
       }
     </div>
 
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" class="mirror">
       <mat-tab label="Title">
-        <div class="mirror">
+        <!-- <div class="mirror"> -->
           <div class="col">
             <div class="title">
               <div class="title-row">
@@ -150,12 +160,12 @@
               }
             </div>
           </div>
-        </div>
+        <!-- </div> -->
       </mat-tab>
 
       @for (round of game_.rounds; track round;) {
         <mat-tab [label]="round.title">
-          <div class="mirror">
+          <!-- <div class="mirror"> -->
             <div class="col">
               @if (round.type === 'tossup') {
                 <h1>{{ round.title }} - {{ round.multiplier }}x Points</h1>
@@ -188,7 +198,7 @@
                 <mat-icon>disabled_by_default</mat-icon>
               }
             </div>
-          </div>
+          <!-- </div> -->
         </mat-tab>
       }
     </mat-tab-group>
