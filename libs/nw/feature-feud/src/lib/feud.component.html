@@ -88,9 +88,13 @@
     </div>
   } @else {
     <div class="form-row">
-      <button mat-flat-button (click)="reopenWindow()">
+      <button mat-flat-button (click)="openWindow('pop')">
         <mat-icon>open_in_new</mat-icon>
-        <span>Reopen Window</span>
+        <span>Popup</span>
+      </button>
+      <button mat-flat-button (click)="openWindow('tab')">
+        <mat-icon>open_in_new</mat-icon>
+        <span>Tab</span>
       </button>
       <audio controls>
         <source src="https://ia600907.us.archive.org/0/items/tvtunes_33032/Family%20Feud%20-%20Harvey%20Era.mp3" type="audio/mpeg">
@@ -229,6 +233,6 @@
         }
       </div>
     </ng-template>
-    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template" [popup]="false" class="internal"></lib-window>
+    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template" class="internal"></lib-window>
   }
 }

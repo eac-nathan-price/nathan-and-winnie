@@ -19,7 +19,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
-import { WindowComponent } from '@nathan-and-winnie/ui-window';
+import { WindowComponent, WindowType } from '@nathan-and-winnie/ui-window';
 import { Question, Round, Team } from './data/_types';
 import { hf24 } from './data/hf24';
 
@@ -88,8 +88,8 @@ export class FeudComponent implements OnInit {
     this.endAudio.play();
   }
 
-  reopenWindow() {
-    this.window()?.reopenWindow();
+  openWindow(windowType?: WindowType) {
+    this.window()?.open(windowType);
   }
 
   deactivate(event?: MatTabChangeEvent) {

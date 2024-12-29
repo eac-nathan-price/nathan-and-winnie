@@ -11,6 +11,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 
+export type WindowType = boolean | 'pop' | 'tab' | undefined;
+
 @Component({
   selector: 'lib-window',
   standalone: true,
@@ -22,9 +24,8 @@ import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
   `,
 })
 export class WindowComponent implements AfterViewInit, OnDestroy {
-  init = input(true);
+  init = input(undefined as WindowType);
   mirror = input(false);
-  popup = input(true);
   scale = input(2);
   windowTitle = input('');
   template = input.required<TemplateRef<unknown>>();
@@ -36,49 +37,41 @@ export class WindowComponent implements AfterViewInit, OnDestroy {
   private externalWindow: Window | null = null;
   private portalOutlet: DomPortalOutlet | null = null;
 
-  private openWindow() {
-    const windowFeatures = this.popup() 
+  public open(windowType?: WindowType) {
+    if (this.externalWindow && !this.externalWindow.closed) return;
+
+    const windowFeatures = windowType == 'pop' 
       ? `width=${1920 * this.scale()},height=${1080 * this.scale()},resizable=yes,scrollbars=yes,status=yes`
       : '';
     
     const externalWindow = window.open('', '', windowFeatures);
     if (!externalWindow) return;
-    
+
     this.externalWindow = externalWindow;
-    this.externalWindow.document.title = this.windowTitle();
-    
-    this.externalWindow.document.body.classList.add('external');
-    
-    this.externalWindow.addEventListener('unload', () => {
+    externalWindow.document.title = this.windowTitle();
+    externalWindow.document.body.classList.add('external');
+    externalWindow.addEventListener('unload', () => {
       this.externalWindow = null;
       this.portalOutlet = null;
     });
 
-    this.copyStyles();
-    this.createPortal(this.externalWindow.document.body, this.template());
-  }
-
-  private copyStyles() {
-    if (!this.externalWindow) return;
-
-    const window: Window = this.externalWindow;
-
+    // copy styles
     Array.from(document.querySelectorAll('link[rel="stylesheet"]')).forEach((link) => {
       const linkElement = link as HTMLLinkElement;
-      const newLink = window.document.createElement('link');
+      const newLink = externalWindow.document.createElement('link');
       newLink.rel = 'stylesheet';
       newLink.href = linkElement.href;
-      window.document.head.appendChild(newLink);
+      externalWindow.document.head.appendChild(newLink);
     });
 
     Array.from(document.styleSheets).forEach((styleSheet) => {
       try {
         if (styleSheet.cssRules) {
-          const newStyleEl = window.document.createElement('style');
+          const newStyleEl = externalWindow.document.createElement('style');
           Array.from(styleSheet.cssRules).forEach((cssRule) => {
-            newStyleEl.appendChild(window.document.createTextNode(cssRule.cssText));
+            newStyleEl.appendChild(externalWindow.document.createTextNode(cssRule.cssText));
           });
-          window.document.head.appendChild(newStyleEl);
+          externalWindow.document.head.appendChild(newStyleEl);
         }
       } catch (e) {
         const error = e as Error;
@@ -87,20 +80,15 @@ export class WindowComponent implements AfterViewInit, OnDestroy {
         }
       }
     });
-  }
 
-  private createPortal(element: HTMLElement, template: TemplateRef<unknown>) {
-    this.portalOutlet = new DomPortalOutlet(element, this.injector);
-    const portal = new TemplatePortal(template, this.vcr);
+    // create portal
+    this.portalOutlet = new DomPortalOutlet(externalWindow.document.body, this.injector);
+    const portal = new TemplatePortal(this.template(), this.vcr);
     this.portalOutlet.attach(portal);
   }
 
-  public reopenWindow() {
-    if (!this.externalWindow || this.externalWindow.closed) this.openWindow();
-  }
-
   ngAfterViewInit() {
-    if (this.init()) this.openWindow();
+    if (this.init() !== undefined) this.open(this.init());
   }
 
   ngOnDestroy() {
