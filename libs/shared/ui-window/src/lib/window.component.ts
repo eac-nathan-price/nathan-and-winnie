@@ -33,11 +33,13 @@ export class WindowComponent implements AfterViewInit, OnDestroy {
   private portalOutlet: DomPortalOutlet | null = null;
 
   private openWindow() {
-    const externalWindow = window.open('', '', 'width=1920,height=1080,resizable=yes,scrollbars=yes,status=yes');
+    const externalWindow = window.open('', '', `width=${1920*2},height=${1080*2},resizable=yes,scrollbars=yes,status=yes`);
     if (!externalWindow) return;
     
     this.externalWindow = externalWindow;
     this.externalWindow.document.title = this.windowTitle();
+    
+    this.externalWindow.document.body.classList.add('external');
     
     this.externalWindow.addEventListener('unload', () => {
       this.externalWindow = null;

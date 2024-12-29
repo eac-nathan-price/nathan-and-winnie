@@ -9,6 +9,7 @@
   flex: auto;
   padding: 16px;
   @extend .col;
+  font-size: 200%;
 }
 
 mat-tab-group {
@@ -22,6 +23,11 @@ mat-tab-group {
       flex: 1;
     }
   }
+}
+
+::ng-deep .external .internal-only, ::ng-deep .internal .external-only, ::ng-deep .external mat-tab-header {
+  visibility: hidden;
+  display: none;
 }
 
 .games {

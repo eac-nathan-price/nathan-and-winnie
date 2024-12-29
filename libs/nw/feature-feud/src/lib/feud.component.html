@@ -87,39 +87,6 @@
       </mat-form-field>
     </div>
   } @else {
-    <ng-template #template>
-      <div class="col">
-        <div class="title">
-          <div class="title-row">
-            @for (text of game_.title1; track text) {
-              <span [attr.data-text]="text">{{ text }}</span>
-            }
-          </div>
-          <div class="title-row">
-            @for (text of game_.title2; track text) {
-              <span [attr.data-text]="text">{{ text }}</span>
-            }
-          </div>
-        </div>
-        <div class="subtitle">
-          <span>
-            @for (text of game_.subtitle; track text) {
-              {{ text }}
-            }
-          </span>
-        </div>
-        <div class="teams">
-          @for (team of teams; track team) {
-            <div class="team-row">
-              <div class="team">{{ team.name }}</div>
-              <div class="points">{{ team.score }}</div>
-            </div>
-          }
-        </div>
-      </div>
-    </ng-template>
-    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template"></lib-window>
-    
     <div class="form-row">
       <button mat-flat-button (click)="reopenWindow()">
         <mat-icon>open_in_new</mat-icon>
@@ -157,9 +124,9 @@
       }
     </div>
 
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" class="mirror">
-      <mat-tab label="Title">
-        <!-- <div class="mirror"> -->
+    <ng-template #template>
+      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
+        <mat-tab label="Title">
           <div class="col">
             <div class="title">
               <div class="title-row">
@@ -189,12 +156,10 @@
               }
             </div>
           </div>
-        <!-- </div> -->
-      </mat-tab>
-
-      @for (round of game_.rounds; track round;) {
-        <mat-tab [label]="round.title">
-          <!-- <div class="mirror"> -->
+        </mat-tab>
+  
+        @for (round of game_.rounds; track round;) {
+          <mat-tab [label]="round.title">
             <div class="col">
               @if (round.type === 'tossup') {
                 <h1>{{ round.title }} - {{ round.multiplier }}x Points</h1>
@@ -208,10 +173,10 @@
                   <h2>{{ question.text }}</h2>
                   @if (round.type === 'tossup') {
                     @for (team of teams; track team) {
-                      <button mat-flat-button class="admin-only">{{ team.name }}</button>
+                      <button mat-flat-button class="internal-only">{{ team.name }}</button>
                     }
                   } @else if (round.type === 'tiebreak') {
-                    <button mat-flat-button class="admin-only">Tiebreak</button>
+                    <button mat-flat-button class="internal-only">Tiebreak</button>
                   }
                 </div>
               }
@@ -227,9 +192,10 @@
                 <mat-icon>disabled_by_default</mat-icon>
               }
             </div>
-          <!-- </div> -->
-        </mat-tab>
-      }
-    </mat-tab-group>
+          </mat-tab>
+        }
+      </mat-tab-group>
+    </ng-template>
+    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template" class="internal"></lib-window>
   }
 }
