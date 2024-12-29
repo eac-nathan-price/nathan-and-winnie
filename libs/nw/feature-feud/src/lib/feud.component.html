@@ -99,7 +99,7 @@
               <div class="content">
                 @if (!activeQuestion) {
                   <div class="round-title">{{makeTitle(round)}}</div>       
-                  @for (question of round.questions; track question; let qi = $index) {
+                  @for (question of round.questions; track question; let i = $index) {
                     <div class="question" [ngClass]="{'internal-only': round.type === 'rapid'}">
                       <h2>{{ question.text }}</h2>
                       @if (round.type === 'tossup') {
@@ -113,13 +113,13 @@
                     @if (round.type === 'rapid') {
                       <div class="rapid internal-only">
                         <div class="form-row">
-                          <div>{{qi}}</div>
                           <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                            <input matInput [(ngModel)]="rapid[qi].answer" placeholder="Answer">
+                            <input matInput [(ngModel)]="rapid[i].answer" placeholder="Answer">
                           </mat-form-field>
                           <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                            <input matInput type="number" [(ngModel)]="rapid[qi].points" placeholder="Points">
+                            <input matInput type="number" [(ngModel)]="rapid[i].points" placeholder="Points">
                           </mat-form-field>
+                          {{ getRapidPoints() }}
                         </div>
                         @for (answer of question.answers; track answer) {
                           <div class="rapid-answer">
@@ -177,7 +177,46 @@
             </div>
           </mat-tab>
         }
+
+        <mat-tab label="Rapid Answers">
+          <div class="tab round">
+            <div class="content">
+              @let rapidRound_ = rapidRound();
+              @if (rapidRound_) {
+                <div class="rapid-title-row">
+                  <div class="round-title">{{rapidRound_.title}}</div>
+                  <div class="pot">{{ activePot }}</div>
+                </div>
+                <table>
+                  <tbody>
+                    @for (question of rapidRound_.questions; track question; let i = $index) {
+                      <tr>
+                        <td>
+                          <span>{{ question.text }}</span>
+                          <span class="internal-only"> - {{ getBestAnswer(question) }}</span>
+                        </td>
+                        <td class="rapid-reveal">
+                          <button mat-button (click)="reveal(i)" class="internal-only">Reveal</button>
+                          <span class="rapid-reveal-answer">
+                            {{ rapid[i].answer }}
+                          </span>
+                          <span class="rapid-reveal-points">
+                            <span [ngClass]="{'internal-only': !rapid[i].revealed}">{{ rapid[i].points }}</span>
+                            @if (!rapid[i].revealed) {
+                              <span>?</span>
+                            }
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+          </div>
+        </mat-tab>
       </mat-tab-group>
+      
       <div class="overlay">
         @if (nos() > 0) {
           <mat-icon>disabled_by_default</mat-icon>

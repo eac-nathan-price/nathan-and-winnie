@@ -372,3 +372,37 @@ lib-window {
   display: flex;
   justify-content: space-between;
 }
+
+.rapid-reveal {
+  padding: 0;
+  margin: 8px;
+  display: flex;
+  align-items: center;
+  border: 2px solid white;
+  min-width: 400px;
+  height: 36px;
+  background: #004589;
+
+  .rapid-reveal-answer {
+    flex: auto;
+    text-align: left;
+    padding-left: 16px;
+  }
+
+  .rapid-reveal-points {
+    text-align: center;
+    background: #0080ff;
+    line-height: 36px;
+    width: 36px;
+  }
+}
+
+.rapid-title-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  .round-title {
+    flex: auto;
+  }
+}

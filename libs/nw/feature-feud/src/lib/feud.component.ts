@@ -24,6 +24,12 @@ import { WindowComponent, WindowType } from '@nathan-and-winnie/ui-window';
 import { Question, Round, Team } from './data/_types';
 import { hf24 } from './data/hf24';
 
+type RapidReveal = {
+  answer: string;
+  points: number;
+  revealed: boolean;
+}
+
 @Component({
   selector: 'lib-feud',
   imports: [
@@ -59,7 +65,7 @@ export class FeudComponent implements OnInit {
     { name: 'Team 1', score: 0 },
     { name: 'Team 2', score: 0 },
   ];
-  rapid: {answer: string, points: number}[] = new Array(8).fill({}).map(() => ({answer: '', points: 0}));
+  rapid: RapidReveal[] = new Array(99).fill({}).map(() => ({ answer: '', points: 0, revealed: false }));
   
   activeAnswers: boolean[] = [];
   activePot = 0;
@@ -71,6 +77,7 @@ export class FeudComponent implements OnInit {
   currGame = computed(() =>
     this.games.find((g) => g.id === this.params()?.['id']),
   );
+  rapidRound = computed(() => this.currGame()?.rounds.find((r) => r.type === 'rapid'));
 
   endAudio = () => new Audio('media/family-feud-end.mp3');
   noAudio = () => new Audio('media/family-feud-no.mp3');
@@ -136,6 +143,21 @@ export class FeudComponent implements OnInit {
     const words = ['', 'Normal', 'Double', 'Triple', 'Quadruple', 'Quintuple'];
     if (Number.isInteger(round.multiplier) && words[round.multiplier]) return `${round.title} - ${words[round.multiplier]} Points`;
     return `${round.title} - ${round.multiplier}x Points`;
+  }
+
+  reveal(i: number) {
+    this.rapid[i].revealed = true;
+    this.activePot += this.rapid[i].points;
+    if (this.rapid[i].points === 0) this.no(1);
+    else this.yesAudio().play();
+  }
+
+  getRapidPoints() {
+    return this.rapid.reduce((sum, answer) => sum + answer.points, 0);
+  }
+
+  getBestAnswer(question: Question) {
+    return question.answers.reduce((best, answer) => answer.points > best.points ? answer : best, question.answers[0]).text;
   }
 
   ngOnInit() {
