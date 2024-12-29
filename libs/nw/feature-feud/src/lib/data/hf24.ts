@@ -56,7 +56,7 @@ export const hf24 = {
         {
           text: 'Why might 2 Jews be having an argument?',
           answers: [
-            { points: 29, text: "Day ending in 'y' (anything)" },
+            { points: 29, text: 'Anything / Nothing' },
             { points: 18, text: 'Food' },
             { points: 16, text: 'Jewish custom' },
             { points: 12, text: 'Haggling / Money' },
