@@ -72,8 +72,8 @@ mat-tab-group {
 }
 
 ::ng-deep .external .internal-only, ::ng-deep .internal .external-only, ::ng-deep .external mat-tab-header {
-  visibility: hidden;
-  display: none;
+  visibility: hidden !important;
+  display: none !important;
 }
 
 .games {
@@ -243,4 +243,8 @@ mat-tab-group {
     font-size: 192px;
     color: red;
   }
+}
+
+.warn {
+  color: red;
 }

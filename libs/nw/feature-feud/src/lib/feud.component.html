@@ -199,7 +199,7 @@
                   @for (answer of activeQuestion.answers; track answer; let i = $index) {
                     <button class="answer" [ngClass]="{'internal-only': !activeAnswers[i]}" (click)="toggleAnswer(i)">
                       @if (!activeAnswers[i]) {
-                        <span class="internal-only">(closed)</span>
+                        <span class="internal-only warn">(closed)</span>
                       }
                       <span>{{ answer.text }}</span>
                       <span>&nbsp;&mdash;&nbsp;</span>
@@ -229,6 +229,6 @@
         }
       </div>
     </ng-template>
-    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template" [init]="false" class="internal"></lib-window>
+    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template" [popup]="false" class="internal"></lib-window>
   }
 }

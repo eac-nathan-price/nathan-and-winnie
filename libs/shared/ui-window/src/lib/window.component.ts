@@ -24,8 +24,11 @@ import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 export class WindowComponent implements AfterViewInit, OnDestroy {
   init = input(true);
   mirror = input(false);
+  popup = input(true);
+  scale = input(2);
   windowTitle = input('');
   template = input.required<TemplateRef<unknown>>();
+  
   
   private injector = inject(Injector);
   private vcr = inject(ViewContainerRef);
@@ -34,7 +37,11 @@ export class WindowComponent implements AfterViewInit, OnDestroy {
   private portalOutlet: DomPortalOutlet | null = null;
 
   private openWindow() {
-    const externalWindow = window.open('', '', `width=${1920*2},height=${1080*2},resizable=yes,scrollbars=yes,status=yes`);
+    const windowFeatures = this.popup() 
+      ? `width=${1920 * this.scale()},height=${1080 * this.scale()},resizable=yes,scrollbars=yes,status=yes`
+      : '';
+    
+    const externalWindow = window.open('', '', windowFeatures);
     if (!externalWindow) return;
     
     this.externalWindow = externalWindow;
