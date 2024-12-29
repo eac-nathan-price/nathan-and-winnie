@@ -181,20 +181,20 @@
                 </div>
               }
             </div>
-            <div class="overlay">
-              @if (nos() > 0) {
-                <mat-icon>disabled_by_default</mat-icon>
-              }
-              @if (nos() > 1) {
-                <mat-icon>disabled_by_default</mat-icon>
-              }
-              @if (nos() > 2) {
-                <mat-icon>disabled_by_default</mat-icon>
-              }
-            </div>
           </mat-tab>
         }
       </mat-tab-group>
+      <div class="overlay">
+        @if (nos() > 0) {
+          <mat-icon>disabled_by_default</mat-icon>
+        }
+        @if (nos() > 1) {
+          <mat-icon>disabled_by_default</mat-icon>
+        }
+        @if (nos() > 2) {
+          <mat-icon>disabled_by_default</mat-icon>
+        }
+      </div>
     </ng-template>
     <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template" [init]="false" class="internal"></lib-window>
   }

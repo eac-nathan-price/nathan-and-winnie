@@ -21,6 +21,40 @@ mat-tab-group {
   ::ng-deep {
     .mat-mdc-tab-body-wrapper {
       flex: 1;
+      background: conic-gradient(
+        from 0deg at center 25%,
+        dodgerblue	3.23%,
+        lightskyblue	6.45%,
+        royalblue	9.68%,
+        deepskyblue	12.9%,
+        cornflowerblue	16.13%,
+        dodgerblue	19.35%,
+        lightskyblue	22.58%,
+        royalblue	25.81%,
+        deepskyblue	29.03%,
+        cornflowerblue	32.26%,
+        dodgerblue	35.48%,
+        lightskyblue	38.71%,
+        royalblue	41.94%,
+        deepskyblue	45.16%,
+        cornflowerblue	48.39%,
+        dodgerblue	51.61%,
+        lightskyblue	54.84%,
+        royalblue	58.06%,
+        deepskyblue	61.29%,
+        cornflowerblue	64.52%,
+        dodgerblue	67.74%,
+        lightskyblue	70.97%,
+        royalblue	74.19%,
+        deepskyblue	77.42%,
+        cornflowerblue	80.65%,
+        dodgerblue	83.87%,
+        lightskyblue	87.1%,
+        royalblue	90.32%,
+        deepskyblue	93.55%,
+        cornflowerblue	96.77%,
+        dodgerblue	100%,
+      );
     }
   }
 }
@@ -189,6 +223,7 @@ mat-tab-group {
   align-items: center;
   justify-content: center;
   z-index: 99;
+  pointer-events: none;
 
   ::ng-deep .mat-icon {
     width: 192px;
