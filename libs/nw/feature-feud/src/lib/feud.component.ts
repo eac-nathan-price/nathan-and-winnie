@@ -79,17 +79,25 @@ export class FeudComponent implements OnInit {
   );
   rapidRound = computed(() => this.currGame()?.rounds.find((r) => r.type === 'rapid'));
 
-  endAudio = () => new Audio('media/family-feud-end.mp3');
-  noAudio = () => new Audio('media/family-feud-no.mp3');
-  yesAudio = () => new Audio('media/family-feud-yes.mp3');
+  playEnd() {
+    const audio = new Audio('media/family-feud-end.mp3');
+    audio.play();
+  }
+  playNo() {
+    const audio = new Audio('media/family-feud-no.mp3');
+    audio.currentTime = 1;
+    audio.play();
+  }
+  playYes() {
+    const audio = new Audio('media/family-feud-yes.mp3');
+    audio.play();
+  }
   nos = signal<number>(0);
   noTimeout: ReturnType<typeof setTimeout> | null = null;
 
   no(num: number) {
     if (this.noTimeout) clearTimeout(this.noTimeout);
-    const audio = this.noAudio();
-    audio.currentTime = 1;
-    audio.play();
+    this.playNo();
     setTimeout(() => {
       this.nos.set(num);
     }, 200);
@@ -99,7 +107,7 @@ export class FeudComponent implements OnInit {
   }
 
   end() {
-    this.endAudio().play();
+    this.playEnd();
   }
 
   openWindow(windowType?: WindowType) {
@@ -126,15 +134,15 @@ export class FeudComponent implements OnInit {
 
   toggleAnswer(i: number) {
     if (!this.activeQuestion || !this.activeRound) return;
+    if (!this.activeAnswers[i]) this.playYes();
     this.activeAnswers[i] = !this.activeAnswers[i];
-    if (this.activeAnswers[i]) this.yesAudio().play();
     if (!this.potEnabled) return;
     this.activePot += (this.activeAnswers[i] ? 1 : -1) * this.activeQuestion.answers[i].points * this.activeRound.multiplier;
   }
 
   award(team: Team) {
     team.score += this.activePot;
-    this.yesAudio().play();
+    this.playYes();
   }
 
   makeTitle(round: Round) {
@@ -149,7 +157,7 @@ export class FeudComponent implements OnInit {
     this.rapid[i].revealed = true;
     this.activePot += this.rapid[i].points;
     if (this.rapid[i].points === 0) this.no(1);
-    else this.yesAudio().play();
+    else this.playYes();
   }
 
   getRapidPoints() {
