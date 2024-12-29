@@ -1,72 +1,3 @@
-<!-- <mat-form-field>
-  <mat-label>Select Game</mat-label>
-  <mat-select [(value)]="game">
-    @for (game of games; track game) {
-      <mat-option [value]="game">
-        {{ game.title }}
-      </mat-option>
-    }
-  </mat-select>
-</mat-form-field>
-
-@if (game) {
-  <mat-form-field>
-    <mat-label>Select Round</mat-label>
-    <mat-select [(value)]="selectedRound">
-      @for (round of game.rounds; track round; let i = $index) {
-        <mat-option [value]="round">
-          Round {{i + 1}}
-        </mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-
-  @if (selectedRound) {
-    <mat-form-field>
-      <mat-label>Select Question</mat-label>
-      <mat-select [(value)]="selectedQuestion">
-        @for (question of selectedRound.questions; track question) {
-          <mat-option [value]="question">
-            {{ question.text }}
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    @if (selectedQuestion) {
-      <div class="answers-grid" [style.grid-template-rows]="'repeat(' + gridRows + ', auto)'">
-        @for (answer of selectedQuestion.answers; track answer) {
-          <div class="answer-item">
-            <span>{{ answer.text }} ({{ answer.points * selectedRound.multiplier }})</span>
-          </div>
-        }
-      </div>
-    }
-  }
-}
-
-<form [formGroup]="teamsForm">
-  <div formArrayName="teams">
-    <div *ngFor="let team of teams.controls; let i=index" [formGroupName]="i" class="team-row">
-      <mat-form-field>
-        <input matInput formControlName="name" placeholder="Team Name">
-      </mat-form-field>
-      
-      <mat-form-field>
-        <input matInput type="number" formControlName="score" placeholder="Score">
-      </mat-form-field>
-      
-      <button mat-icon-button (click)="removeTeam(i)">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  </div>
-  
-  <button mat-button (click)="addTeam()">
-    <mat-icon>add</mat-icon>
-    Add Team
-  </button>
-</form> -->
 @let game_ = currGame();
 @if (!game_) {
   <div class="games">
@@ -164,60 +95,86 @@
   
         @for (round of game_.rounds; track round;) {
           <mat-tab [label]="round.title">
-            @if (!activeQuestion) {
-              <div class="tab colors">
-                @if (round.type === 'tossup') {
-                  <h1>{{ round.title }} - {{ round.multiplier }}x Points</h1>
-                } @else if (round.type === 'tiebreak') {
-                  <h1>{{ round.title }} - Highest Score Wins</h1>
-                } @else if (round.type === 'rapid') {
-                  <h1>{{ round.title }}</h1>
-                }
-                @for (question of round.questions; track question) {
-                  <div class="question" [ngClass]="{'internal-only': round.type === 'rapid'}">
-                    <h2>{{ question.text }}</h2>
-                    @if (round.type === 'tossup') {
-                      @for (team of teams; track team) {
-                        <button mat-flat-button class="internal-only" (click)="activate(round, question, team)">{{ team.name }}</button>
+            <div class="tab round">
+              <div class="content">
+                @if (!activeQuestion) {
+                  <div class="round-title">{{makeTitle(round)}}</div>       
+                  @for (question of round.questions; track question; let qi = $index) {
+                    <div class="question" [ngClass]="{'internal-only': round.type === 'rapid'}">
+                      <h2>{{ question.text }}</h2>
+                      @if (round.type === 'tossup') {
+                        @for (team of teams; track team) {
+                          <button mat-flat-button class="internal-only" (click)="activate(round, question, team)">{{ team.name }}</button>
+                        }
+                      } @else if (round.type === 'tiebreak') {
+                        <button mat-flat-button class="internal-only" (click)="activate(round, question)">Tiebreak</button>
                       }
-                    } @else if (round.type === 'tiebreak') {
-                      <button mat-flat-button class="internal-only">Tiebreak</button>
-                    }
-                  </div>
-                }
-              </div>
-            } @else {
-              <div class="tab">
-                <div class="form-row internal-only">
-                  <button mat-flat-button (click)="deactivate()">
-                    <mat-icon>arrow_back</mat-icon>
-                    <span>Back</span>
-                  </button>
-                  @for (team of teams; track team) {
-                    <button mat-flat-button (click)="award(team)"> Award {{ team.name }}</button>
-                  }
-                </div>
-                <h2>{{ activeQuestion.text }}</h2>
-                <h3>{{ activePot }}</h3>
-                <div class="answers">
-                  @for (answer of activeQuestion.answers; track answer; let i = $index) {
-                    <button class="answer" [ngClass]="{'internal-only': !activeAnswers[i]}" (click)="toggleAnswer(i)">
-                      @if (!activeAnswers[i]) {
-                        <span class="internal-only warn">(closed)</span>
-                      }
-                      <span>{{ answer.text }}</span>
-                      <span>&nbsp;&mdash;&nbsp;</span>
-                      <span>{{ answer.points * round.multiplier }}</span>
-                    </button>
-                    @if (!activeAnswers[i]) {
-                      <div class="answer external-only">
-                        <span>{{ i + 1 }}</span>
+                    </div>
+                    @if (round.type === 'rapid') {
+                      <div class="rapid internal-only">
+                        <div class="form-row">
+                          <div>{{qi}}</div>
+                          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <input matInput [(ngModel)]="rapid[qi].answer" placeholder="Answer">
+                          </mat-form-field>
+                          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <input matInput type="number" [(ngModel)]="rapid[qi].points" placeholder="Points">
+                          </mat-form-field>
+                        </div>
+                        @for (answer of question.answers; track answer) {
+                          <div class="rapid-answer">
+                            <span>{{ answer.text }}</span>
+                            <span>{{ answer.points * round.multiplier }}</span>
+                          </div>
+                        }
                       </div>
                     }
                   }
-                </div>
+                } @else {
+                  <div class="form-row internal-only">
+                    <button mat-flat-button (click)="deactivate()">
+                      <mat-icon>arrow_back</mat-icon>
+                      <span>Back</span>
+                    </button>
+                    @for (team of teams; track team) {
+                      <button mat-flat-button (click)="award(team)"> Award {{ team.name }}</button>
+                    }
+                    <mat-slide-toggle [(ngModel)]="potEnabled">Pot Enabled</mat-slide-toggle>
+                  </div>
+                  <div class="top"></div>
+                  <h2>{{ activeQuestion.text }}</h2>
+                  @if (round.type !== 'tiebreak') {
+                    <div class="pot">{{ activePot }}</div>
+                  }
+                  <div class="answers">
+                    @for (answer of activeQuestion.answers; track answer; let i = $index) {
+                      <div class="answer">
+                        <button mat-button class="internal-only" (click)="toggleAnswer(i)">
+                          @if (!activeAnswers[i]) {
+                            <span>OPEN</span>
+                          } @else {
+                            <span class="warn">CLOSE</span>
+                          }
+                        </button>
+                        <div class="info" [ngClass]="{'internal-only': !activeAnswers[i]}">
+                          <span class="text">{{ answer.text }}</span>
+                          <span class="points">{{ answer.points * round.multiplier }}</span>
+                        </div>
+                        @if (!activeAnswers[i]) {
+                          <div class="index external-only">
+                            <span>{{ i + 1 }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @if (activeAnswers.length % 2 === 1) {
+                      <div class="answer"></div>
+                    }
+                  </div>
+                  <div class="bot"></div>
+                }
               </div>
-            }
+            </div>
           </mat-tab>
         }
       </mat-tab-group>

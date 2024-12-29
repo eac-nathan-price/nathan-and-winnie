@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import { WindowComponent, WindowType } from '@nathan-and-winnie/ui-window';
@@ -34,6 +35,7 @@ import { hf24 } from './data/hf24';
     MatSelectModule,
     MatOptionModule,
     MatIconModule,
+    MatSlideToggleModule,
     MatTabsModule,
     ReactiveFormsModule,
     RouterModule,
@@ -51,11 +53,13 @@ export class FeudComponent implements OnInit {
 
   games = [hf24];
   password = '';
+  potEnabled = true;
   tabIndex = 0;
   teams: Team[] = [
     { name: 'Team 1', score: 0 },
     { name: 'Team 2', score: 0 },
   ];
+  rapid: {answer: string, points: number}[] = new Array(8).fill({}).map(() => ({answer: '', points: 0}));
   
   activeAnswers: boolean[] = [];
   activePot = 0;
@@ -68,24 +72,27 @@ export class FeudComponent implements OnInit {
     this.games.find((g) => g.id === this.params()?.['id']),
   );
 
-  endAudio = new Audio('media/family-feud-end.mp3');
-  noAudio = new Audio('media/family-feud-no.mp3');
-  yesAudio = new Audio('media/family-feud-yes.mp3');
+  endAudio = () => new Audio('media/family-feud-end.mp3');
+  noAudio = () => new Audio('media/family-feud-no.mp3');
+  yesAudio = () => new Audio('media/family-feud-yes.mp3');
   nos = signal<number>(0);
+  noTimeout: ReturnType<typeof setTimeout> | null = null;
 
   no(num: number) {
-    this.noAudio.currentTime = 1;
-    this.noAudio.play();
+    if (this.noTimeout) clearTimeout(this.noTimeout);
+    const audio = this.noAudio();
+    audio.currentTime = 1;
+    audio.play();
     setTimeout(() => {
       this.nos.set(num);
     }, 200);
-    setTimeout(() => {
+    this.noTimeout = setTimeout(() => {
       this.nos.set(0);
-    }, 1500);
+    }, 1700);
   }
 
   end() {
-    this.endAudio.play();
+    this.endAudio().play();
   }
 
   openWindow(windowType?: WindowType) {
@@ -107,18 +114,28 @@ export class FeudComponent implements OnInit {
     this.activeRound = round;
     this.activeTeam = team;
     this.activePot = 0;
+    this.potEnabled = true;
   }
 
   toggleAnswer(i: number) {
     if (!this.activeQuestion || !this.activeRound) return;
     this.activeAnswers[i] = !this.activeAnswers[i];
+    if (this.activeAnswers[i]) this.yesAudio().play();
+    if (!this.potEnabled) return;
     this.activePot += (this.activeAnswers[i] ? 1 : -1) * this.activeQuestion.answers[i].points * this.activeRound.multiplier;
-    if (this.activePot) this.yesAudio.play();
   }
 
   award(team: Team) {
     team.score += this.activePot;
-    this.yesAudio.play();
+    this.yesAudio().play();
+  }
+
+  makeTitle(round: Round) {
+    if (round.type === 'tiebreak') return `${round.title} - Highest Score Wins`;
+    else if (round.type !== 'tossup') return round.title;
+    const words = ['', 'Normal', 'Double', 'Triple', 'Quadruple', 'Quintuple'];
+    if (Number.isInteger(round.multiplier) && words[round.multiplier]) return `${round.title} - ${words[round.multiplier]} Points`;
+    return `${round.title} - ${round.multiplier}x Points`;
   }
 
   ngOnInit() {
