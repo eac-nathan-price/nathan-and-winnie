@@ -125,9 +125,9 @@
     </div>
 
     <ng-template #template>
-      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" [selectedIndex]="tabIndex" (selectedTabChange)="tabIndex = $event.index">
+      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" [selectedIndex]="tabIndex" (selectedTabChange)="deactivate($event)">
         <mat-tab label="Title">
-          <div class="col cone">
+          <div class="tab cone">
             <div class="title">
               <div class="title-row">
                 @for (text of game_.title1; track text) {
@@ -160,27 +160,60 @@
   
         @for (round of game_.rounds; track round;) {
           <mat-tab [label]="round.title">
-            <div class="col">
-              @if (round.type === 'tossup') {
-                <h1>{{ round.title }} - {{ round.multiplier }}x Points</h1>
-              } @else if (round.type === 'tiebreak') {
-                <h1>{{ round.title }} - Highest Score Wins</h1>
-              } @else if (round.type === 'rapid') {
-                <h1>{{ round.title }}</h1>
-              }
-              @for (question of round.questions; track question) {
-                <div class="question">
-                  <h2>{{ question.text }}</h2>
-                  @if (round.type === 'tossup') {
-                    @for (team of teams; track team) {
-                      <button mat-flat-button class="internal-only">{{ team.name }}</button>
+            @if (!activeQuestion) {
+              <div class="tab colors">
+                @if (round.type === 'tossup') {
+                  <h1>{{ round.title }} - {{ round.multiplier }}x Points</h1>
+                } @else if (round.type === 'tiebreak') {
+                  <h1>{{ round.title }} - Highest Score Wins</h1>
+                } @else if (round.type === 'rapid') {
+                  <h1>{{ round.title }}</h1>
+                }
+                @for (question of round.questions; track question) {
+                  <div class="question" [ngClass]="{'internal-only': round.type === 'rapid'}">
+                    <h2>{{ question.text }}</h2>
+                    @if (round.type === 'tossup') {
+                      @for (team of teams; track team) {
+                        <button mat-flat-button class="internal-only" (click)="activate(round, question, team)">{{ team.name }}</button>
+                      }
+                    } @else if (round.type === 'tiebreak') {
+                      <button mat-flat-button class="internal-only">Tiebreak</button>
                     }
-                  } @else if (round.type === 'tiebreak') {
-                    <button mat-flat-button class="internal-only">Tiebreak</button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="tab">
+                <div class="form-row internal-only">
+                  <button mat-flat-button (click)="deactivate()">
+                    <mat-icon>arrow_back</mat-icon>
+                    <span>Back</span>
+                  </button>
+                  @for (team of teams; track team) {
+                    <button mat-flat-button (click)="award(team)"> Award {{ team.name }}</button>
                   }
                 </div>
-              }
-            </div>
+                <h2>{{ activeQuestion.text }}</h2>
+                <h3>{{ activePot }}</h3>
+                <div class="answers">
+                  @for (answer of activeQuestion.answers; track answer; let i = $index) {
+                    <button class="answer" [ngClass]="{'internal-only': !activeAnswers[i]}" (click)="toggleAnswer(i)">
+                      @if (!activeAnswers[i]) {
+                        <span class="internal-only">(closed)</span>
+                      }
+                      <span>{{ answer.text }}</span>
+                      <span>&nbsp;&mdash;&nbsp;</span>
+                      <span>{{ answer.points * round.multiplier }}</span>
+                    </button>
+                    @if (!activeAnswers[i]) {
+                      <div class="answer external-only">
+                        <span>{{ i + 1 }}</span>
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            }
           </mat-tab>
         }
       </mat-tab-group>
