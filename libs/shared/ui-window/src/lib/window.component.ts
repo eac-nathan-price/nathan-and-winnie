@@ -22,6 +22,7 @@ import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
   `,
 })
 export class WindowComponent implements AfterViewInit, OnDestroy {
+  init = input(true);
   mirror = input(false);
   windowTitle = input('');
   template = input.required<TemplateRef<unknown>>();
@@ -88,21 +89,15 @@ export class WindowComponent implements AfterViewInit, OnDestroy {
   }
 
   public reopenWindow() {
-    if (!this.externalWindow || this.externalWindow.closed) {
-      this.openWindow();
-    }
+    if (!this.externalWindow || this.externalWindow.closed) this.openWindow();
   }
 
   ngAfterViewInit() {
-    this.openWindow();
+    if (this.init()) this.openWindow();
   }
 
   ngOnDestroy() {
-    if (this.portalOutlet) {
-      this.portalOutlet.dispose();
-    }
-    if (this.externalWindow) {
-      this.externalWindow.close();
-    }
+    if (this.portalOutlet) this.portalOutlet.dispose();
+    if (this.externalWindow) this.externalWindow.close();
   }
 }

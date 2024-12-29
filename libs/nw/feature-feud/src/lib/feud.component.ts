@@ -55,6 +55,7 @@ export class FeudComponent implements OnInit {
     { name: 'Team 1', score: 0 },
     { name: 'Team 2', score: 0 },
   ];
+  tabIndex = 0;
 
   params = toSignal(this.route.params);
   currGame = computed(() =>

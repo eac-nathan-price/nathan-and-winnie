@@ -125,7 +125,7 @@
     </div>
 
     <ng-template #template>
-      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
+      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" [selectedIndex]="tabIndex" (selectedTabChange)="tabIndex = $event.index">
         <mat-tab label="Title">
           <div class="col">
             <div class="title">
@@ -196,6 +196,6 @@
         }
       </mat-tab-group>
     </ng-template>
-    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template" class="internal"></lib-window>
+    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template" [init]="false" class="internal"></lib-window>
   }
 }
