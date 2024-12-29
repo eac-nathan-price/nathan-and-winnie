@@ -87,7 +87,7 @@
       </mat-form-field>
     </div>
   } @else {
-    <lib-window [windowTitle]="game_.title" [mirror]="true">
+    <ng-template #template>
       <div class="col">
         <div class="title">
           <div class="title-row">
@@ -117,7 +117,8 @@
           }
         </div>
       </div>
-    </lib-window>
+    </ng-template>
+    <lib-window [windowTitle]="game_.title" [mirror]="true" [template]="template"></lib-window>
     
     <div class="form-row">
       <button mat-flat-button (click)="reopenWindow()">

@@ -6,7 +6,6 @@ import {
   input,
   OnDestroy,
   TemplateRef,
-  viewChild,
   ViewContainerRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -17,24 +16,19 @@ import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <ng-template #templatePortal>
-      <ng-container>
-        <ng-content></ng-content>
-      </ng-container>
-    </ng-template>
-
     @if (mirror()) {
-      <!-- <ng-container *ngTemplateOutlet="templatePortal"></ng-container> -->
+      <ng-container *ngTemplateOutlet="template()"></ng-container>
     }
   `,
 })
 export class WindowComponent implements AfterViewInit, OnDestroy {
   mirror = input(false);
   windowTitle = input('');
+  template = input.required<TemplateRef<unknown>>();
   
   private injector = inject(Injector);
+  private vcr = inject(ViewContainerRef);
 
-  templateRef = viewChild.required<TemplateRef<unknown>>('templatePortal');
   private externalWindow: Window | null = null;
   private portalOutlet: DomPortalOutlet | null = null;
 
@@ -51,7 +45,7 @@ export class WindowComponent implements AfterViewInit, OnDestroy {
     });
 
     this.copyStyles();
-    this.createPortal();
+    this.createPortal(this.externalWindow.document.body, this.template());
   }
 
   private copyStyles() {
@@ -85,15 +79,9 @@ export class WindowComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private createPortal() {
-    if (!this.externalWindow) return;
-
-    this.portalOutlet = new DomPortalOutlet(
-      this.externalWindow.document.body,
-      this.injector
-    );
-
-    const portal = new TemplatePortal(this.templateRef(), this.injector.get(ViewContainerRef));
+  private createPortal(element: HTMLElement, template: TemplateRef<unknown>) {
+    this.portalOutlet = new DomPortalOutlet(element, this.injector);
+    const portal = new TemplatePortal(template, this.vcr);
     this.portalOutlet.attach(portal);
   }
 
