@@ -6,7 +6,7 @@ export const hf24 = {
   title1: ['H', 'anukkah'],
   title2: ['F', 'eud'],
   subtitle: ['2024'],
-  password: 'hf24',
+  //password: 'hf24',
   rounds: [
     {
       title: 'Round 1',
