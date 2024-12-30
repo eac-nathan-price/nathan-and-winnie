@@ -5,7 +5,7 @@
     @for (game of games; track game) {
       <ul>
         <li>
-          <a [routerLink]="['/feud', { id: game.id }]">{{ game.title }}</a>
+          <a [routerLink]="['/feud']" [queryParams]="{ id: game.id }">{{ game.title }}</a>
         </li>
       </ul>
     }

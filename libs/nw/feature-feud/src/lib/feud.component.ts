@@ -73,7 +73,7 @@ export class FeudComponent implements OnInit {
   activeTeam: Team | null = null;
   activeQuestion: Question | null = null;
 
-  params = toSignal(this.route.params);
+  params = toSignal(this.route.queryParams);
   currGame = computed(() =>
     this.games.find((g) => g.id === this.params()?.['id']),
   );
