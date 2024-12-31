@@ -1,9 +1,9 @@
 @let grid_ = grid();
 @if (grid_) {
   <div class="grid">
-    @for (row of grid_; track row) {
+    @for (row of grid_; track $index) {
       <div class="row">
-        @for (box of row; track box) {
+        @for (box of row; track $index) {
           <span class="box" [class.x]="box" [class.o]="!box"></span>
         }
       </div>

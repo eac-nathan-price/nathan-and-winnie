@@ -23,9 +23,9 @@
     "@angular/platform-server": "~19.0.0",
     "@angular/router": "~19.0.3",
     "@angular/ssr": "~19.0.4",
-    "@types/qrcode-svg": "^1.1.5",
+    "@types/qrcode": "^1.5.5",
     "express": "~4.18.2",
-    "qrcode-svg": "^1.1.0",
+    "qrcode": "^1.5.4",
     "rxjs": "~7.8.1",
     "typescript": "~5.6.2",
     "zone.js": "~0.15.0"

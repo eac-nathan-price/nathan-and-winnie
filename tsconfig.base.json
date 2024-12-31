@@ -22,7 +22,8 @@
       ],
       "@nathan-and-winnie/feud": ["libs/nw/feature-feud/src/index.ts"],
       "@nathan-and-winnie/ui-window": ["libs/shared/ui-window/src/index.ts"]
-    }
+    },
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["node_modules", "tmp"]
 }

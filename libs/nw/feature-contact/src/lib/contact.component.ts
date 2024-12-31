@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as QRCode from 'qrcode-svg';
+import QRCode from 'qrcode';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 
 
@@ -68,19 +68,19 @@ END:VCARD`;
   qr = computed(() => {
     const vcard = this.vcard();
     if (!vcard) return null;
-    return new QRCode(vcard);
+    return QRCode.create(vcard);
   });
 
   grid = computed(() => {
     const qr = this.qr();
     if (!qr) return null;
-    const modules = qr.qrcode.modules;
-    const length = modules.length;
+    const modules = qr.modules;
+    const size = modules.size;
     const grid = [];
-    for (let y = 0; y < length; y++) {
+    for (let y = 0; y < size; y++) {
       const row = [];
-      for (let x = 0; x < length; x++) {
-        row.push(modules[x][y]);
+      for (let x = 0; x < size; x++) {
+        row.push(modules.get(x, y));
       }
       grid.push(row);
     }
@@ -97,7 +97,7 @@ END:VCARD`;
       phone: this.phone,
     };
     const encoded = btoa(JSON.stringify(data));
-    this.router.navigate(['/contact'], { queryParams: { data: encoded } });
+    this.router.navigate(['/vcard'], { queryParams: { data: encoded } });
   }
 
   constructor() {
