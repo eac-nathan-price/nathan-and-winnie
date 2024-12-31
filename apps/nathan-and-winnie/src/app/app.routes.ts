@@ -33,9 +33,9 @@ export const pages: Page[] = [
     tags: ['game']
   },
   {
-    path: 'contact',
+    path: 'vcard',
     component: ContactComponent,
-    title: 'Contact',
+    title: 'VCard',
     subtitle: 'July 2024',
     description: 'Create a digital contact card with QR code',
     icon: 'person',

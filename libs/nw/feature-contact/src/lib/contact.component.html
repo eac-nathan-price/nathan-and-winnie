@@ -1,1 +1,38 @@
-<p>contact works!</p>
+@let grid_ = grid();
+@if (grid_) {
+  <div class="grid">
+    @for (row of grid_; track row) {
+      <div class="row">
+        @for (box of row; track box) {
+          <span class="box" [class.x]="box" [class.o]="!box"></span>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <mat-form-field>
+    <mat-label>Company</mat-label>
+    <input matInput [(ngModel)]="company" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>First Name</mat-label>
+    <input matInput [(ngModel)]="firstName" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Last Name</mat-label>
+    <input matInput [(ngModel)]="lastName" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Position</mat-label>
+    <input matInput [(ngModel)]="position" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Email</mat-label>
+    <input matInput [(ngModel)]="email" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Phone</mat-label>
+    <input matInput [(ngModel)]="phone" />
+  </mat-form-field>
+  <button mat-raised-button (click)="generate()">Generate</button>
+}
