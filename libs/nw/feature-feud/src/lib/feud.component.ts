@@ -80,16 +80,16 @@ export class FeudComponent implements OnInit {
   rapidRound = computed(() => this.currGame()?.rounds.find((r) => r.type === 'rapid'));
 
   playEnd() {
-    const audio = new Audio('media/family-feud-end.mp3');
+    const audio = new Audio('assets/feud/end.mp3');
     audio.play();
   }
   playNo() {
-    const audio = new Audio('media/family-feud-no.mp3');
+    const audio = new Audio('assets/feud/no.mp3');
     audio.currentTime = 1;
     audio.play();
   }
   playYes() {
-    const audio = new Audio('media/family-feud-yes.mp3');
+    const audio = new Audio('assets/feud/yes.mp3');
     audio.play();
   }
   nos = signal<number>(0);
