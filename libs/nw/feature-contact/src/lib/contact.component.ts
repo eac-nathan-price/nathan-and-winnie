@@ -17,6 +17,7 @@ type ContactInfo = {
   position: string;
   email: string;
   phone: string;
+  logo: string;
 }
 
 @Component({
@@ -42,6 +43,7 @@ export class ContactComponent implements OnDestroy {
   position = '';
   email = '';
   phone = '';
+  logo = '';
 
   params = toSignal(this.route.queryParams);
 
@@ -95,6 +97,7 @@ END:VCARD`;
       position: this.position,
       email: this.email,
       phone: this.phone,
+      logo: this.logo
     };
     const encoded = btoa(JSON.stringify(data));
     this.router.navigate(['/vcard'], { queryParams: { data: encoded } });

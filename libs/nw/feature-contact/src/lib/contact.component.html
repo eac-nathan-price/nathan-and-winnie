@@ -1,38 +1,70 @@
 @let grid_ = grid();
 @if (grid_) {
-  <div class="grid">
-    @for (row of grid_; track $index) {
-      <div class="row">
-        @for (box of row; track $index) {
-          <span class="box" [class.x]="box" [class.o]="!box"></span>
+  <div class="card">
+    <div class="logo">
+      @if (data()?.logo) {
+        <img [src]="data()?.logo" alt="Company logo" />
+      }
+    </div>
+    <div class="text">
+      @if (data()?.firstName || data()?.lastName) {
+        <div class="name">
+          <span>{{ data()?.firstName }}</span>
+          <span>{{ data()?.lastName }}</span>
+        </div>
+      }
+      @if (data()?.position) {
+        <div class="position">{{ data()?.position }}</div>
+      }
+      @if (data()?.email) {
+        <div class="email">{{ data()?.email }}</div>
+      }
+      @if (data()?.phone) {
+        <div class="phone">{{ data()?.phone }}</div>
+      }
+    </div>
+    <div class="rainbow">
+      <div class="qr">
+        @for (row of grid_; track $index) {
+          <div class="row">
+            @for (bit of row; track $index) {
+              <span class="bit" [class.x]="bit" [class.o]="!bit"></span>
+            }
+          </div>
         }
       </div>
-    }
+    </div>
   </div>
 } @else {
-  <mat-form-field>
-    <mat-label>Company</mat-label>
-    <input matInput [(ngModel)]="company" />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>First Name</mat-label>
-    <input matInput [(ngModel)]="firstName" />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Last Name</mat-label>
-    <input matInput [(ngModel)]="lastName" />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Position</mat-label>
-    <input matInput [(ngModel)]="position" />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Email</mat-label>
-    <input matInput [(ngModel)]="email" />
-  </mat-form-field>
-  <mat-form-field>
-    <mat-label>Phone</mat-label>
-    <input matInput [(ngModel)]="phone" />
-  </mat-form-field>
-  <button mat-raised-button (click)="generate()">Generate</button>
+  <div class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Company</mat-label>
+      <input matInput [(ngModel)]="company" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>First Name</mat-label>
+      <input matInput [(ngModel)]="firstName" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Last Name</mat-label>
+      <input matInput [(ngModel)]="lastName" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Position</mat-label>
+      <input matInput [(ngModel)]="position" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput [(ngModel)]="email" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Phone</mat-label>
+      <input matInput [(ngModel)]="phone" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Logo URL</mat-label>
+      <input matInput [(ngModel)]="logo" />
+    </mat-form-field>
+    <button mat-flat-button (click)="generate()">Generate</button>
+  </div>
 }
