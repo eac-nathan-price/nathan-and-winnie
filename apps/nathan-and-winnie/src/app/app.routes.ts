@@ -1,9 +1,21 @@
 import { Route } from '@angular/router';
 import { HomeComponent } from './home/home.component';
+import { AntComponent } from '@nathan-and-winnie/ant';
+import { BuzzerComponent } from '@nathan-and-winnie/buzzer';
 import { CardifyComponent } from '@nathan-and-winnie/cardify';
-import { FeudComponent } from '@nathan-and-winnie/feud';
 import { ContactComponent } from '@nathan-and-winnie/contact';
+import { CountdownComponent } from '@nathan-and-winnie/countdown';
+import { DiceComponent } from '@nathan-and-winnie/dice';
+import { FeudComponent } from '@nathan-and-winnie/feud';
+import { ForewarnedComponent } from '@nathan-and-winnie/forewarned';
+import { PdfeedbackComponent } from '@nathan-and-winnie/pdfeedback';
 import { PegComponent } from '@nathan-and-winnie/peg';
+import { RecipesComponent } from '@nathan-and-winnie/recipes';
+import { RewindComponent } from '@nathan-and-winnie/rewind';
+import { RickyComponent } from '@nathan-and-winnie/ricky';
+import { ScrabbleComponent } from '@nathan-and-winnie/scrabble';
+import { TaskmasterComponent } from '@nathan-and-winnie/taskmaster';
+
 export type Page = Route & {
   title: string,
   subtitle?: string,
@@ -16,7 +28,7 @@ export type Page = Route & {
 export const pages: Page[] = [
   {
     path: 'buzzer',
-    component: HomeComponent,
+    component: BuzzerComponent,
     title: 'Buzzer',
     subtitle: '2025',
     description: 'Multiplayer wireless trivia buzzer',
@@ -34,7 +46,7 @@ export const pages: Page[] = [
   },
   {
     path: 'rewind',
-    component: HomeComponent,
+    component: RewindComponent,
     title: 'Rewind',
     subtitle: 'January 2025',
     description: 'Watching TV like its 2005',
@@ -52,7 +64,7 @@ export const pages: Page[] = [
   },
   {
     path: 'scrabble',
-    component: HomeComponent,
+    component: ScrabbleComponent,
     title: 'Scrabble',
     subtitle: 'November 2024',
     description: 'Scrabble scorekeeper and timer',
@@ -61,7 +73,7 @@ export const pages: Page[] = [
   },
   {
     path: 'countdown',
-    component: HomeComponent,
+    component: CountdownComponent,
     title: 'Countdown',
     subtitle: 'October 2024',
     description: 'Anagram and arithmetic game',
@@ -79,7 +91,7 @@ export const pages: Page[] = [
   },
   {
     path: 'gmtk24',
-    component: HomeComponent,
+    component: AntComponent,
     title: 'Ant', //'Dichthadiiformic',
     subtitle: 'August 2024',
     description: 'GMTK game jam: built to scale',
@@ -97,7 +109,7 @@ export const pages: Page[] = [
   },
   {
     path: 'forewarned',
-    component: HomeComponent,
+    component: ForewarnedComponent,
     title: 'Forewarned',
     subtitle: 'June 2024',
     description: 'Evidence matrix',
@@ -106,7 +118,7 @@ export const pages: Page[] = [
   },
   {
     path: 'pdfeedback',
-    component: HomeComponent,
+    component: PdfeedbackComponent,
     title: 'PDFeedback',
     subtitle: 'May 2024',
     description: 'Highlight & annotate a pdf',
@@ -115,7 +127,7 @@ export const pages: Page[] = [
   },
   {
     path: 'recipes',
-    component: HomeComponent,
+    component: RecipesComponent,
     title: 'Recipes',
     subtitle: 'April 2024',
     description: 'Vegan & gluten-free',
@@ -124,7 +136,7 @@ export const pages: Page[] = [
   },
   {
     path: 'taskmaster',
-    component: HomeComponent,
+    component: TaskmasterComponent,
     title: 'Taskmaster',
     subtitle: 'March 2024',
     description: 'Timer and tasks',
@@ -133,7 +145,7 @@ export const pages: Page[] = [
   },
   {
     path: 'dice',
-    component: HomeComponent,
+    component: DiceComponent,
     title: 'Dice',
     subtitle: 'February 2024',
     description: 'Rpg dice simulation & stats',
@@ -142,7 +154,7 @@ export const pages: Page[] = [
   },
   {
     path: 'ricky',
-    component: HomeComponent,
+    component: RickyComponent,
     title: 'Ricky',
     subtitle: 'January 2024',
     description: 'Little Ricky the Dog',
