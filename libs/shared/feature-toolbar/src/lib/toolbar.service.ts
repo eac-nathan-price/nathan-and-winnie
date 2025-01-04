@@ -11,6 +11,7 @@ export type ToolbarItem = {
   providedIn: 'root',
 })
 export class ToolbarService {
+  enabled = true;
   items: ToolbarItem[] = [
     {
       icon: 'home',
@@ -19,8 +20,6 @@ export class ToolbarService {
       route: '/',
     },
   ];
-
-  enabled = true;
 
   public patch(index: number, item?: ToolbarItem) {
     this.items.splice(

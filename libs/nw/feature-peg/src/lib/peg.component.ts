@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import { BOARD, BOARDS, InitMessage, Move, Space, Step } from './data';
 
 @Component({
@@ -12,7 +13,9 @@ import { BOARD, BOARDS, InitMessage, Move, Space, Step } from './data';
   templateUrl: './peg.component.html',
   styleUrl: './peg.component.scss',
 })
-export class PegComponent {
+export class PegComponent implements OnInit {
+  toolbar = inject(ToolbarService);
+
   public boards = BOARDS;
   public selectedBoard = BOARD.CIRCLE;
   public solution: Step[] = [];
@@ -26,6 +29,15 @@ export class PegComponent {
     for (let i = 0; i < maxWorkers; i++) {
       this.workerPool.push(new Worker('./solver.worker.ts'));
     }
+  }
+
+  ngOnInit() {
+    this.toolbar.patch(1, {
+      icon: 'tactic',
+      label: 'Peg',
+      title: 'Peg',
+      route: '/peg',
+    });
   }
 
   cycle(space: Space) {

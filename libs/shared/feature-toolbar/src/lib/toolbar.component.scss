@@ -1,13 +1,17 @@
 mat-toolbar {
   gap: 24px;
 
-  > div {
+  .item {
     display: flex;
     align-items: center;
     user-select: none;
-  }
-}
 
-.text {
-  font-weight: bold;
+    .text {
+      font-weight: bold;
+    }
+  }
+
+  .spacer {
+    flex: auto;
+  }
 }

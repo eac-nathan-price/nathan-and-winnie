@@ -1,7 +1,7 @@
 @if (toolbar.enabled) {
   <mat-toolbar class="primary">
     @for (item of toolbar.items; track item.label) {
-      <div [title]="item.title" [routerLink]="item.route">
+      <div [title]="item.title" [routerLink]="item.route" class="item">
         @if (item.icon) {
           <button mat-icon-button>
             <mat-icon>{{ item.icon }}</mat-icon>
@@ -10,5 +10,7 @@
         <span [ngClass]="{ text: !item.icon }">{{ item.label }}</span>
       </div>
     }
+    <div class="spacer"></div>
+    <ng-content></ng-content>
   </mat-toolbar>
 }

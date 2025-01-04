@@ -1,2 +1,10 @@
-<lib-toolbar></lib-toolbar>
+<lib-toolbar>
+  <button mat-icon-button (click)="toggleMode()">
+    @if (mode === 'dark') {
+      <mat-icon>light_mode</mat-icon>
+    } @else {
+      <mat-icon>dark_mode</mat-icon>
+    }
+  </button>
+</lib-toolbar>
 <router-outlet></router-outlet>

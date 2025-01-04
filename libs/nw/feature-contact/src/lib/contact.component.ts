@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnDestroy } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -32,7 +32,7 @@ type ContactInfo = {
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss',
 })
-export class ContactComponent implements OnDestroy {
+export class ContactComponent implements OnInit, OnDestroy {
   route = inject(ActivatedRoute);
   router = inject(Router);
   toolbar = inject(ToolbarService);
@@ -106,6 +106,15 @@ END:VCARD`;
   constructor() {
     effect(() => {
       this.toolbar.enabled = !this.data();
+    });
+  }
+
+  ngOnInit() {
+    this.toolbar.patch(1, {
+      icon: 'person',
+      label: 'VCard',
+      title: 'VCard',
+      route: '/vcard',
     });
   }
 
