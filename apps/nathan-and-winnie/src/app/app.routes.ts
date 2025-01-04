@@ -80,11 +80,11 @@ export const pages: Page[] = [
   {
     path: 'gmtk24',
     component: HomeComponent,
-    title: 'Dichthadiiformic',
+    title: 'Ant', //'Dichthadiiformic',
     subtitle: 'August 2024',
     description: 'GMTK game jam: built to scale',
     icon: 'pest_control',
-    tags: ['Game']
+    tags: ['Game', 'Nonsense']
   },
   {
     path: 'vcard',
@@ -93,7 +93,7 @@ export const pages: Page[] = [
     subtitle: 'July 2024',
     description: 'Create a digital contact card with QR code',
     icon: 'person',
-    tags: ['Tool']
+    tags: ['Tool', 'Work']
   },
   {
     path: 'forewarned',
@@ -111,7 +111,7 @@ export const pages: Page[] = [
     subtitle: 'May 2024',
     description: 'Highlight & annotate a pdf',
     icon: 'feedback',
-    tags: ['Tool']
+    tags: ['Tool', 'Work']
   },
   {
     path: 'recipes',
@@ -129,7 +129,7 @@ export const pages: Page[] = [
     subtitle: 'March 2024',
     description: 'Timer and tasks',
     icon: 'mail',
-    tags: ['Game']
+    tags: ['Game', 'Aid']
   },
   {
     path: 'dice',
@@ -147,7 +147,7 @@ export const pages: Page[] = [
     subtitle: 'January 2024',
     description: 'Little Ricky the Dog',
     icon: 'pets',
-    tags: ['Blog']
+    tags: ['Blog', 'Nonsense']
   },
   {
     path: '',
