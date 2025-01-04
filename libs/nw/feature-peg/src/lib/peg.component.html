@@ -1,0 +1,51 @@
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px;">
+  <div style="display: flex; justify-content: space-around; width: 500px; align-items: center;">
+    <mat-form-field appearance="outline">
+      <mat-label>Board</mat-label>
+      <mat-select [(ngModel)]="selectedBoard">
+        @for (board of boards; track board) {
+          <mat-option [value]="board">{{ board.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button mat-flat-button color="primary" style="margin-bottom: 20px;" (click)="solve()">Solve</button>
+  </div>
+
+  <div style="position: relative; left: -250px; user-select: none;">
+    <div style="height: 500px; width: 500px; border: 4px solid black; position: absolute; background-color: #da08;">
+      @for (space of selectedBoard.spaces; track space) {
+        <div style="position: absolute; z-index: 1;" class="circle" 
+          (click)="cycle(space)" 
+          (keydown.enter)="cycle(space)"
+          tabindex="0"
+          role="button"
+          [ngStyle]="style(space)">
+          {{$index + 1}}
+        </div>
+      }
+    </div>
+
+    <svg width="500" height="500" style="border: 4px solid black; position: absolute;" xmlns="http://www.w3.org/2000/svg">
+      @for (space of selectedBoard.spaces; track space) {
+        @for (move of space.moves; track move) {
+          <path [attr.d]="path(space, move)" stroke="black" fill="transparent" />
+        }
+      }
+    </svg>
+  </div>
+
+  <div style="position: relative; top: 520px;">
+    @if (ready && solved) {
+      @for (step of solution; track step) {
+        <div style="display: flex; align-items: center;">
+          <div style="padding: 0px 8px 4px 0px; font-weight: bold;">{{$index + 1}})</div>
+          <div class="circle" [ngStyle]="{ 'background-color': selectedBoard.pieces[step.data] }">{{step.move[0] + 1}}</div>
+          <mat-icon>arrow_forward</mat-icon>
+          <div class="circle" [ngStyle]="{ 'background-color': selectedBoard.pieces[step.data] }">{{step.move[1] + 1}}</div>
+        </div>
+      }
+    } @else if (ready) {
+      <div>No solution found.</div>
+    }
+  </div>
+</div>

@@ -3,7 +3,7 @@ import { HomeComponent } from './home/home.component';
 import { CardifyComponent } from '@nathan-and-winnie/cardify';
 import { FeudComponent } from '@nathan-and-winnie/feud';
 import { ContactComponent } from '@nathan-and-winnie/contact';
-
+import { PegComponent } from '@nathan-and-winnie/peg';
 export type Page = Route & {
   title: string,
   subtitle?: string,
@@ -31,6 +31,15 @@ export const pages: Page[] = [
     description: 'Present custom Feud games',
     icon: 'co_present',
     tags: ['game']
+  },
+  {
+    path: 'peg',
+    component: PegComponent,
+    title: 'Peg',
+    subtitle: 'September 2024',
+    description: 'Peg solitaire solver',
+    icon: 'tactic',
+    tags: ['tool']
   },
   {
     path: 'vcard',

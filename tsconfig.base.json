@@ -21,6 +21,7 @@
         "libs/shared/feature-toolbar/src/index.ts"
       ],
       "@nathan-and-winnie/feud": ["libs/nw/feature-feud/src/index.ts"],
+      "@nathan-and-winnie/peg": ["libs/nw/feature-peg/src/index.ts"],
       "@nathan-and-winnie/ui-window": ["libs/shared/ui-window/src/index.ts"]
     },
     "allowSyntheticDefaultImports": true
