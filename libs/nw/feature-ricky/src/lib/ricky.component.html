@@ -1,1 +1,37 @@
-<p>ricky works!</p>
+<div class="container">
+  <div class="nav">
+    <div class="toc">
+      @let headings_ = headings();
+      @for (heading of headings_; track $index) {
+        <button mat-button [style.margin-left.px]="getOffset(heading)" (click)="scrollTo(heading, $index)">
+          {{ heading.nativeElement.textContent }}
+        </button>
+      }
+    </div>
+  </div>
+  <div #content class="content">
+    <div class="text">
+      <h1 #heading>Games</h1>
+
+      <h2 #heading>Rickle-ball</h2>
+      <p>We were hitting a pickleball back and forth, trying to get the longest rally, and Ricky got very excited and wanted to join in on the game. Unfortunately whenever he catches up with the ball and grabs it, it ends our rally. Thus he became our opponent in the game; however, I do think it made the game more fun. It also became immediately apparent that one additional rule would be needed as Ricky sprints directly behind the ball, the most important rule of Rickle-ball, don't let the paddles hit Ricky.</p>
+      <p><b>Scoring:</b> The humans get 1 point for every rally of the ball.<br><b>Record:</b> 31</p>
+
+      <h2 #heading>Sock</h2>
+      <p>Ricky grabbed a pair of old socks off of the floor and when we tried to grab them back he knew he had something good and ran circles around the house to keep them away from us. We tried just giving him old pairs of socks, but then when we didn't chase him he started crying because we weren't playing the game properly. Often he will try and hold as many socks as he can in his mouth at one time. Sometimes he tries to hide the socks in his crate or underneath blankets. But whenever he picks them up we have to chase after him and then have a tug-of-war for the sock if we're able to catch him.</p>
+      <p><b>Scoring:</b> Ricky gets 1 point for every sock in his possession at the end of game time.<br><b>Record:</b> 7</p>
+
+      <h2 #heading>Stair-ball</h2>
+      <p>Ricky started pushing balls down the stairs because he liked watching them bounce down. But it wasn't really fun for him to play fetch by himself so he wanted us to bring the balls back to him. We started throwing the balls back to the top of the stairs, and surprisingly Ricky was able to catch them right out of the air. Now instead of fetch he can play catch by staying at the top of the stairs and pushing the balls back down to us.</p>
+      <p><b>Scoring:</b> Ricky gets 1 point for every consecutive catch without the ball hitting the ground.<br><b>Record:</b> 12</p>
+
+      <h2 #heading>Spelunky</h2>
+      <p>For some reason Ricky kept pushing balls underneath the coffee table and tv cabinet, and then crying because the opening was too small for him to get the balls back. If we didn't get the ball back for him he would start barking. Sometimes the ball would be too far back for us to reach and we would have to push it out with an old curtain rod. This was very annoying and we couldn't convince him to stop, so we blocked the openings below the furniture with extra pieces of lumber. Then he discovered the guest beds in the office were also a small dark place that he could push balls into, but the gap was a little taller and if he squeezed himself all the way against the ground he could also get in there. But he often still has trouble getting the balls back on his own so we will have to shine a flashlight to help guide him.</p>
+      <p><b>Scoring:</b> Ricky loses 1 point for every toy currently lost under the bed.<br><b>Record:</b> -6</p>
+
+      <h2 #heading>Train</h2>
+      <p>I was walking around the house while wrapped in a blanket and Ricky decided to bite the end of the blanket that was dragging on the ground, thus holding it up like the train of a bridal dress. He continued holding the blanket up after I started running back and forth, so it became a game of will and endurance to see who would drop the blanket first.</p>
+      <p><b>Winner:</b> Last one holding the blanket.</p>
+    </div>
+  </div>
+</div>
