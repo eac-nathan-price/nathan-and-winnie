@@ -1,1 +1,44 @@
-<p>pdfeedback works!</p>
+<h2>PDF Reviewer</h2>
+
+<input (change)="onFileSelected()" type="file" id="file">
+
+<button (click)="onHighlight()">Add Selection</button>
+
+<button (click)="onExtract()">Extract Highlight</button>
+
+<button (click)="onDownload()">Download</button>
+
+<div id="outerContainer">
+  <div class="pdf-container">
+    <pdf-viewer
+      [src]="src"
+      [rotation]="0"
+      [original-size]="false"
+      [show-all]="true"
+      [fit-to-page]="false"
+      [zoom]="1"
+      [zoom-scale]="'page-width'"
+      [stick-to-page]="false"
+      [render-text]="true"
+      [external-link-target]="'blank'"
+      [autoresize]="true"
+      [show-borders]="true"
+      style="width: 100%; height: 600px;"
+    ></pdf-viewer>
+  </div>
+</div>
+
+<div #dropzone style="visibility:hidden; opacity:0" class="dropzone"></div>
+
+<div *ngFor="let highlight of highlights" 
+     (click)="highlight.toggleClass('highlight')"
+     (keydown.enter)="highlight.toggleClass('highlight')"
+     tabindex="0">
+  <span>
+    Page# {{highlight.page}}:
+  </span>
+  <span *ngFor="let line of highlight.nodes">
+    {{line.innerText}}
+  </span>
+  <input type="text" [(ngModel)]="highlight.note"/>
+</div>
