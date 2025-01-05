@@ -41,12 +41,13 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.toolbar.patch(1, {
       label: 'Nathan & Winnie',
+      title: 'Nathan & Winnie',
     });
   }
 
   getStripes(tags: string[]): string {
     const stripeWidth = 100 / tags.length;
-    return `linear-gradient(135deg, ${
+    return `linear-gradient(120deg, ${
       tags.map((tag, i) => 
         `${this.bg[tag]} ${i * stripeWidth}%, ${this.bg[tag]} ${(i + 1) * stripeWidth}%`
       ).join(', ')

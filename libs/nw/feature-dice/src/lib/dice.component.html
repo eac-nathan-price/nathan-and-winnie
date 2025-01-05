@@ -1,1 +1,46 @@
-<p>dice works!</p>
+<div class="dice-container">
+  <div class="dice-buttons">
+    <button *ngFor="let sides of availableDice" 
+            (click)="addDie(sides)" 
+            class="die-button">
+      d{{sides}}
+    </button>
+  </div>
+
+  <div class="dice-pool" *ngIf="dicePool.length > 0">
+    <h3>Dice Pool:</h3>
+    <div class="pool-dice">
+      <div *ngFor="let die of dicePool; let i = index" class="pool-die">
+        d{{die.sides}} 
+        <span *ngIf="die.result">[{{die.result}}]</span>
+        <button (click)="removeDie(i)" class="remove-die">×</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button (click)="rollDice()" class="roll-button">Roll Dice!</button>
+      <button (click)="clearPool()" class="clear-button">Clear Pool</button>
+      <button (click)="bulkRoll(10000)" class="bulk-roll-button">Roll 10,000 Times</button>
+    </div>
+
+    <div class="results" *ngIf="total > 0">
+      <h4>Total: {{total}}</h4>
+      <p>Moving Average: {{movingAverage | number:'1.0-1'}}</p>
+    </div>
+  </div>
+
+  <div class="roll-history" *ngIf="rollHistory.length > 0">
+    <h3>Roll History ({{rollHistory.length}} rolls)</h3>
+    <cdk-virtual-scroll-viewport itemSize="50" class="history-viewport">
+      <div *cdkVirtualFor="let roll of rollHistory.slice().reverse()" class="history-entry">
+        <span class="timestamp">{{roll.timestamp | date:'short'}}</span>
+        <span class="dice">
+          <span *ngFor="let die of roll.dice" class="history-die">
+            d{{die.sides}}[{{die.result}}]
+          </span>
+        </span>
+        <span class="total">Total: {{roll.total}}</span>
+      </div>
+    </cdk-virtual-scroll-viewport>
+  </div>
+</div>

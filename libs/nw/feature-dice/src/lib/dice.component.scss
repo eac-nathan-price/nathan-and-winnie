@@ -1,0 +1,156 @@
+.dice-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dice-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.die-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #45a049;
+  }
+}
+
+.dice-pool {
+  background-color: #80808040;
+  //color: var(--mat-sys-color-on-surface);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.pool-dice {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.pool-die {
+  background-color: #80808040;
+  //color: var(--mat-sys-color-on-surface);
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.remove-die {
+  border: none;
+  background: none;
+  color: red;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.roll-button {
+  padding: 10px 20px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #1976D2;
+  }
+}
+
+.clear-button {
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #d32f2f;
+  }
+}
+
+.results {
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.roll-history {
+  margin-top: 20px;
+  background-color: #80808040;
+  //color: var(--mat-sys-color-on-surface);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.history-viewport {
+  height: 300px;
+  width: 100%;
+}
+
+.history-entry {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 15px;
+  padding: 10px;
+  background-color: #80808040;
+  //color: var(--mat-sys-color-on-surface);
+  margin-bottom: 4px;
+  border-radius: 5px;
+  align-items: center;
+  height: 46px;
+}
+
+.timestamp {
+  //color: #666;
+  font-size: 0.9em;
+}
+
+.dice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-die {
+  background-color: #80808040;
+  //color: var(--mat-sys-color-on-surface-variant);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.total {
+  font-weight: bold;
+}
+
+.bulk-roll-button {
+  padding: 10px 20px;
+  background-color: #9c27b0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #7b1fa2;
+  }
+}
