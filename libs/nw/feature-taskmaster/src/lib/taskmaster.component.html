@@ -1,1 +1,36 @@
-<p>taskmaster works!</p>
+<div class="stopwatch">
+  <div class="display">
+    <div class="digit-group">
+      <ng-container *ngTemplateOutlet="digitTemplate; context: { $implicit: Math.floor(minutes / 10) }">
+      </ng-container>
+      <ng-container *ngTemplateOutlet="digitTemplate; context: { $implicit: minutes % 10 }">
+      </ng-container>
+      <div class="colon">
+        <div class="dots dots-faded"></div>
+        <div class="dots dots-active"></div>
+      </div>
+      <ng-container *ngTemplateOutlet="digitTemplate; context: { $implicit: Math.floor(seconds / 10) }">
+      </ng-container>
+      <ng-container *ngTemplateOutlet="digitTemplate; context: { $implicit: seconds % 10 }">
+      </ng-container>
+    </div>
+  </div>
+  <div class="controls">
+    <button (click)="startStop()">
+      {{ isRunning ? 'Stop' : 'Start' }}
+    </button>
+    <button (click)="reset()">Reset</button>
+  </div>
+</div>
+
+<ng-template #digitTemplate let-digit>
+  <div class="digit">
+    <div class="segment segment-a" [class.active]="getSegments(digit)[0]"></div>
+    <div class="segment segment-b" [class.active]="getSegments(digit)[1]"></div>
+    <div class="segment segment-c" [class.active]="getSegments(digit)[2]"></div>
+    <div class="segment segment-d" [class.active]="getSegments(digit)[3]"></div>
+    <div class="segment segment-e" [class.active]="getSegments(digit)[4]"></div>
+    <div class="segment segment-f" [class.active]="getSegments(digit)[5]"></div>
+    <div class="segment segment-g" [class.active]="getSegments(digit)[6]"></div>
+  </div>
+</ng-template>

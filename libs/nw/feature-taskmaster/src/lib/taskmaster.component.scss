@@ -1,0 +1,170 @@
+.stopwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.display {
+  padding: 2rem;
+}
+
+.digit-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.digit {
+  position: relative;
+  width: 50px;
+  height: 80px;
+}
+
+.colon {
+  position: relative;
+  width: 8px;
+  height: 80px;
+  margin: 0 0.5rem;
+
+  .dots {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    &::before {
+      top: 25%;
+    }
+    &::after {
+      bottom: 25%;
+    }
+  }
+
+  .dots-faded {
+    &::before,
+    &::after {
+      background-color: rgba(255, 0, 0, 0.2);
+    }
+  }
+
+  .dots-active {
+    &::before,
+    &::after {
+      background-color: #ff0000;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+      animation: blink 1s infinite;
+    }
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.segment {
+  position: absolute;
+  background-color: rgba(255, 0, 0, 0.1);
+  transition: background-color 0.2s;
+
+  &.active {
+    background-color: #ff0000;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  }
+
+  &.segment-a {
+    // Top
+    width: 30px;
+    height: 8px;
+    top: 0px;
+    left: 10px;
+    clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+  }
+
+  &.segment-b {
+    // Top right
+    width: 8px;
+    height: 32px;
+    top: 6px;
+    right: 5px;
+    clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 90%);
+  }
+
+  &.segment-c {
+    // Bottom right
+    width: 8px;
+    height: 32px;
+    bottom: 6px;
+    right: 5px;
+    clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 90%);
+  }
+
+  &.segment-d {
+    // Bottom
+    width: 30px;
+    height: 8px;
+    left: 10px;
+    bottom: 0;
+    clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+  }
+
+  &.segment-e {
+    // Bottom left
+    width: 8px;
+    height: 32px;
+    bottom: 6px;
+    left: 5px;
+    clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%);
+    transform: scaleY(-1);
+  }
+
+  &.segment-f {
+    // Top left
+    width: 8px;
+    height: 32px;
+    top: 6px;
+    left: 5px;
+    clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%);
+  }
+
+  &.segment-g {
+    // Middle
+    width: 30px;
+    height: 8px;
+    left: 10px;
+    top: 36px;
+    clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
+  }
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+
+  button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #444;
+    }
+  }
+}
