@@ -11,7 +11,7 @@
   </div>
   <div class="cards">
     @for (card of filteredCards; track card.path) {
-      <mat-card [routerLink]="card.path" [style.--card-bg]="getStripes(card.tags)">
+      <mat-card [routerLink]="card.disabled ? null : card.path" [style.--card-bg]="getStripes(card)">
         <mat-card-header>
           <mat-icon mat-card-avatar>{{ card.icon }}</mat-icon>
           <mat-card-title>{{ card.title }}</mat-card-title>

@@ -7,7 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { pages } from '../app.routes';
+import { Page, pages } from '../app.routes';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 
 type s2s = Record<string, string>;
@@ -30,7 +30,7 @@ type s2s = Record<string, string>;
 export class HomeComponent implements OnInit {
   toolbar = inject(ToolbarService);
 
-  cards = pages.filter((page) => !page.hideCard);
+  cards = pages.filter((page) => !page.hidden);
   tags = [...new Set(pages.flatMap((page) => page.tags))].sort();
   palette = this.tags.map((_, i) => `hsl(${i * 360 / this.tags.length} 50 50 / 0.5)`);
   bg: s2s = this.tags.reduce((a, x, i) => Object.assign(a, { [x]: this.palette[i] }), {});
@@ -45,10 +45,11 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  getStripes(tags: string[]): string {
-    const stripeWidth = 100 / tags.length;
+  getStripes(card: Page): string {
+    if (card.disabled) return '#80808080';
+    const stripeWidth = 100 / card.tags.length;
     return `linear-gradient(120deg, ${
-      tags.map((tag, i) => 
+      card.tags.map((tag, i) => 
         `${this.bg[tag]} ${i * stripeWidth}%, ${this.bg[tag]} ${(i + 1) * stripeWidth}%`
       ).join(', ')
     })`;

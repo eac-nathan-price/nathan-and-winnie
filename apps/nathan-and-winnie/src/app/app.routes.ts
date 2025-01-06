@@ -22,7 +22,8 @@ export type Page = Route & {
   description?: string,
   icon: string,
   tags: string[],
-  hideCard?: boolean
+  hidden?: boolean,
+  disabled?: boolean
 };
 
 export const pages: Page[] = [
@@ -33,7 +34,8 @@ export const pages: Page[] = [
     subtitle: '2025',
     description: 'Multiplayer wireless trivia buzzer',
     icon: 'communication',
-    tags: ['Aid']
+    tags: ['Aid'],
+    disabled: true
   },
   {
     path: 'cardify',
@@ -42,7 +44,8 @@ export const pages: Page[] = [
     subtitle: '2025',
     description: 'Generate printable cards from a spreadsheet',
     icon: 'cards',
-    tags: ['Tool']
+    tags: ['Tool'],
+    disabled: true
   },
   {
     path: 'rewind',
@@ -51,7 +54,8 @@ export const pages: Page[] = [
     subtitle: 'January 2025',
     description: 'Watching TV like its 2005',
     icon: 'fast_rewind',
-    tags: ['Blog']
+    tags: ['Blog'],
+    disabled: true
   },
   {
     path: 'feud',
@@ -69,7 +73,8 @@ export const pages: Page[] = [
     subtitle: 'November 2024',
     description: 'Scrabble scorekeeper and timer',
     icon: 'font_download',
-    tags: ['Aid']
+    tags: ['Aid'],
+    disabled: true
   },
   {
     path: 'countdown',
@@ -78,7 +83,8 @@ export const pages: Page[] = [
     subtitle: 'October 2024',
     description: 'Anagram and arithmetic game',
     icon: 'search_activity',
-    tags: ['Game']
+    tags: ['Game'],
+    disabled: true
   },
   {
     path: 'peg',
@@ -96,7 +102,8 @@ export const pages: Page[] = [
     subtitle: 'August 2024',
     description: 'GMTK game jam: built to scale',
     icon: 'pest_control',
-    tags: ['Game', 'Nonsense']
+    tags: ['Game', 'Nonsense'],
+    disabled: true
   },
   {
     path: 'vcard',
@@ -123,7 +130,8 @@ export const pages: Page[] = [
     subtitle: 'May 2024',
     description: 'Highlight & annotate a pdf',
     icon: 'feedback',
-    tags: ['Tool', 'Work']
+    tags: ['Tool', 'Work'],
+    disabled: true
   },
   {
     path: 'recipes',
@@ -132,7 +140,8 @@ export const pages: Page[] = [
     subtitle: 'April 2024',
     description: 'Vegan & gluten-free',
     icon: 'cooking',
-    tags: ['Blog']
+    tags: ['Blog'],
+    disabled: true
   },
   {
     path: 'taskmaster',
@@ -169,7 +178,7 @@ export const pages: Page[] = [
     description: 'Home page',
     icon: 'home',
     tags: [],
-    hideCard: true
+    hidden: true
   }
 ];
 
