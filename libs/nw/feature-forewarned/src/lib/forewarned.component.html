@@ -1,1 +1,22 @@
-<p>forewarned works!</p>
+<button mat-icon-button (click)="reset()">
+  <mat-icon>refresh</mat-icon>
+</button>
+
+<div class="evidence">
+  @for (e of evidence; track e) {
+    <div (click)="toggleObserved(e)"
+         (keydown.enter)="toggleObserved(e)"
+         tabindex="0"
+         role="button"
+         [class.observed]="e.observed"
+         [class.redundant]="!e.observed && e.redundant">
+      <img [src]="getSrc(e)" [alt]="e.label" [title]="e.label" />
+      <span>{{ e.hotkey }}</span>
+    </div>
+  }
+</div>
+<div class="mejai">
+  @for (m of filteredMejai; track m) {
+    <div>{{ m.name }}</div>
+  }
+</div>
