@@ -1,1 +1,19 @@
-<p>countdown works!</p>
+<ng-template #template>
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
+    <mat-tab label="letters">
+      @for (letter of letters; track $index) {
+        <div class="letter">{{ letter }}</div>
+      }
+      <button mat-flat-button (click)="drawConsonant()">Consonant</button>
+      <button mat-flat-button (click)="drawVowel()">Vowel</button>
+    </mat-tab>
+    <mat-tab label="numbers">
+      @for (number of numbers; track $index) {
+        <div class="number">{{ number }}</div>
+      }
+      <button mat-flat-button (click)="drawBig()">Big</button>
+      <button mat-flat-button (click)="drawSmall()">Small</button>
+    </mat-tab>
+  </mat-tab-group>
+</ng-template>
+<lib-window windowTitle="Countdown" [mirror]="true" [template]="template" class="internal"></lib-window>

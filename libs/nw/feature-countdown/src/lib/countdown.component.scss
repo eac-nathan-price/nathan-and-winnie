@@ -1,0 +1,4 @@
+::ng-deep .external .internal-only, ::ng-deep .internal .external-only, ::ng-deep .external mat-tab-header {
+  visibility: hidden !important;
+  display: none !important;
+}

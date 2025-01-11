@@ -83,8 +83,7 @@ export const pages: Page[] = [
     subtitle: 'October 2024',
     description: 'Anagram and arithmetic game',
     icon: 'search_activity',
-    tags: ['Game'],
-    disabled: true
+    tags: ['Game']
   },
   {
     path: 'peg',
