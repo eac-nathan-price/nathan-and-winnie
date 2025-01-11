@@ -1,19 +1,43 @@
+<div class="row">
+  <button mat-icon-button (click)="reset()">
+    <mat-icon>refresh</mat-icon>
+  </button>
+  <button mat-icon-button (click)="play()">
+    <mat-icon>play_arrow</mat-icon>
+  </button>
+</div>
+
 <ng-template #template>
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center">
     <mat-tab label="letters">
-      @for (letter of letters; track $index) {
-        <div class="letter">{{ letter }}</div>
-      }
-      <button mat-flat-button (click)="drawConsonant()">Consonant</button>
-      <button mat-flat-button (click)="drawVowel()">Vowel</button>
+      <div class="row">
+        @for (letter of letters; track $index) {
+          <div class="letter">{{ letter ? letter : '_' }}</div>
+        }
+      </div>
+      <div class="row internal-only">
+        <button mat-flat-button (click)="drawConsonant()" [disabled]="isDisabled(letters, consonantsDeck)">Consonant</button>
+        <button mat-flat-button (click)="drawVowel()" [disabled]="isDisabled(letters, vowelsDeck)">Vowel</button>
+      </div>
     </mat-tab>
     <mat-tab label="numbers">
-      @for (number of numbers; track $index) {
-        <div class="number">{{ number }}</div>
-      }
-      <button mat-flat-button (click)="drawBig()">Big</button>
-      <button mat-flat-button (click)="drawSmall()">Small</button>
+      <div class="row">
+        @for (number of numbers; track $index) {
+          <div class="number">{{ number ? number : '_' }}</div>
+        }
+      </div>
+      <div class="row internal-only">
+        <button mat-flat-button (click)="drawBig()" [disabled]="isDisabled(numbers, bigDeck)">Big</button>
+        <button mat-flat-button (click)="drawSmall()" [disabled]="isDisabled(numbers, smallDeck)">Small</button>
+      </div>
     </mat-tab>
   </mat-tab-group>
+
+  @if (showClock) {
+    <div class="clock">
+      <mat-progress-spinner mode="determinate" [value]="percent"></mat-progress-spinner>
+      <div>{{clock}}</div>
+    </div>
+  }
 </ng-template>
 <lib-window windowTitle="Countdown" [mirror]="true" [template]="template" class="internal"></lib-window>

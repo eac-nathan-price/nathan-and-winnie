@@ -2,3 +2,40 @@
   visibility: hidden !important;
   display: none !important;
 }
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 2em;
+  margin: 2em;
+}
+
+.letter, .number{
+  border: 1px solid #808080;
+  font-size: 250%;
+  padding: 0.5em;
+}
+
+mat-tab-group {
+  position: relative;
+}
+
+.clock {
+  position: fixed;
+  bottom: 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-size: 1000%;
+
+  > * {
+    position: absolute;
+  }
+}
+
+mat-progress-spinner {
+  height: 250px !important;
+  width: 250px !important;
+}
