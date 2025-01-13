@@ -1,12 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { timer, Subscription } from 'rxjs';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
-import { WindowComponent } from '@nathan-and-winnie/ui-window';
+import { WindowComponent, WindowType } from '@nathan-and-winnie/ui-window';
 
 @Component({
   selector: 'lib-countdown',
@@ -23,6 +23,19 @@ import { WindowComponent } from '@nathan-and-winnie/ui-window';
 })
 export class CountdownComponent implements OnInit {
   toolbar = inject(ToolbarService);
+
+  window = viewChild<WindowComponent>(WindowComponent);
+
+  tabIndex = 0;
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.tabIndex = event.index;
+    this.reset();
+  }
+
+  openWindow(windowType?: WindowType) {
+    this.window()?.open(windowType);
+  }
 
   letters: string[] = new Array(9).fill('');
   numbers: number[] = new Array(6).fill(0);
