@@ -15,6 +15,7 @@ import { RewindComponent } from '@nathan-and-winnie/rewind';
 import { RickyComponent } from '@nathan-and-winnie/ricky';
 import { ScrabbleComponent } from '@nathan-and-winnie/scrabble';
 import { TaskmasterComponent } from '@nathan-and-winnie/taskmaster';
+import { SudokuComponent } from '@nathan-and-winnie/sudoku';
 
 export type Page = Route & {
   title: string,
@@ -46,6 +47,15 @@ export const pages: Page[] = [
     icon: 'cards',
     tags: ['Tool'],
     disabled: true
+  },
+  {
+    path: 'sudoku',
+    component: SudokuComponent,
+    title: 'Sudoku',
+    subtitle: 'February 2025',
+    description: 'Setter / solver for sudokus and similar puzzles',
+    icon: 'pin',
+    tags: ['Tool']
   },
   {
     path: 'rewind',
