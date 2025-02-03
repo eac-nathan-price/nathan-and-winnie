@@ -2,6 +2,12 @@ import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 
+type WorkerWrapper = {
+  worker: Worker;
+  busy: boolean;
+  message: object
+}
+
 @Component({
   selector: 'lib-sudoku',
   imports: [CommonModule],
@@ -12,10 +18,13 @@ export class SudokuComponent implements OnDestroy, OnInit {
   platformId = inject(PLATFORM_ID);
   toolbar = inject(ToolbarService);
   
-  workers: Worker[] = [];
+  workers: WorkerWrapper[] = [];
 
   ngOnDestroy() {
-    while (this.workers.length > 0) this.workers.pop()?.terminate();
+    while (this.workers.length > 0) {
+      const wrapper = this.workers.pop();
+      wrapper?.worker.terminate();
+    }
   }
 
   ngOnInit() {
@@ -32,19 +41,23 @@ export class SudokuComponent implements OnDestroy, OnInit {
       console.log(`Thread count: ${threadCount}`);
       for (let i = 0; i < threadCount; i++) {
         const worker = new Worker(new URL('./workers/sudoku.worker.ts', import.meta.url), { type: 'module' });
-        this.workers.push(worker);
+        const wrapper: WorkerWrapper = { worker, busy: false, message: {} };
+        this.workers.push(wrapper);
         
         // Send initialization message
-        worker.postMessage({
-          type: 'initRequest',
-          data: i
-        });
-        console.log(`Worker ${i} init requested`);
+        wrapper.message = { type: 'initRequest', data: i };
+        worker.postMessage(wrapper.message);
+        wrapper.busy = true;
+        console.log(`Worker ${i} init requested`, wrapper);
         
         // Optional: Listen for init response
         worker.addEventListener('message', ({ data }) => {
+          if (data.done) {
+            wrapper.busy = false;
+            wrapper.message = {};
+          }
           if (data.type === 'initResponse') {
-            console.log(`Worker ${data.from} initialized`);
+            console.log(`Worker ${data.from} initialized`, wrapper);
           }
         });
       }
