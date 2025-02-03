@@ -9,7 +9,8 @@
     "noFallthroughCasesInSwitch": true
   },
   "files": [],
-  "include": [],
+  "include": ["**/*.ts", "**/*.worker.ts"],
+  "exclude": ["jest.config.ts", "**/*.spec.ts"],
   "references": [
     {
       "path": "./tsconfig.lib.json"
