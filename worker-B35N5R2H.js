@@ -1,0 +1,1 @@
+var t;addEventListener("message",({data:e})=>{switch(e.type){case"initRequest":t=e.data,postMessage({type:"initResponse",from:t,done:!0});break;default:postMessage({type:"defaultResponse",from:t,data:e,done:!0})}});
