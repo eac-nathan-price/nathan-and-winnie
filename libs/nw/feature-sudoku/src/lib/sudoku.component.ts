@@ -8,8 +8,26 @@ type WorkerWrapper = {
   message: object
 }
 
-type Cell = number | null;
-type Grid = Cell[][];
+type Params = {
+  width: number,
+  height: number,
+  possibleValues?: number[],
+  top?: number,
+  left?: number,
+  right?: number,
+  bottom?: number,
+}
+
+class Grid {
+  constructor(
+    public params: Params = {
+      width: 9,
+      height: 9,
+      possibleValues: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    }
+  ) {}
+}
+
 type Constraint = (grid: Grid) => boolean;
 
 function getRows(grid: Grid) {
