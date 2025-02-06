@@ -75,7 +75,7 @@ for (const lc of leftCols) {
   }
 }
 
-console.log({grid, rows, cols, boxes, topRows, leftCols, rightCols, bottomRows});
+//console.log({grid, rows, cols, boxes, topRows, leftCols, rightCols, bottomRows});
 
 type Constraint = (grid: Cell[]) => boolean;
 
