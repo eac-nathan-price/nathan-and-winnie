@@ -38,6 +38,7 @@
       "@nathan-and-winnie/rewind": ["libs/nw/feature-rewind/src/index.ts"],
       "@nathan-and-winnie/ricky": ["libs/nw/feature-ricky/src/index.ts"],
       "@nathan-and-winnie/scrabble": ["libs/nw/feature-scrabble/src/index.ts"],
+      "@nathan-and-winnie/sim": ["libs/nw/feature-sim/src/index.ts"],
       "@nathan-and-winnie/sudoku": ["libs/nw/feature-sudoku/src/index.ts"],
       "@nathan-and-winnie/taskmaster": [
         "libs/nw/feature-taskmaster/src/index.ts"
