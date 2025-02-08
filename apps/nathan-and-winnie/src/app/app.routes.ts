@@ -16,6 +16,7 @@ import { RickyComponent } from '@nathan-and-winnie/ricky';
 import { ScrabbleComponent } from '@nathan-and-winnie/scrabble';
 import { TaskmasterComponent } from '@nathan-and-winnie/taskmaster';
 import { SudokuComponent } from '@nathan-and-winnie/sudoku';
+import { SimComponent } from '@nathan-and-winnie/sim';
 
 export type Page = Route & {
   title: string,
@@ -52,10 +53,19 @@ export const pages: Page[] = [
     path: 'sudoku',
     component: SudokuComponent,
     title: 'Sudoku',
-    subtitle: 'February 2025',
+    subtitle: 'March 2025',
     description: 'Setter / solver for sudokus and similar puzzles',
     icon: 'pin',
     tags: ['Tool']
+  },
+  {
+    path: 'sim',
+    component: SimComponent,
+    title: 'Sim',
+    subtitle: 'February 2025',
+    description: 'Procedural generation',
+    icon: 'altitude',
+    tags: ['Simulation', 'Game']
   },
   {
     path: 'rewind',
@@ -83,7 +93,7 @@ export const pages: Page[] = [
     subtitle: 'November 2024',
     description: 'Scrabble scorekeeper and timer',
     icon: 'font_download',
-    tags: ['Aid'],
+    tags: ['Companion'],
     disabled: true
   },
   {
@@ -102,7 +112,7 @@ export const pages: Page[] = [
     subtitle: 'September 2024',
     description: 'Peg solitaire solver',
     icon: 'tactic',
-    tags: ['Aid']
+    tags: ['Solver']
   },
   {
     path: 'gmtk24',
@@ -130,7 +140,7 @@ export const pages: Page[] = [
     subtitle: 'June 2024',
     description: 'Evidence matrix',
     icon: 'mystery',
-    tags: ['Aid']
+    tags: ['Companion']
   },
   {
     path: 'pdfeedback',
@@ -159,7 +169,7 @@ export const pages: Page[] = [
     subtitle: 'March 2024',
     description: 'Timer and tasks',
     icon: 'mail',
-    tags: ['Game', 'Aid']
+    tags: ['Game', 'Nonsense']
   },
   {
     path: 'dice',
@@ -168,7 +178,7 @@ export const pages: Page[] = [
     subtitle: 'February 2024',
     description: 'Rpg dice simulation & stats',
     icon: 'casino',
-    tags: ['Tool']
+    tags: ['Simulation', 'Tool']
   },
   {
     path: 'ricky',
