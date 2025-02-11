@@ -15,14 +15,45 @@ export class SimComponent implements OnInit {
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer();
-  geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-  cube = new THREE.Mesh( this.geometry, this.material );
+  
+  // Remove the cube-related properties and add custom mesh
+  customMesh: THREE.Mesh;
 
   constructor() {
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.scene.add( this.cube );
     this.camera.position.z = 5;
+    
+    // Define unique vertices
+    const vertices = new Float32Array([
+      -1.0, -1.0, 0.0,  // vertex 0
+       1.0, -1.0, 0.0,  // vertex 1
+       0.0,  1.0, 0.0,  // vertex 2
+       2.0,  1.0, 0.0   // vertex 3
+    ]);
+
+    // Define indices to form triangles
+    const indices = new Uint16Array([
+      0, 1, 2,  // first triangle
+      2, 3, 1   // second triangle
+    ]);
+
+    // Create buffer geometry
+    const geometry = new THREE.BufferGeometry();
+    
+    // Add vertices and indices
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+    
+    // Create material
+    const material = new THREE.MeshBasicMaterial({ 
+      color: 0x00ff00,
+      side: THREE.DoubleSide,
+      wireframe: true
+    });
+    
+    // Create mesh and add to scene
+    this.customMesh = new THREE.Mesh(geometry, material);
+    this.scene.add(this.customMesh);
   }
 
   toolbar = inject(ToolbarService);
@@ -55,8 +86,9 @@ export class SimComponent implements OnInit {
   }
 
   animate() {
-    this.cube.rotation.x += 0.01;
-    this.cube.rotation.y += 0.01;
+    // Update rotation of custom mesh instead of cube
+    this.customMesh.rotation.x += 0.01;
+    this.customMesh.rotation.y += 0.01;
     this.renderer.render(this.scene, this.camera);
   }
 }
