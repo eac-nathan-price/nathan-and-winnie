@@ -2,6 +2,8 @@ import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import * as THREE from 'three';
+import Voronoi from 'voronoi';
+const voronoi = new Voronoi();
 
 @Component({
   selector: 'lib-sim',
