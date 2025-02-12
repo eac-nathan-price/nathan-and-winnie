@@ -2,8 +2,32 @@ import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import * as THREE from 'three';
-import Voronoi from 'voronoi';
-const voronoi = new Voronoi();
+import { Voronoi } from './voronoi';
+
+class Random {
+  static float(min: number, max: number) {
+    return Math.random() * (max - min) + min;
+  }
+
+  static int(min: number, max: number) {
+    return Math.floor(Random.float(min, max));
+  }
+  
+  static vector2(min: number, max: number) {
+    return {
+      x: Random.float(min, max),
+      y: Random.float(min, max)
+    };
+  }
+
+  static vector3(min: number, max: number) {
+    return {
+      x: Random.float(min, max),
+      y: Random.float(min, max),
+      z: Random.float(min, max)
+    };
+  }
+}
 
 @Component({
   selector: 'lib-sim',
@@ -21,9 +45,26 @@ export class SimComponent implements OnInit {
   // Remove the cube-related properties and add custom mesh
   customMesh: THREE.Mesh;
 
+  generateVoronoi() {
+    const voronoi = new Voronoi();
+    const bbox = {
+      xl: -5,
+      xr: 5,
+      yt: -5,
+      yb: 5
+    };
+    const sites = Array.from({ length: 10 }, () => Random.vector2(-5, 5));
+    const diagram = voronoi.compute(sites, bbox);
+    console.log(diagram);
+  }
+  
+
   constructor() {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.camera.position.z = 5;
+
+    console.log('Generating voronoi');
+    this.generateVoronoi();
     
     // Define unique vertices
     const vertices = new Float32Array([
