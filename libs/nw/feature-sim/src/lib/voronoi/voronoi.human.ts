@@ -85,10 +85,12 @@ TODO: Let the user close the Voronoi cells, do not do it automatically. Not only
 
 const EPSILON = 1e-9;
 
+type Data = null | object[];
+
 export class Voronoi {
-  vertices = null;
-  edges = null;
-  cells = null;
+  vertices: Data = null;
+  edges: Data = null;
+  cells: Data = null;
   toRecycle = null;
   beachsectionJunkyard = [];
   circleEventJunkyard = [];
@@ -96,27 +98,26 @@ export class Voronoi {
   edgeJunkyard = [];
   cellJunkyard = [];
 
+  beachline = null;
+  circleEvents = {};
+  firstCircleEvent = null;
+
   reset() {
-    if (!this.beachline) {
-        this.beachline = new this.RBTree();
-        }
-    // Move leftover beachsections to the beachsection junkyard.
+    if (!this.beachline) this.beachline = new RBTree();
     if (this.beachline.root) {
-        var beachsection = this.beachline.getFirst(this.beachline.root);
-        while (beachsection) {
-            this.beachsectionJunkyard.push(beachsection); // mark for reuse
-            beachsection = beachsection.rbNext;
-            }
-        }
+      var beachsection = this.beachline.getFirst(this.beachline.root);
+      while (beachsection) {
+        this.beachsectionJunkyard.push(beachsection);
+        beachsection = beachsection.rbNext;
+      }
+    }
     this.beachline.root = null;
-    if (!this.circleEvents) {
-        this.circleEvents = new this.RBTree();
-        }
+    if (!this.circleEvents) this.circleEvents = new RBTree();
     this.circleEvents.root = this.firstCircleEvent = null;
     this.vertices = [];
     this.edges = [];
     this.cells = [];
-  };
+  }
 
   sqrt = Math.sqrt;
   abs = Math.abs;
@@ -130,296 +131,218 @@ export class Voronoi {
 }
 
 // ---------------------------------------------------------------------------
-
-
-// ---------------------------------------------------------------------------
 // Red-Black tree code (based on C version of "rbtree" by Franck Bui-Huu
 // https://github.com/fbuihuu/libtree/blob/master/rb.c
 
-Voronoi.prototype.RBTree = function() {
-    this.root = null;
-    };
+export class RBTree {
+  root = null;
 
-Voronoi.prototype.RBTree.prototype.rbInsertSuccessor = function(node, successor) {
-    var parent;
+  rbInsertSuccessor(node, successor) {
+    let parent;
     if (node) {
-        // >>> rhill 2011-05-27: Performance: cache previous/next nodes
-        successor.rbPrevious = node;
-        successor.rbNext = node.rbNext;
-        if (node.rbNext) {
-            node.rbNext.rbPrevious = successor;
-            }
-        node.rbNext = successor;
-        // <<<
-        if (node.rbRight) {
-            // in-place expansion of node.rbRight.getFirst();
-            node = node.rbRight;
-            while (node.rbLeft) {node = node.rbLeft;}
-            node.rbLeft = successor;
-            }
-        else {
-            node.rbRight = successor;
-            }
-        parent = node;
-        }
-    // rhill 2011-06-07: if node is null, successor must be inserted
-    // to the left-most part of the tree
-    else if (this.root) {
-        node = this.getFirst(this.root);
-        // >>> Performance: cache previous/next nodes
-        successor.rbPrevious = null;
-        successor.rbNext = node;
-        node.rbPrevious = successor;
-        // <<<
+      successor.rbPrevious = node;
+      successor.rbNext = node.rbNext;
+      if (node.rbNext) node.rbNext.rbPrevious = successor;
+      node.rbNext = successor;
+      if (node.rbRight) {
+        node = node.rbRight;
+        while (node.rbLeft) {node = node.rbLeft;}
         node.rbLeft = successor;
-        parent = node;
-        }
-    else {
-        // >>> Performance: cache previous/next nodes
-        successor.rbPrevious = successor.rbNext = null;
-        // <<<
-        this.root = successor;
-        parent = null;
-        }
+      } else node.rbRight = successor;
+      parent = node;
+    } else if (this.root) {
+      node = this.getFirst(this.root);
+      successor.rbPrevious = null;
+      successor.rbNext = node;
+      node.rbPrevious = successor;
+      node.rbLeft = successor;
+      parent = node;
+    } else {
+      successor.rbPrevious = successor.rbNext = null;
+      this.root = successor;
+      parent = null;
+    }
     successor.rbLeft = successor.rbRight = null;
     successor.rbParent = parent;
     successor.rbRed = true;
-    // Fixup the modified tree by recoloring nodes and performing
-    // rotations (2 at most) hence the red-black tree properties are
-    // preserved.
-    var grandpa, uncle;
+    let grandpa, uncle;
     node = successor;
     while (parent && parent.rbRed) {
-        grandpa = parent.rbParent;
-        if (parent === grandpa.rbLeft) {
-            uncle = grandpa.rbRight;
-            if (uncle && uncle.rbRed) {
-                parent.rbRed = uncle.rbRed = false;
-                grandpa.rbRed = true;
-                node = grandpa;
-                }
-            else {
-                if (node === parent.rbRight) {
-                    this.rbRotateLeft(parent);
-                    node = parent;
-                    parent = node.rbParent;
-                    }
-                parent.rbRed = false;
-                grandpa.rbRed = true;
-                this.rbRotateRight(grandpa);
-                }
-            }
-        else {
-            uncle = grandpa.rbLeft;
-            if (uncle && uncle.rbRed) {
-                parent.rbRed = uncle.rbRed = false;
-                grandpa.rbRed = true;
-                node = grandpa;
-                }
-            else {
-                if (node === parent.rbLeft) {
-                    this.rbRotateRight(parent);
-                    node = parent;
-                    parent = node.rbParent;
-                    }
-                parent.rbRed = false;
-                grandpa.rbRed = true;
-                this.rbRotateLeft(grandpa);
-                }
-            }
-        parent = node.rbParent;
+      grandpa = parent.rbParent;
+      if (parent === grandpa.rbLeft) {
+        uncle = grandpa.rbRight;
+        if (uncle && uncle.rbRed) {
+          parent.rbRed = uncle.rbRed = false;
+          grandpa.rbRed = true;
+          node = grandpa;
+        } else {
+          if (node === parent.rbRight) {
+            this.rbRotateLeft(parent);
+            node = parent;
+            parent = node.rbParent;
+          }
+          parent.rbRed = false;
+          grandpa.rbRed = true;
+          this.rbRotateRight(grandpa);
         }
+      } else {
+        uncle = grandpa.rbLeft;
+        if (uncle && uncle.rbRed) {
+          parent.rbRed = uncle.rbRed = false;
+          grandpa.rbRed = true;
+          node = grandpa;
+        } else {
+          if (node === parent.rbLeft) {
+            this.rbRotateRight(parent);
+            node = parent;
+            parent = node.rbParent;
+          }
+          parent.rbRed = false;
+          grandpa.rbRed = true;
+          this.rbRotateLeft(grandpa);
+        }
+      }
+      parent = node.rbParent;
+    }
     this.root.rbRed = false;
-    };
+  }
 
-Voronoi.prototype.RBTree.prototype.rbRemoveNode = function(node) {
-    // >>> rhill 2011-05-27: Performance: cache previous/next nodes
-    if (node.rbNext) {
-        node.rbNext.rbPrevious = node.rbPrevious;
-        }
-    if (node.rbPrevious) {
-        node.rbPrevious.rbNext = node.rbNext;
-        }
+  rbRemoveNode(node) {
+    if (node.rbNext) node.rbNext.rbPrevious = node.rbPrevious;
+    if (node.rbPrevious) node.rbPrevious.rbNext = node.rbNext;
     node.rbNext = node.rbPrevious = null;
-    // <<<
-    var parent = node.rbParent,
+    let parent = node.rbParent,
         left = node.rbLeft,
         right = node.rbRight,
         next;
-    if (!left) {
-        next = right;
-        }
-    else if (!right) {
-        next = left;
-        }
-    else {
-        next = this.getFirst(right);
-        }
+    if (!left) next = right;
+    else if (!right) next = left;
+    else next = this.getFirst(right);
     if (parent) {
-        if (parent.rbLeft === node) {
-            parent.rbLeft = next;
-            }
-        else {
-            parent.rbRight = next;
-            }
-        }
-    else {
-        this.root = next;
-        }
-    // enforce red-black rules
-    var isRed;
+      if (parent.rbLeft === node) parent.rbLeft = next;
+      else parent.rbRight = next;
+    } else this.root = next;
+    let isRed;
     if (left && right) {
-        isRed = next.rbRed;
-        next.rbRed = node.rbRed;
-        next.rbLeft = left;
-        left.rbParent = next;
-        if (next !== right) {
-            parent = next.rbParent;
-            next.rbParent = node.rbParent;
-            node = next.rbRight;
-            parent.rbLeft = node;
-            next.rbRight = right;
-            right.rbParent = next;
-            }
-        else {
-            next.rbParent = parent;
-            parent = next;
-            node = next.rbRight;
-            }
-        }
-    else {
-        isRed = node.rbRed;
-        node = next;
-        }
-    // 'node' is now the sole successor's child and 'parent' its
-    // new parent (since the successor can have been moved)
-    if (node) {
-        node.rbParent = parent;
-        }
-    // the 'easy' cases
-    if (isRed) {return;}
+      isRed = next.rbRed;
+      next.rbRed = node.rbRed;
+      next.rbLeft = left;
+      left.rbParent = next;
+      if (next !== right) {
+        parent = next.rbParent;
+        next.rbParent = node.rbParent;
+        node = next.rbRight;
+        parent.rbLeft = node;
+        next.rbRight = right;
+        right.rbParent = next;
+      } else {
+        next.rbParent = parent;
+        parent = next;
+        node = next.rbRight;
+      }
+    } else {
+      isRed = node.rbRed;
+      node = next;
+    }
+    if (node) node.rbParent = parent;
+    if (isRed) return;
     if (node && node.rbRed) {
-        node.rbRed = false;
-        return;
-        }
-    // the other cases
-    var sibling;
+      node.rbRed = false;
+      return;
+    }
+    let sibling;
     do {
-        if (node === this.root) {
-            break;
-            }
-        if (node === parent.rbLeft) {
+      if (node === this.root) break;
+      if (node === parent.rbLeft) {
+        sibling = parent.rbRight;
+        if (sibling.rbRed) {
+          sibling.rbRed = false;
+          parent.rbRed = true;
+          this.rbRotateLeft(parent);
+          sibling = parent.rbRight;
+        }
+        if ((sibling.rbLeft && sibling.rbLeft.rbRed) || (sibling.rbRight && sibling.rbRight.rbRed)) {
+          if (!sibling.rbRight || !sibling.rbRight.rbRed) {
+            sibling.rbLeft.rbRed = false;
+            sibling.rbRed = true;
+            this.rbRotateRight(sibling);
             sibling = parent.rbRight;
-            if (sibling.rbRed) {
-                sibling.rbRed = false;
-                parent.rbRed = true;
-                this.rbRotateLeft(parent);
-                sibling = parent.rbRight;
-                }
-            if ((sibling.rbLeft && sibling.rbLeft.rbRed) || (sibling.rbRight && sibling.rbRight.rbRed)) {
-                if (!sibling.rbRight || !sibling.rbRight.rbRed) {
-                    sibling.rbLeft.rbRed = false;
-                    sibling.rbRed = true;
-                    this.rbRotateRight(sibling);
-                    sibling = parent.rbRight;
-                    }
-                sibling.rbRed = parent.rbRed;
-                parent.rbRed = sibling.rbRight.rbRed = false;
-                this.rbRotateLeft(parent);
-                node = this.root;
-                break;
-                }
-            }
-        else {
+          }
+          sibling.rbRed = parent.rbRed;
+          parent.rbRed = sibling.rbRight.rbRed = false;
+          this.rbRotateLeft(parent);
+          node = this.root;
+          break;
+        }
+      } else {
+        sibling = parent.rbLeft;
+        if (sibling.rbRed) {
+          sibling.rbRed = false;
+          parent.rbRed = true;
+          this.rbRotateRight(parent);
+          sibling = parent.rbLeft;
+        }
+        if ((sibling.rbLeft && sibling.rbLeft.rbRed) || (sibling.rbRight && sibling.rbRight.rbRed)) {
+          if (!sibling.rbLeft || !sibling.rbLeft.rbRed) {
+            sibling.rbRight.rbRed = false;
+            sibling.rbRed = true;
+            this.rbRotateLeft(sibling);
             sibling = parent.rbLeft;
-            if (sibling.rbRed) {
-                sibling.rbRed = false;
-                parent.rbRed = true;
-                this.rbRotateRight(parent);
-                sibling = parent.rbLeft;
-                }
-            if ((sibling.rbLeft && sibling.rbLeft.rbRed) || (sibling.rbRight && sibling.rbRight.rbRed)) {
-                if (!sibling.rbLeft || !sibling.rbLeft.rbRed) {
-                    sibling.rbRight.rbRed = false;
-                    sibling.rbRed = true;
-                    this.rbRotateLeft(sibling);
-                    sibling = parent.rbLeft;
-                    }
-                sibling.rbRed = parent.rbRed;
-                parent.rbRed = sibling.rbLeft.rbRed = false;
-                this.rbRotateRight(parent);
-                node = this.root;
-                break;
-                }
-            }
-        sibling.rbRed = true;
-        node = parent;
-        parent = parent.rbParent;
+          }
+          sibling.rbRed = parent.rbRed;
+          parent.rbRed = sibling.rbLeft.rbRed = false;
+          this.rbRotateRight(parent);
+          node = this.root;
+          break;
+        }
+      }
+      sibling.rbRed = true;
+      node = parent;
+      parent = parent.rbParent;
     } while (!node.rbRed);
-    if (node) {node.rbRed = false;}
-    };
+    if (node) node.rbRed = false;
+  }
 
-Voronoi.prototype.RBTree.prototype.rbRotateLeft = function(node) {
-    var p = node,
-        q = node.rbRight, // can't be null
+  rbRotateLeft(node) {
+    let p = node,
+        q = node.rbRight,
         parent = p.rbParent;
     if (parent) {
-        if (parent.rbLeft === p) {
-            parent.rbLeft = q;
-            }
-        else {
-            parent.rbRight = q;
-            }
-        }
-    else {
-        this.root = q;
-        }
+      if (parent.rbLeft === p) parent.rbLeft = q;
+      else parent.rbRight = q;
+    } else this.root = q;
     q.rbParent = parent;
     p.rbParent = q;
     p.rbRight = q.rbLeft;
-    if (p.rbRight) {
-        p.rbRight.rbParent = p;
-        }
+    if (p.rbRight) p.rbRight.rbParent = p;
     q.rbLeft = p;
-    };
+  }
 
-Voronoi.prototype.RBTree.prototype.rbRotateRight = function(node) {
-    var p = node,
-        q = node.rbLeft, // can't be null
+  rbRotateRight(node) {
+    let p = node,
+        q = node.rbLeft,
         parent = p.rbParent;
     if (parent) {
-        if (parent.rbLeft === p) {
-            parent.rbLeft = q;
-            }
-        else {
-            parent.rbRight = q;
-            }
-        }
-    else {
-        this.root = q;
-        }
+      if (parent.rbLeft === p) parent.rbLeft = q;
+      else parent.rbRight = q;
+    } else this.root = q;
     q.rbParent = parent;
     p.rbParent = q;
     p.rbLeft = q.rbRight;
-    if (p.rbLeft) {
-        p.rbLeft.rbParent = p;
-        }
+    if (p.rbLeft) p.rbLeft.rbParent = p;
     q.rbRight = p;
-    };
+  }
 
-Voronoi.prototype.RBTree.prototype.getFirst = function(node) {
-    while (node.rbLeft) {
-        node = node.rbLeft;
-        }
+  getFirst(node) {
+    while (node.rbLeft) node = node.rbLeft;
     return node;
-    };
+  }
 
-Voronoi.prototype.RBTree.prototype.getLast = function(node) {
-    while (node.rbRight) {
-        node = node.rbRight;
-        }
+  getLast(node) {
+    while (node.rbRight) node = node.rbRight;
     return node;
-    };
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Diagram methods
@@ -431,71 +354,55 @@ Voronoi.prototype.Diagram = function(site) {
 // ---------------------------------------------------------------------------
 // Cell methods
 
-Voronoi.prototype.Cell = function(site) {
-    this.site = site;
-    this.halfedges = [];
-    this.closeMe = false;
-    };
+export class Cell {
+  halfedges: any[] = [];
+  closeMe = false;
+  constructor(
+    public site: any
+  ) {}
 
-Voronoi.prototype.Cell.prototype.init = function(site) {
+  init(site) {
     this.site = site;
     this.halfedges = [];
     this.closeMe = false;
     return this;
-    };
+  }
 
-Voronoi.prototype.createCell = function(site) {
-    var cell = this.cellJunkyard.pop();
-    if ( cell ) {
-        return cell.init(site);
-        }
-    return new this.Cell(site);
-    };
+  createCell(site) {
+    let cell = this.cellJunkyard.pop();
+    if (cell) return cell.init(site);
+    return new Cell(site);
+  }
 
-Voronoi.prototype.Cell.prototype.prepareHalfedges = function() {
-    var halfedges = this.halfedges,
+  prepareHalfedges = function() {
+    let halfedges = this.halfedges,
         iHalfedge = halfedges.length,
         edge;
-    // get rid of unused halfedges
-    // rhill 2011-05-27: Keep it simple, no point here in trying
-    // to be fancy: dangling edges are a typically a minority.
     while (iHalfedge--) {
-        edge = halfedges[iHalfedge].edge;
-        if (!edge.vb || !edge.va) {
-            halfedges.splice(iHalfedge,1);
-            }
-        }
-
-    // rhill 2011-05-26: I tried to use a binary search at insertion
-    // time to keep the array sorted on-the-fly (in Cell.addHalfedge()).
-    // There was no real benefits in doing so, performance on
-    // Firefox 3.6 was improved marginally, while performance on
-    // Opera 11 was penalized marginally.
+      edge = halfedges[iHalfedge].edge;
+      if (!edge.vb || !edge.va) halfedges.splice(iHalfedge,1);
+    }
     halfedges.sort(function(a,b){return b.angle-a.angle;});
     return halfedges.length;
-    };
+  }
 
-// Return a list of the neighbor Ids
-Voronoi.prototype.Cell.prototype.getNeighborIds = function() {
-    var neighbors = [],
+  getNeighborIds = function() {
+    let neighbors = [],
         iHalfedge = this.halfedges.length,
         edge;
     while (iHalfedge--){
-        edge = this.halfedges[iHalfedge].edge;
-        if (edge.lSite !== null && edge.lSite.voronoiId != this.site.voronoiId) {
-            neighbors.push(edge.lSite.voronoiId);
-            }
-        else if (edge.rSite !== null && edge.rSite.voronoiId != this.site.voronoiId){
-            neighbors.push(edge.rSite.voronoiId);
-            }
-        }
+      edge = this.halfedges[iHalfedge].edge;
+      if (edge.lSite !== null && edge.lSite.voronoiId != this.site.voronoiId) {
+        neighbors.push(edge.lSite.voronoiId);
+      } else if (edge.rSite !== null && edge.rSite.voronoiId != this.site.voronoiId){
+        neighbors.push(edge.rSite.voronoiId);
+      }
+    }
     return neighbors;
-    };
+  }
 
-// Compute bounding box
-//
-Voronoi.prototype.Cell.prototype.getBbox = function() {
-    var halfedges = this.halfedges,
+  getBbox = function() {
+    let halfedges = this.halfedges,
         iHalfedge = halfedges.length,
         xmin = Infinity,
         ymin = Infinity,
@@ -503,60 +410,38 @@ Voronoi.prototype.Cell.prototype.getBbox = function() {
         ymax = -Infinity,
         v, vx, vy;
     while (iHalfedge--) {
-        v = halfedges[iHalfedge].getStartpoint();
-        vx = v.x;
-        vy = v.y;
-        if (vx < xmin) {xmin = vx;}
-        if (vy < ymin) {ymin = vy;}
-        if (vx > xmax) {xmax = vx;}
-        if (vy > ymax) {ymax = vy;}
-        // we dont need to take into account end point,
-        // since each end point matches a start point
-        }
+      v = halfedges[iHalfedge].getStartpoint();
+      vx = v.x;
+      vy = v.y;
+      if (vx < xmin) xmin = vx;
+      if (vy < ymin) ymin = vy;
+      if (vx > xmax) xmax = vx;
+      if (vy > ymax) ymax = vy;
+    }
     return {
-        x: xmin,
-        y: ymin,
-        width: xmax-xmin,
-        height: ymax-ymin
-        };
+      x: xmin,
+      y: ymin,
+      width: xmax-xmin,
+      height: ymax-ymin
     };
+  }
 
-// Return whether a point is inside, on, or outside the cell:
-//   -1: point is outside the perimeter of the cell
-//    0: point is on the perimeter of the cell
-//    1: point is inside the perimeter of the cell
-//
-Voronoi.prototype.Cell.prototype.pointIntersection = function(x, y) {
-    // Check if point in polygon. Since all polygons of a Voronoi
-    // diagram are convex, then:
-    // http://paulbourke.net/geometry/polygonmesh/
-    // Solution 3 (2D):
-    //   "If the polygon is convex then one can consider the polygon
-    //   "as a 'path' from the first vertex. A point is on the interior
-    //   "of this polygons if it is always on the same side of all the
-    //   "line segments making up the path. ...
-    //   "(y - y0) (x1 - x0) - (x - x0) (y1 - y0)
-    //   "if it is less than 0 then P is to the right of the line segment,
-    //   "if greater than 0 it is to the left, if equal to 0 then it lies
-    //   "on the line segment"
+  pointIntersection(x, y) {
     var halfedges = this.halfedges,
         iHalfedge = halfedges.length,
         halfedge,
         p0, p1, r;
     while (iHalfedge--) {
-        halfedge = halfedges[iHalfedge];
-        p0 = halfedge.getStartpoint();
-        p1 = halfedge.getEndpoint();
-        r = (y-p0.y)*(p1.x-p0.x)-(x-p0.x)*(p1.y-p0.y);
-        if (!r) {
-            return 0;
-            }
-        if (r > 0) {
-            return -1;
-            }
-        }
+      halfedge = halfedges[iHalfedge];
+      p0 = halfedge.getStartpoint();
+      p1 = halfedge.getEndpoint();
+      r = (y-p0.y)*(p1.x-p0.x)-(x-p0.x)*(p1.y-p0.y);
+      if (!r) return 0;
+      if (r > 0) return -1;
+    }
     return 1;
-    };
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Edge methods
@@ -576,21 +461,12 @@ Voronoi.prototype.Edge = function(lSite, rSite) {
 Voronoi.prototype.Halfedge = function(edge, lSite, rSite) {
     this.site = lSite;
     this.edge = edge;
-    // 'angle' is a value to be used for properly sorting the
-    // halfsegments counterclockwise. By convention, we will
-    // use the angle of the line defined by the 'site to the left'
-    // to the 'site to the right'.
-    // However, border edges have no 'site to the right': thus we
-    // use the angle of line perpendicular to the halfsegment (the
-    // edge should have both end points defined in such case.)
     if (rSite) {
         this.angle = Math.atan2(rSite.y-lSite.y, rSite.x-lSite.x);
         }
     else {
         var va = edge.va,
             vb = edge.vb;
-        // rhill 2011-05-31: used to call getStartpoint()/getEndpoint(),
-        // but for performance purpose, these are expanded in place here.
         this.angle = edge.lSite === lSite ?
             Math.atan2(vb.x-va.x, va.y-vb.y) :
             Math.atan2(va.x-vb.x, vb.y-va.y);
@@ -715,40 +591,6 @@ Voronoi.prototype.createBeachsection = function(site) {
 // calculate the left break point of a particular beach section,
 // given a particular sweep line
 Voronoi.prototype.leftBreakPoint = function(arc, directrix) {
-    // http://en.wikipedia.org/wiki/Parabola
-    // http://en.wikipedia.org/wiki/Quadratic_equation
-    // h1 = x1,
-    // k1 = (y1+directrix)/2,
-    // h2 = x2,
-    // k2 = (y2+directrix)/2,
-    // p1 = k1-directrix,
-    // a1 = 1/(4*p1),
-    // b1 = -h1/(2*p1),
-    // c1 = h1*h1/(4*p1)+k1,
-    // p2 = k2-directrix,
-    // a2 = 1/(4*p2),
-    // b2 = -h2/(2*p2),
-    // c2 = h2*h2/(4*p2)+k2,
-    // x = (-(b2-b1) + Math.sqrt((b2-b1)*(b2-b1) - 4*(a2-a1)*(c2-c1))) / (2*(a2-a1))
-    // When x1 become the x-origin:
-    // h1 = 0,
-    // k1 = (y1+directrix)/2,
-    // h2 = x2-x1,
-    // k2 = (y2+directrix)/2,
-    // p1 = k1-directrix,
-    // a1 = 1/(4*p1),
-    // b1 = 0,
-    // c1 = k1,
-    // p2 = k2-directrix,
-    // a2 = 1/(4*p2),
-    // b2 = -h2/(2*p2),
-    // c2 = h2*h2/(4*p2)+k2,
-    // x = (-b2 + Math.sqrt(b2*b2 - 4*(a2-a1)*(c2-k1))) / (2*(a2-a1)) + x1
-
-    // change code below at your own risk: care has been taken to
-    // reduce errors due to computers' finite arithmetic precision.
-    // Maybe can still be improved, will see if any more of this
-    // kind of errors pop up again.
     var site = arc.site,
         rfocx = site.x,
         rfocy = site.y,
@@ -808,17 +650,6 @@ Voronoi.prototype.removeBeachsection = function(beachsection) {
 
     // remove collapsed beachsection from beachline
     this.detachBeachsection(beachsection);
-
-    // there could be more than one empty arc at the deletion point, this
-    // happens when more than two edges are linked by the same vertex,
-    // so we will collect all those edges by looking up both sides of
-    // the deletion point.
-    // by the way, there is *always* a predecessor/successor to any collapsed
-    // beach section, it's just impossible to have a collapsing first/last
-    // beach sections on the beachline, since they obviously are unconstrained
-    // on their left/right side.
-
-    // look left
     var lArc = previous;
     while (lArc.circleEvent && abs_fn(x-lArc.circleEvent.x)<1e-9 && abs_fn(y-lArc.circleEvent.ycenter)<1e-9) {
         previous = lArc.rbPrevious;
@@ -826,10 +657,6 @@ Voronoi.prototype.removeBeachsection = function(beachsection) {
         this.detachBeachsection(lArc); // mark for reuse
         lArc = previous;
         }
-    // even though it is not disappearing, I will also add the beach section
-    // immediately to the left of the left-most collapsed beach section, for
-    // convenience, since we need to refer to it later as this beach section
-    // is the 'left' site of an edge for which a start point is set.
     disappearingTransitions.unshift(lArc);
     this.detachCircleEvent(lArc);
 
@@ -841,14 +668,8 @@ Voronoi.prototype.removeBeachsection = function(beachsection) {
         this.detachBeachsection(rArc); // mark for reuse
         rArc = next;
         }
-    // we also have to add the beach section immediately to the right of the
-    // right-most collapsed beach section, since there is also a disappearing
-    // transition representing an edge's start point on its left.
     disappearingTransitions.push(rArc);
     this.detachCircleEvent(rArc);
-
-    // walk through all the disappearing transitions between beach sections and
-    // set the start point of their (implied) edge.
     var nArcs = disappearingTransitions.length,
         iArc;
     for (iArc=1; iArc<nArcs; iArc++) {
@@ -856,18 +677,9 @@ Voronoi.prototype.removeBeachsection = function(beachsection) {
         lArc = disappearingTransitions[iArc-1];
         this.setEdgeStartpoint(rArc.edge, lArc.site, rArc.site, vertex);
         }
-
-    // create a new edge as we have now a new transition between
-    // two beach sections which were previously not adjacent.
-    // since this edge appears as a new vertex is defined, the vertex
-    // actually define an end point of the edge (relative to the site
-    // on the left)
     lArc = disappearingTransitions[0];
     rArc = disappearingTransitions[nArcs-1];
     rArc.edge = this.createEdge(lArc.site, rArc.site, undefined, vertex);
-
-    // create circle events if any for beach sections left in the beachline
-    // adjacent to collapsed sections
     this.attachCircleEvent(lArc);
     this.attachCircleEvent(rArc);
     };
@@ -875,29 +687,17 @@ Voronoi.prototype.removeBeachsection = function(beachsection) {
 Voronoi.prototype.addBeachsection = function(site) {
     var x = site.x,
         directrix = site.y;
-
-    // find the left and right beach sections which will surround the newly
-    // created beach section.
-    // rhill 2011-06-01: This loop is one of the most often executed,
-    // hence we expand in-place the comparison-against-epsilon calls.
     var lArc, rArc,
         dxl, dxr,
         node = this.beachline.root;
 
     while (node) {
         dxl = this.leftBreakPoint(node,directrix)-x;
-        // x lessThanWithEpsilon xl => falls somewhere before the left edge of the beachsection
         if (dxl > 1e-9) {
-            // this case should never happen
-            // if (!node.rbLeft) {
-            //    rArc = node.rbLeft;
-            //    break;
-            //    }
             node = node.rbLeft;
             }
         else {
             dxr = x-this.rightBreakPoint(node,directrix);
-            // x greaterThanWithEpsilon xr => falls somewhere after the right edge of the beachsection
             if (dxr > 1e-9) {
                 if (!node.rbRight) {
                     lArc = node;
@@ -906,7 +706,6 @@ Voronoi.prototype.addBeachsection = function(site) {
                 node = node.rbRight;
                 }
             else {
-                // x equalWithEpsilon xl => falls exactly on the left edge of the beachsection
                 if (dxl > -1e-9) {
                     lArc = node.rbPrevious;
                     rArc = node;
@@ -1693,29 +1492,14 @@ Voronoi.prototype.compute = function(sites, bbox) {
             break;
             }
         }
-
-    // wrapping-up:
-    //   connect dangling edges to bounding box
-    //   cut edges as per bounding box
-    //   discard edges completely outside bounding box
-    //   discard edges which are point-like
     this.clipEdges(bbox);
-
-    //   add missing edges in order to close opened cells
     this.closeCells(bbox);
-
-    // to measure execution time
     var stopTime = new Date();
-
-    // prepare return values
     var diagram = new this.Diagram();
     diagram.cells = this.cells;
     diagram.edges = this.edges;
     diagram.vertices = this.vertices;
     diagram.execTime = stopTime.getTime()-startTime.getTime();
-
-    // clean up
     this.reset();
-
     return diagram;
-  };
+};

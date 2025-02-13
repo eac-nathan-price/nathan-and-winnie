@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import * as THREE from 'three';
-import { Voronoi } from './voronoi';
+import { Voronoi } from './voronoi/voronoi.gemeni';
 
 class Random {
   static float(min: number, max: number) {
