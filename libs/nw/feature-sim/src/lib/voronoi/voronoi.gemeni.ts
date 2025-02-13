@@ -11,8 +11,8 @@ export class Voronoi {
   private circleEvents: RBTree;
   private firstCircleEvent: CircleEvent | null;
 
-  static ε = 1e-9;
-  static invε = 1.0 / Voronoi.ε;
+  static epsilon = 1e-9;
+  static invEpsilon = 1.0 / Voronoi.epsilon;
   private sqrt = Math.sqrt;
   private abs = Math.abs;
 
@@ -568,97 +568,51 @@ export class Voronoi {
     const dy = by - ay;
 
     let q = ax - bbox.xl;
-    if (dx === 0 && q < 0) {
-      return false;
-    }
+    if (dx === 0 && q < 0) return false;
     let r = -q / dx;
     if (dx < 0) {
-      if (r < t0) {
-        return false;
-      }
-      if (r < t1) {
-        t1 = r;
-      }
+      if (r < t0) return false;
+      if (r < t1) t1 = r;
     } else if (dx > 0) {
-      if (r > t1) {
-        return false;
-      }
-      if (r > t0) {
-        t0 = r;
-      }
+      if (r > t1) return false;
+      if (r > t0) t0 = r;
     }
 
     q = bbox.xr - ax;
-    if (dx === 0 && q < 0) {
-      return false;
-    }
+    if (dx === 0 && q < 0) return false;
     r = q / dx;
     if (dx < 0) {
-      if (r > t1) {
-        return false;
-      }
-      if (r > t0) {
-        t0 = r;
-      }
+      if (r > t1) return false;
+      if (r > t0) t0 = r;
     } else if (dx > 0) {
-      if (r < t0) {
-        return false;
-      }
-      if (r < t1) {
-        t1 = r;
-      }
+      if (r < t0) return false;
+      if (r < t1) t1 = r;
     }
 
     q = ay - bbox.yt;
-    if (dy === 0 && q < 0) {
-      return false;
-    }
+    if (dy === 0 && q < 0) return false;
     r = -q / dy;
     if (dy < 0) {
-      if (r < t0) {
-        return false;
-      }
-      if (r < t1) {
-        t1 = r;
-      }
+      if (r < t0) return false;
+      if (r < t1) t1 = r;
     } else if (dy > 0) {
-      if (r > t1) {
-        return false;
-      }
-      if (r > t0) {
-        t0 = r;
-      }
+      if (r > t1) return false;
+      if (r > t0) t0 = r;
     }
 
     q = bbox.yb - ay;
-    if (dy === 0 && q < 0) {
-      return false;
-    }
+    if (dy === 0 && q < 0) return false;
     r = q / dy;
     if (dy < 0) {
-      if (r > t1) {
-        return false;
-      }
-      if (r > t0) {
-        t0 = r;
-      }
+      if (r > t1) return false;
+      if (r > t0) t0 = r;
     } else if (dy > 0) {
-      if (r < t0) {
-        return false;
-      }
-      if (r < t1) {
-        t1 = r;
-      }
+      if (r < t0) return false;
+      if (r < t1) t1 = r;
     }
 
-    if (t0 > 0) {
-      edge.va = this.createVertex(ax + t0 * dx, ay + t0 * dy);
-    }
-
-    if (t1 < 1) {
-      edge.vb = this.createVertex(ax + t1 * dx, ay + t1 * dy);
-    }
-
+    if (t0 > 0) edge.va = this.createVertex(ax + t0 * dx, ay + t0 * dy);
+    if (t1 < 1) edge.vb = this.createVertex(ax + t1 * dx, ay + t1 * dy);
     if (t0 > 0 || t1 < 1) {
       this.cells[edge.lSite.voronoiId].closeMe = true;
       this.cells[edge.rSite.voronoiId].closeMe = true;
@@ -706,20 +660,15 @@ export class Voronoi {
     while (iCell--) {
       cell = cells[iCell];
 
-      if (!cell.prepareHalfedges()) {
-        continue;
-      }
-      if (!cell.closeMe) {
-        continue;
-      }
+      if (!cell.prepareHalfedges() || !cell.closeMe) continue;
 
       halfedges = cell.halfedges;
       nHalfedges = halfedges.length;
 
       iLeft = -1;
       while (++iLeft < nHalfedges) {
-        va = halfedges[iLeft].getEndpoint()!; // Guaranteed by prepareHalfedges
-        vz = halfedges[(iLeft + 1) % nHalfedges].getStartpoint()!; // Guaranteed by prepareHalfedges
+        va = halfedges[iLeft].getEndpoint(); // Guaranteed by prepareHalfedges
+        vz = halfedges[(iLeft + 1) % nHalfedges].getStartpoint(); // Guaranteed by prepareHalfedges
 
         if (abs_fn(va.x - vz.x) >= 1e-9 || abs_fn(va.y - vz.y) >= 1e-9) {
           let fallthrough = false;
@@ -754,88 +703,87 @@ export class Voronoi {
             fallthrough = true;
           }
           if (fallthrough || (this.equalWithEpsilon(va.x, xr) && this.greaterThanWithEpsilon(va.y, yt))) {
-              lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
-              vb = this.createVertex(xr, lastBorderSegment ? vz.y : yt);
-              edge = this.createBorderEdge(cell.site, va, vb);
-              iLeft++;
-              halfedges.splice(
-                iLeft,
-                0,
-                this.createHalfedge(edge, cell.site, null),
-              );
-              nHalfedges++;
-              if (lastBorderSegment) continue;
-              va = vb;
-              fallthrough = true;
-            }
-            if (fallthrough || (this.equalWithEpsilon(va.y, yt) && this.greaterThanWithEpsilon(va.x, xl))) {
-              lastBorderSegment = this.equalWithEpsilon(vz.y, yt);
-              vb = this.createVertex(lastBorderSegment ? vz.x : xl, yt);
-              edge = this.createBorderEdge(cell.site, va, vb);
-              iLeft++;
-              halfedges.splice(
-                iLeft,
-                0,
-                this.createHalfedge(edge, cell.site, null),
-              );
-              nHalfedges++;
-              if (lastBorderSegment) continue;
-              va = vb;
-
-              lastBorderSegment = this.equalWithEpsilon(vz.x, xl);
-              vb = this.createVertex(xl, lastBorderSegment ? vz.y : yb);
-              edge = this.createBorderEdge(cell.site, va, vb);
-              iLeft++;
-              halfedges.splice(
-                iLeft,
-                0,
-                this.createHalfedge(edge, cell.site, null),
-              );
-              nHalfedges++;
-              if (lastBorderSegment) continue;
-              va = vb;
-
-              lastBorderSegment = this.equalWithEpsilon(vz.y, yb);
-              vb = this.createVertex(lastBorderSegment ? vz.x : xr, yb);
-              edge = this.createBorderEdge(cell.site, va, vb);
-              iLeft++;
-              halfedges.splice(
-                iLeft,
-                0,
-                this.createHalfedge(edge, cell.site, null),
-              );
-              nHalfedges++;
-              if (lastBorderSegment) continue;
-              va = vb;
-
-              lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
-              vb = this.createVertex(xr, lastBorderSegment ? vz.y : yt);
-              edge = this.createBorderEdge(cell.site, va, vb);
-              iLeft++;
-              halfedges.splice(
-                iLeft,
-                0,
-                this.createHalfedge(edge, cell.site, null),
-              );
-              nHalfedges++;
-              if (lastBorderSegment) continue;
-            }
-            throw 'Voronoi.closeCells() > this makes no sense!';
+            lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
+            vb = this.createVertex(xr, lastBorderSegment ? vz.y : yt);
+            edge = this.createBorderEdge(cell.site, va, vb);
+            iLeft++;
+            halfedges.splice(
+              iLeft,
+              0,
+              this.createHalfedge(edge, cell.site, null),
+            );
+            nHalfedges++;
+            if (lastBorderSegment) continue;
+            va = vb;
+            fallthrough = true;
           }
+          if (fallthrough || (this.equalWithEpsilon(va.y, yt) && this.greaterThanWithEpsilon(va.x, xl))) {
+            lastBorderSegment = this.equalWithEpsilon(vz.y, yt);
+            vb = this.createVertex(lastBorderSegment ? vz.x : xl, yt);
+            edge = this.createBorderEdge(cell.site, va, vb);
+            iLeft++;
+            halfedges.splice(
+              iLeft,
+              0,
+              this.createHalfedge(edge, cell.site, null),
+            );
+            nHalfedges++;
+            if (lastBorderSegment) continue;
+            va = vb;
+
+            lastBorderSegment = this.equalWithEpsilon(vz.x, xl);
+            vb = this.createVertex(xl, lastBorderSegment ? vz.y : yb);
+            edge = this.createBorderEdge(cell.site, va, vb);
+            iLeft++;
+            halfedges.splice(
+              iLeft,
+              0,
+              this.createHalfedge(edge, cell.site, null),
+            );
+            nHalfedges++;
+            if (lastBorderSegment) continue;
+            va = vb;
+
+            lastBorderSegment = this.equalWithEpsilon(vz.y, yb);
+            vb = this.createVertex(lastBorderSegment ? vz.x : xr, yb);
+            edge = this.createBorderEdge(cell.site, va, vb);
+            iLeft++;
+            halfedges.splice(
+              iLeft,
+              0,
+              this.createHalfedge(edge, cell.site, null),
+            );
+            nHalfedges++;
+            if (lastBorderSegment) continue;
+            va = vb;
+
+            lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
+            vb = this.createVertex(xr, lastBorderSegment ? vz.y : yt);
+            edge = this.createBorderEdge(cell.site, va, vb);
+            iLeft++;
+            halfedges.splice(
+              iLeft,
+              0,
+              this.createHalfedge(edge, cell.site, null),
+            );
+            nHalfedges++;
+            if (lastBorderSegment) continue;
+          }
+          throw 'Voronoi.closeCells() > this makes no sense!';
         }
       }
-      cell.closeMe = false;
     }
+    cell.closeMe = false;
   }
 
   quantizeSites(sites: Site[]) {
-    const ε = this.ε;
+    const epsilon = Voronoi.epsilon;
     let n = sites.length;
     let site;
     while (n--) {
       site = sites[n];
-      site.x = Math.floor(site.x / ε) * ε;
-      site.y = Math.floor(site.y / ε) * ε;
+      site.x = Math.floor(site.x / epsilon) * epsilon;
+      site.y = Math.floor(site.y / epsilon) * epsilon;
     }
   }
 
@@ -963,7 +911,7 @@ class RBTree {
     let uncle: RBNode | null;
     node = successor;
     while (parent && parent.rbRed) {
-      grandpa = parent.rbParent!; // We know parent exists, so grandpa must also exist
+      grandpa = parent.rbParent; // We know parent exists, so grandpa must also exist
       if (parent === grandpa.rbLeft) {
         uncle = grandpa.rbRight;
         if (uncle && uncle.rbRed) {
@@ -976,7 +924,7 @@ class RBTree {
             node = parent;
             parent = node.rbParent;
           }
-          parent!.rbRed = false; // Parent will exist at this point
+          parent.rbRed = false; // Parent will exist at this point
           grandpa.rbRed = true;
           this.rbRotateRight(grandpa);
         }
@@ -992,14 +940,14 @@ class RBTree {
             node = parent;
             parent = node.rbParent;
           }
-          parent!.rbRed = false; // Parent will exist at this point
+          parent.rbRed = false; // Parent will exist at this point
           grandpa.rbRed = true;
           this.rbRotateLeft(grandpa);
         }
       }
       parent = node.rbParent;
     }
-    this.root!.rbRed = false; // Root always exists
+    this.root.rbRed = false; // Root always exists
   }
 
   rbRemoveNode(node: RBNode) {
