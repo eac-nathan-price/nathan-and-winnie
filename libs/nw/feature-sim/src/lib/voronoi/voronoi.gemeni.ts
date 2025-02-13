@@ -41,9 +41,7 @@ export class Voronoi {
     this.cellJunkyard = [];
 
     if (this.beachline.root) {
-      let beachsection: RBNode | null = this.beachline.getFirst(
-        this.beachline.root,
-      );
+      let beachsection: RBNode | null = this.beachline.getFirst(this.beachline.root);
       while (beachsection) {
         this.beachsectionJunkyard.push(beachsection as Beachsection);
         beachsection = beachsection.rbNext;
@@ -85,9 +83,7 @@ export class Voronoi {
 
   createCell(site: Site) {
     const cell = this.cellJunkyard.pop();
-    if (cell) {
-      return cell.init(site);
-    }
+    if (cell) return cell.init(site);
     return new this.Cell(site);
   }
 
@@ -97,9 +93,8 @@ export class Voronoi {
 
   createVertex(x: number, y: number) {
     let v = this.vertexJunkyard.pop();
-    if (!v) {
-      v = new this.Vertex(x, y);
-    } else {
+    if (!v) v = new this.Vertex(x, y);
+    else {
       v.x = x;
       v.y = y;
     }
@@ -109,35 +104,25 @@ export class Voronoi {
 
   createEdge(lSite: Site, rSite: Site, va?: Vertex, vb?: Vertex) {
     let edge = this.edgeJunkyard.pop();
-    if (!edge) {
-      edge = new this.Edge(lSite, rSite);
-    } else {
+    if (!edge) edge = new this.Edge(lSite, rSite);
+    else {
       edge.lSite = lSite;
       edge.rSite = rSite;
       edge.va = edge.vb = undefined;
     }
 
     this.edges.push(edge);
-    if (va) {
-      this.setEdgeStartpoint(edge, lSite, rSite, va);
-    }
-    if (vb) {
-      this.setEdgeEndpoint(edge, lSite, rSite, vb);
-    }
-    this.cells[lSite.voronoiId].halfedges.push(
-      this.createHalfedge(edge, lSite, rSite),
-    );
-    this.cells[rSite.voronoiId].halfedges.push(
-      this.createHalfedge(edge, rSite, lSite),
-    );
+    if (va) this.setEdgeStartpoint(edge, lSite, rSite, va);
+    if (vb) this.setEdgeEndpoint(edge, lSite, rSite, vb);
+    this.cells[lSite.voronoiId].halfedges.push(this.createHalfedge(edge, lSite, rSite));
+    this.cells[rSite.voronoiId].halfedges.push(this.createHalfedge(edge, rSite, lSite));
     return edge;
   }
 
   createBorderEdge(lSite: Site, va: Vertex, vb: Vertex) {
     let edge = this.edgeJunkyard.pop();
-    if (!edge) {
-      edge = new this.Edge(lSite, null);
-    } else {
+    if (!edge) edge = new this.Edge(lSite, null);
+    else {
       edge.lSite = lSite;
       edge.rSite = null;
     }
@@ -152,11 +137,8 @@ export class Voronoi {
       edge.va = vertex;
       edge.lSite = lSite;
       edge.rSite = rSite;
-    } else if (edge.lSite === rSite) {
-      edge.vb = vertex;
-    } else {
-      edge.va = vertex;
-    }
+    } else if (edge.lSite === rSite) edge.vb = vertex;
+    else edge.va = vertex;
   }
 
   setEdgeEndpoint(edge: Edge, lSite: Site, rSite: Site, vertex: Vertex) {
@@ -165,68 +147,37 @@ export class Voronoi {
 
   createBeachsection(site: Site) {
     let beachsection = this.beachsectionJunkyard.pop();
-    if (!beachsection) {
-      beachsection = new this.Beachsection();
-    }
+    if (!beachsection) beachsection = new this.Beachsection();
     beachsection.site = site;
     return beachsection;
   }
 
   leftBreakPoint(arc: Beachsection, directrix: number): number {
     let site = arc.site;
+    if (!site) return -Infinity;
     const rfocx = site.x;
     const rfocy = site.y;
     const pby2 = rfocy - directrix;
-
-    if (!pby2) {
-      return rfocx;
-    }
-
+    if (!pby2) return rfocx;
     const lArc = arc.rbPrevious as Beachsection | null; // Type assertion
-    if (!lArc) {
-      return -Infinity;
-    }
-
+    if (!lArc || !lArc.site) return -Infinity;
     site = lArc.site; // Correctly gets the Site from lArc
     const lfocx = site.x;
     const lfocy = site.y;
     const plby2 = lfocy - directrix;
-
-    if (!plby2) {
-      return lfocx;
-    }
-
+    if (!plby2) return lfocx;
     const hl = lfocx - rfocx;
     const aby2 = 1 / pby2 - 1 / plby2;
     const b = hl / plby2;
-
-    if (aby2) {
-      return (
-        (-b +
-          this.sqrt(
-            b * b -
-              2 *
-                aby2 *
-                ((hl * hl) / (-2 * plby2) -
-                  lfocy +
-                  plby2 / 2 +
-                  rfocy -
-                  pby2 / 2),
-          )) /
-          aby2 +
-        rfocx
-      );
-    }
-
+    if (aby2) return (-b+this.sqrt(b*b-2*aby2*((hl*hl)/(-2*plby2)-lfocy+plby2/2+rfocy-pby2/2)))/aby2+rfocx;
     return (rfocx + lfocx) / 2;
   }
 
   rightBreakPoint(arc: Beachsection, directrix: number) {
     const rArc = arc.rbNext as Beachsection | null; // Type assertion
-    if (rArc) {
-      return this.leftBreakPoint(rArc, directrix);
-    }
+    if (rArc) return this.leftBreakPoint(rArc, directrix);
     const site = arc.site;
+    if (!site) return Infinity;
     return site.y === directrix ? site.x : Infinity;
   }
 
