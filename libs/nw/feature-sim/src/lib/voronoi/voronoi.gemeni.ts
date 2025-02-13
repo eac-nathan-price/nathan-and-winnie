@@ -237,7 +237,7 @@ export class Voronoi {
   }
 
   removeBeachsection(beachsection: Beachsection) {
-    const circle = beachsection.circleEvent!;
+    const circle = beachsection.circleEvent;
     const x = circle.x;
     const y = circle.ycenter;
     const vertex = this.createVertex(x, y);
@@ -260,8 +260,8 @@ export class Voronoi {
       this.detachBeachsection(lArc);
       lArc = previous;
     }
-    disappearingTransitions.unshift(lArc!); // lArc should exist here
-    this.detachCircleEvent(lArc!); // lArc should exist here
+    disappearingTransitions.unshift(lArc); // lArc should exist here
+    this.detachCircleEvent(lArc); // lArc should exist here
 
     let rArc = next;
     while (
@@ -275,8 +275,8 @@ export class Voronoi {
       this.detachBeachsection(rArc);
       rArc = next;
     }
-    disappearingTransitions.push(rArc!); //rArc should exist here
-    this.detachCircleEvent(rArc!); //rArc should exist here
+    disappearingTransitions.push(rArc); //rArc should exist here
+    this.detachCircleEvent(rArc); //rArc should exist here
 
     const nArcs = disappearingTransitions.length;
     let iArc;
@@ -290,8 +290,8 @@ export class Voronoi {
     rArc = disappearingTransitions[nArcs - 1] as Beachsection;
     rArc.edge = this.createEdge(lArc.site, rArc.site, undefined, vertex);
 
-    this.attachCircleEvent(lArc!); //lArc should exist here
-    this.attachCircleEvent(rArc!); //rArc should exist here
+    this.attachCircleEvent(lArc); //lArc should exist here
+    this.attachCircleEvent(rArc); //rArc should exist here
   }
 
   addBeachsection(site: Site) {
@@ -331,22 +331,22 @@ export class Voronoi {
     }
 
     const newArc = this.createBeachsection(site);
-    this.beachline.rbInsertSuccessor(lArc!, newArc); //lArc might be null
+    this.beachline.rbInsertSuccessor(lArc, newArc); //lArc might be null
 
     if (!lArc && !rArc) {
       return;
     }
 
     if (lArc === rArc) {
-      this.detachCircleEvent(lArc!); //lArc should exist
+      this.detachCircleEvent(lArc); //lArc should exist
 
-      rArc = this.createBeachsection(lArc!.site);
-      this.beachline.rbInsertSuccessor(newArc, rArc!); //rArc has just been made.
+      rArc = this.createBeachsection(lArc.site);
+      this.beachline.rbInsertSuccessor(newArc, rArc); //rArc has just been made.
 
-      newArc.edge = rArc.edge = this.createEdge(lArc!.site, newArc.site);
+      newArc.edge = rArc.edge = this.createEdge(lArc.site, newArc.site);
 
-      this.attachCircleEvent(lArc!); //lArc should exist here
-      this.attachCircleEvent(rArc!); //rArc has just been made
+      this.attachCircleEvent(lArc); //lArc should exist here
+      this.attachCircleEvent(rArc); //rArc has just been made
       return;
     }
 
@@ -356,15 +356,15 @@ export class Voronoi {
     }
 
     if (lArc !== rArc) {
-      this.detachCircleEvent(lArc!); //lArc should exist here
-      this.detachCircleEvent(rArc!); //rArc should exist here
+      this.detachCircleEvent(lArc); //lArc should exist here
+      this.detachCircleEvent(rArc); //rArc should exist here
 
-      const lSite = lArc!.site;
+      const lSite = lArc.site;
       const ax = lSite.x;
       const ay = lSite.y;
       const bx = site.x - ax;
       const by = site.y - ay;
-      const rSite = rArc!.site;
+      const rSite = rArc.site;
       const cx = rSite.x - ax;
       const cy = rSite.y - ay;
       const d = 2 * (bx * cy - by * cx);
@@ -375,13 +375,13 @@ export class Voronoi {
         (bx * hc - cx * hb) / d + ay,
       );
 
-      this.setEdgeStartpoint(rArc!.edge, lSite, rSite, vertex);
+      this.setEdgeStartpoint(rArc.edge, lSite, rSite, vertex);
 
       newArc.edge = this.createEdge(lSite, site, undefined, vertex);
-      rArc!.edge = this.createEdge(site, rSite, undefined, vertex);
+      rArc.edge = this.createEdge(site, rSite, undefined, vertex);
 
-      this.attachCircleEvent(lArc!); //lArc should exist here
-      this.attachCircleEvent(rArc!); //rArc should exist here
+      this.attachCircleEvent(lArc); //lArc should exist here
+      this.attachCircleEvent(rArc); //rArc should exist here
       return;
     }
   }
@@ -558,10 +558,10 @@ export class Voronoi {
   }
 
   clipEdge(edge: Edge, bbox: Bbox) {
-    const ax = edge.va!.x; // Added ! operators, we are sure that va, vb are defined.
-    const ay = edge.va!.y;
-    const bx = edge.vb!.x;
-    const by = edge.vb!.y;
+    const ax = edge.va.x; // Added ! operators, we are sure that va, vb are defined.
+    const ay = edge.va.y;
+    const bx = edge.vb.x;
+    const by = edge.vb.y;
     let t0 = 0;
     let t1 = 1;
     const dx = bx - ax;
@@ -896,10 +896,10 @@ export class Voronoi {
           (site.y === circle.y && site.x < circle.x))
       ) {
         if (site.x !== xsitex || site.y !== xsitey) {
-          cells[siteid] = this.createCell(site);
+          cells[siteid] = this.createCell(site as Site);
           site.voronoiId = siteid++;
 
-          this.addBeachsection(site);
+          this.addBeachsection(site as Site);
 
           xsitey = site.y;
           xsitex = site.x;
@@ -1052,25 +1052,25 @@ class RBTree {
 
     let isRed: boolean;
     if (left && right) {
-      isRed = next!.rbRed; // next cannot be null if left AND right exist
-      next!.rbRed = node.rbRed;
-      next!.rbLeft = left;
+      isRed = next.rbRed; // next cannot be null if left AND right exist
+      next.rbRed = node.rbRed;
+      next.rbLeft = left;
       left.rbParent = next;
       if (next !== right) {
         parent = next.rbParent;
         next.rbParent = node.rbParent;
-        node = next.rbRight!; // We know that next.rbRight will be correct type.
-        parent!.rbLeft = node; // And that parent exists
+        node = next.rbRight; // We know that next.rbRight will be correct type.
+        parent.rbLeft = node; // And that parent exists
         next.rbRight = right;
         right.rbParent = next;
       } else {
         next.rbParent = parent;
         parent = next;
-        node = next.rbRight!; // We know that next.rbRight will be the correct type
+        node = next.rbRight; // We know that next.rbRight will be the correct type
       }
     } else {
       isRed = node.rbRed;
-      node = next!; // we know that node will now be the correct type
+      node = next; // we know that node will now be the correct type
     }
 
     if (node) {
@@ -1090,59 +1090,59 @@ class RBTree {
       if (node === this.root) {
         break;
       }
-      if (node === parent!.rbLeft) {
+      if (node === parent.rbLeft) {
         // parent exists
-        sibling = parent!.rbRight;
-        if (sibling!.rbRed) {
-          sibling!.rbRed = false;
-          parent!.rbRed = true;
-          this.rbRotateLeft(parent!);
-          sibling = parent!.rbRight;
+        sibling = parent.rbRight;
+        if (sibling.rbRed) {
+          sibling.rbRed = false;
+          parent.rbRed = true;
+          this.rbRotateLeft(parent);
+          sibling = parent.rbRight;
         }
         if (
-          (sibling!.rbLeft && sibling!.rbLeft.rbRed) ||
-          (sibling!.rbRight && sibling!.rbRight.rbRed)
+          (sibling.rbLeft && sibling.rbLeft.rbRed) ||
+          (sibling.rbRight && sibling.rbRight.rbRed)
         ) {
-          if (!sibling!.rbRight || !sibling!.rbRight.rbRed) {
+          if (!sibling.rbRight || !sibling.rbRight.rbRed) {
             sibling!.rbLeft!.rbRed = false;
             sibling!.rbRed = true;
-            this.rbRotateRight(sibling!);
-            sibling = parent!.rbRight;
+            this.rbRotateRight(sibling);
+            sibling = parent.rbRight;
           }
-          sibling!.rbRed = parent!.rbRed;
-          parent!.rbRed = sibling!.rbRight!.rbRed = false;
-          this.rbRotateLeft(parent!);
-          node = this.root!; // root exists
+          sibling.rbRed = parent.rbRed;
+          parent.rbRed = sibling.rbRight.rbRed = false;
+          this.rbRotateLeft(parent);
+          node = this.root; // root exists
           break;
         }
       } else {
         sibling = parent!.rbLeft;
-        if (sibling!.rbRed) {
-          sibling!.rbRed = false;
-          parent!.rbRed = true;
-          this.rbRotateRight(parent!);
-          sibling = parent!.rbLeft;
+        if (sibling.rbRed) {
+          sibling.rbRed = false;
+          parent.rbRed = true;
+          this.rbRotateRight(parent);
+          sibling = parent.rbLeft;
         }
         if (
-          (sibling!.rbLeft && sibling!.rbLeft.rbRed) ||
-          (sibling!.rbRight && sibling!.rbRight.rbRed)
+          (sibling.rbLeft && sibling.rbLeft.rbRed) ||
+          (sibling.rbRight && sibling.rbRight.rbRed)
         ) {
-          if (!sibling!.rbLeft || !sibling!.rbLeft.rbRed) {
-            sibling!.rbRight!.rbRed = false;
-            sibling!.rbRed = true;
-            this.rbRotateLeft(sibling!);
-            sibling = parent!.rbLeft;
+          if (!sibling.rbLeft || !sibling.rbLeft.rbRed) {
+            sibling.rbRight.rbRed = false;
+            sibling.rbRed = true;
+            this.rbRotateLeft(sibling);
+            sibling = parent.rbLeft;
           }
-          sibling!.rbRed = parent!.rbRed;
-          parent!.rbRed = sibling!.rbLeft!.rbRed = false;
-          this.rbRotateRight(parent!);
-          node = this.root!;
+          sibling.rbRed = parent.rbRed;
+          parent.rbRed = sibling.rbLeft.rbRed = false;
+          this.rbRotateRight(parent);
+          node = this.root;
           break;
         }
       }
-      sibling!.rbRed = true;
-      node = parent!;
-      parent = parent!.rbParent;
+      sibling.rbRed = true;
+      node = parent;
+      parent = parent.rbParent;
     } while (!node.rbRed);
     if (node) {
       node.rbRed = false;
@@ -1151,7 +1151,7 @@ class RBTree {
 
   rbRotateLeft(node: RBNode) {
     const p = node;
-    const q = node.rbRight!; // We know rbRight exists
+    const q = node.rbRight; // We know rbRight exists
     const parent = p.rbParent;
     if (parent) {
       if (parent.rbLeft === p) {
@@ -1173,7 +1173,7 @@ class RBTree {
 
   rbRotateRight(node: RBNode) {
     const p = node;
-    const q = node.rbLeft!; // We know rbLeft exists
+    const q = node.rbLeft; // We know rbLeft exists
     const parent = p.rbParent;
     if (parent) {
       if (parent.rbLeft === p) {
@@ -1272,8 +1272,8 @@ class Halfedge {
     if (rSite) {
       this.angle = Math.atan2(rSite.y - lSite.y, rSite.x - lSite.x);
     } else {
-      const va = edge.va!; // va and vb will be defined
-      const vb = edge.vb!;
+      const va = edge.va; // va and vb will be defined
+      const vb = edge.vb;
       this.angle =
         edge.lSite === lSite
           ? Math.atan2(vb.x - va.x, va.y - vb.y)
@@ -1282,11 +1282,11 @@ class Halfedge {
   }
 
   getStartpoint() {
-    return this.edge.lSite === this.site ? this.edge.va! : this.edge.vb!; // va and vb will be defined.
+    return this.edge.lSite === this.site ? this.edge.va: this.edge.vb; // va and vb will be defined.
   }
 
   getEndpoint() {
-    return this.edge.lSite === this.site ? this.edge.vb! : this.edge.va!; // va and vb will be defined.
+    return this.edge.lSite === this.site ? this.edge.vb: this.edge.va; // va and vb will be defined.
   }
 }
 
