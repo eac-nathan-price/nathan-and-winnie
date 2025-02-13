@@ -679,8 +679,8 @@ export class Voronoi {
       if (
         !this.connectEdge(edge, bbox) ||
         !this.clipEdge(edge, bbox) ||
-        (abs_fn(edge.va!.x - edge.vb!.x) < 1e-9 && // Added ! operators
-          abs_fn(edge.va!.y - edge.vb!.y) < 1e-9)
+        (abs_fn(edge.va.x - edge.vb.x) < 1e-9 && // Added ! operators
+          abs_fn(edge.va.y - edge.vb.y) < 1e-9)
       ) {
         edge.va = edge.vb = null;
         edges.splice(iEdge, 1);
@@ -716,16 +716,15 @@ export class Voronoi {
       halfedges = cell.halfedges;
       nHalfedges = halfedges.length;
 
-      iLeft = 0;
-      while (iLeft < nHalfedges) {
+      iLeft = -1;
+      while (++iLeft < nHalfedges) {
         va = halfedges[iLeft].getEndpoint()!; // Guaranteed by prepareHalfedges
         vz = halfedges[(iLeft + 1) % nHalfedges].getStartpoint()!; // Guaranteed by prepareHalfedges
 
         if (abs_fn(va.x - vz.x) >= 1e-9 || abs_fn(va.y - vz.y) >= 1e-9) {
-          switch (true) {
-            case this.equalWithEpsilon(va.x, xl) &&
-              this.lessThanWithEpsilon(va.y, yb):
-              lastBorderSegment = this.equalWithEpsilon(vz.x, xl);
+          let fallthrough = false;
+          if (this.equalWithEpsilon(va.x, xl) && this.lessThanWithEpsilon(va.y, yb)) {
+            lastBorderSegment = this.equalWithEpsilon(vz.x, xl);
               vb = this.createVertex(xl, lastBorderSegment ? vz.y : yb);
               edge = this.createBorderEdge(cell.site, va, vb);
               iLeft++;
@@ -735,30 +734,26 @@ export class Voronoi {
                 this.createHalfedge(edge, cell.site, null),
               );
               nHalfedges++;
-              if (lastBorderSegment) {
-                break;
-              }
+              if (lastBorderSegment) continue;
               va = vb;
-
-            case this.equalWithEpsilon(va.y, yb) &&
-              this.lessThanWithEpsilon(va.x, xr):
-              lastBorderSegment = this.equalWithEpsilon(vz.y, yb);
-              vb = this.createVertex(lastBorderSegment ? vz.x : xr, yb);
-              edge = this.createBorderEdge(cell.site, va, vb);
-              iLeft++;
-              halfedges.splice(
-                iLeft,
-                0,
-                this.createHalfedge(edge, cell.site, null),
-              );
-              nHalfedges++;
-              if (lastBorderSegment) {
-                break;
-              }
-              va = vb;
-
-            case this.equalWithEpsilon(va.x, xr) &&
-              this.greaterThanWithEpsilon(va.y, yt):
+              fallthrough = true;
+          }
+          if (fallthrough || (this.equalWithEpsilon(va.y, yb) && this.lessThanWithEpsilon(va.x, xr))) {
+            lastBorderSegment = this.equalWithEpsilon(vz.y, yb);
+            vb = this.createVertex(lastBorderSegment ? vz.x : xr, yb);
+            edge = this.createBorderEdge(cell.site, va, vb);
+            iLeft++;
+            halfedges.splice(
+              iLeft,
+              0,
+              this.createHalfedge(edge, cell.site, null),
+            );
+            nHalfedges++;
+            if (lastBorderSegment) continue;
+            va = vb;
+            fallthrough = true;
+          }
+          if (fallthrough || (this.equalWithEpsilon(va.x, xr) && this.greaterThanWithEpsilon(va.y, yt))) {
               lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
               vb = this.createVertex(xr, lastBorderSegment ? vz.y : yt);
               edge = this.createBorderEdge(cell.site, va, vb);
@@ -769,13 +764,11 @@ export class Voronoi {
                 this.createHalfedge(edge, cell.site, null),
               );
               nHalfedges++;
-              if (lastBorderSegment) {
-                break;
-              }
+              if (lastBorderSegment) continue;
               va = vb;
-
-            case this.equalWithEpsilon(va.y, yt) &&
-              this.greaterThanWithEpsilon(va.x, xl):
+              fallthrough = true;
+            }
+            if (fallthrough || (this.equalWithEpsilon(va.y, yt) && this.greaterThanWithEpsilon(va.x, xl))) {
               lastBorderSegment = this.equalWithEpsilon(vz.y, yt);
               vb = this.createVertex(lastBorderSegment ? vz.x : xl, yt);
               edge = this.createBorderEdge(cell.site, va, vb);
@@ -786,9 +779,7 @@ export class Voronoi {
                 this.createHalfedge(edge, cell.site, null),
               );
               nHalfedges++;
-              if (lastBorderSegment) {
-                break;
-              }
+              if (lastBorderSegment) continue;
               va = vb;
 
               lastBorderSegment = this.equalWithEpsilon(vz.x, xl);
@@ -801,9 +792,7 @@ export class Voronoi {
                 this.createHalfedge(edge, cell.site, null),
               );
               nHalfedges++;
-              if (lastBorderSegment) {
-                break;
-              }
+              if (lastBorderSegment) continue;
               va = vb;
 
               lastBorderSegment = this.equalWithEpsilon(vz.y, yb);
@@ -816,9 +805,7 @@ export class Voronoi {
                 this.createHalfedge(edge, cell.site, null),
               );
               nHalfedges++;
-              if (lastBorderSegment) {
-                break;
-              }
+              if (lastBorderSegment) continue;
               va = vb;
 
               lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
@@ -831,14 +818,11 @@ export class Voronoi {
                 this.createHalfedge(edge, cell.site, null),
               );
               nHalfedges++;
-              if (lastBorderSegment) {
-                break;
-              }
-            default:
-              throw 'Voronoi.closeCells() > this makes no sense!';
+              if (lastBorderSegment) continue;
+            }
+            throw 'Voronoi.closeCells() > this makes no sense!';
           }
         }
-        iLeft++;
       }
       cell.closeMe = false;
     }
