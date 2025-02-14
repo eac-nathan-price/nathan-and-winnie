@@ -1088,59 +1088,25 @@ class Cell {
   }
 }
 
-class Beachsection implements RBNode {
-  site: Site | null;
-  circleEvent: CircleEvent | null;
-  edge: Edge | null;
-  rbLeft: RBNode | null;
-  rbNext: RBNode | null;
-  rbParent: RBNode | null;
-  rbPrevious: RBNode | null;
-  rbRed: boolean;
-  rbRight: RBNode | null;
-  constructor() {
-    this.site = null;
-    this.circleEvent = null;
-    this.edge = null;
-    this.rbLeft = null;
-    this.rbNext = null;
-    this.rbParent = null;
-    this.rbPrevious = null;
-    this.rbRed = false;
-    this.rbRight = null;
-  }
-}
-interface RBNode {
-  rbLeft: RBNode | null;
-  rbNext: RBNode | null;
-  rbParent: RBNode | null;
-  rbPrevious: RBNode | null;
-  rbRed: boolean;
-  rbRight: RBNode | null;
+class RBNode {
+  rbLeft: RBNode | null = null;
+  rbNext: RBNode | null = null;
+  rbParent: RBNode | null = null;
+  rbPrevious: RBNode | null = null;
+  rbRed = false;
+  rbRight: RBNode | null = null;
 }
 
-class CircleEvent implements RBNode {
-  arc: Beachsection | null;
-  site: Site | null;
-  x: number;
-  y: number;
-  ycenter: number;
-  rbLeft: RBNode | null;
-  rbNext: RBNode | null;
-  rbParent: RBNode | null;
-  rbPrevious: RBNode | null;
-  rbRed: boolean;
-  rbRight: RBNode | null;
+class Beachsection extends RBNode {
+  site: Site | null = null;
+  circleEvent: CircleEvent | null = null;
+  edge: Edge | null = null;
+}
 
-  constructor() {
-    this.arc = null;
-    this.site = null;
-    this.x = this.y = this.ycenter = 0;
-    this.rbLeft = null;
-    this.rbNext = null;
-    this.rbParent = null;
-    this.rbPrevious = null;
-    this.rbRed = false;
-    this.rbRight = null;
-  }
+class CircleEvent extends RBNode {
+  arc: Beachsection | null = null;
+  site: Site | null = null;
+  x = 0;
+  y = 0;
+  ycenter = 0;
 }
