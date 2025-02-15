@@ -1,8 +1,9 @@
-import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, viewChild, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import * as THREE from 'three';
 import { Voronoi, Vertex } from './voronoi/voronoi.gemeni';
+import { isPlatformBrowser } from '@angular/common';
 
 class Random {
   static float(min: number, max: number) {
@@ -36,6 +37,7 @@ class Random {
   styleUrl: './sim.component.scss',
 })
 export class SimComponent implements OnInit { 
+  private platformId = inject(PLATFORM_ID);
   target = viewChild.required<ElementRef>('target');
   scene = new THREE.Scene();
   camera!: THREE.PerspectiveCamera;
@@ -43,10 +45,32 @@ export class SimComponent implements OnInit {
   customMesh!: THREE.Mesh;
 
   constructor() {
-    this.renderer = new THREE.WebGLRenderer();
     this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     this.camera.position.z = 5;
-    this.generateVoronoi();
+  }
+
+  ngOnInit() {
+    this.toolbar.patch(1, {
+      icon: 'altitude',
+      label: 'Sim',
+      title: 'Sim',
+      route: '/sim',
+    });
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.renderer = new THREE.WebGLRenderer();
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      
+      const container = this.target().nativeElement;
+      container.appendChild(this.renderer.domElement);
+      this.updateSize();
+      
+      window.addEventListener('resize', () => this.updateSize());
+      this.renderer.setAnimationLoop(this.animate.bind(this));
+
+      // Generate voronoi after renderer is initialized
+      this.generateVoronoi();
+    }
   }
 
   generateVoronoi() {
@@ -64,13 +88,15 @@ export class SimComponent implements OnInit {
     const indices: number[] = [];
     let vertexIndex = 0;
 
-    // Process each cell in the diagram
-    diagram.cells.forEach(cell => {
-      if (!cell.site) return;
-      
-      // Ensure edges are properly ordered
+    // Find first valid cell and render only that one
+    const cell = diagram.cells.find(cell => {
+      if (!cell.site) return false;
       cell.prepareHalfedges();
-      
+      const vertices = cell.halfedges.map(h => h.getStartpoint()).filter(v => v !== null);
+      return vertices.length >= 3;
+    });
+
+    if (cell && cell.site) {
       // Get ordered vertices around the cell
       const cellVertices: Vertex[] = [];
       cell.halfedges.forEach(halfedge => {
@@ -80,12 +106,8 @@ export class SimComponent implements OnInit {
         }
       });
 
-      if (cellVertices.length < 3) return;
-
       // Add cell center
-      const centerX = cell.site.x;
-      const centerY = cell.site.y;
-      vertices.push(centerX, centerY, 0);
+      vertices.push(cell.site.x, cell.site.y, 0);
       const centerIndex = vertexIndex++;
 
       // Add all vertices of the cell boundary
@@ -102,7 +124,7 @@ export class SimComponent implements OnInit {
           centerIndex + ((i + 1) % cellVertices.length) + 1
         );
       }
-    });
+    }
 
     // Create and set up geometry
     const geometry = new THREE.BufferGeometry();
@@ -119,26 +141,6 @@ export class SimComponent implements OnInit {
     this.scene.add(this.customMesh);
   }
   
-
-  toolbar = inject(ToolbarService);
-  ngOnInit() {
-    this.toolbar.patch(1, {
-      icon: 'altitude',
-      label: 'Sim',
-      title: 'Sim',
-      route: '/sim',
-    });
-
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    
-    const container = this.target().nativeElement;
-    container.appendChild(this.renderer.domElement);
-    this.updateSize();
-    
-    window.addEventListener('resize', () => this.updateSize());
-    this.renderer.setAnimationLoop(this.animate.bind(this));
-  }
-
   private updateSize() {
     const container = this.target().nativeElement;
     const width = container.clientWidth;
@@ -155,4 +157,6 @@ export class SimComponent implements OnInit {
     this.customMesh.rotation.y += 0.01;
     this.renderer.render(this.scene, this.camera);
   }
+
+  toolbar = inject(ToolbarService);
 }
