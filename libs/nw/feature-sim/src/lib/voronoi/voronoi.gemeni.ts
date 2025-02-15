@@ -729,6 +729,7 @@ class RBTree {
     node = successor;
     while (parent && parent.rbRed) {
       grandpa = parent.rbParent; // We know parent exists, so grandpa must also exist
+      if (!grandpa) break;
       if (parent === grandpa.rbLeft) {
         uncle = grandpa.rbRight;
         if (uncle && uncle.rbRed) {
@@ -739,7 +740,7 @@ class RBTree {
           if (node === parent.rbRight) {
             this.rbRotateLeft(parent);
             node = parent;
-            parent = node.rbParent;
+            parent = node.rbParent as RBNode;
           }
           parent.rbRed = false; // Parent will exist at this point
           grandpa.rbRed = true;
@@ -755,7 +756,7 @@ class RBTree {
           if (node === parent.rbLeft) {
             this.rbRotateRight(parent);
             node = parent;
-            parent = node.rbParent;
+            parent = node.rbParent as RBNode;
           }
           parent.rbRed = false; // Parent will exist at this point
           grandpa.rbRed = true;
@@ -764,7 +765,7 @@ class RBTree {
       }
       parent = node.rbParent;
     }
-    this.root.rbRed = false; // Root always exists
+    if (this.root) this.root.rbRed = false; // Root always exists
   }
 
   rbRemoveNode(node: RBNode) {
@@ -787,26 +788,26 @@ class RBTree {
     } else this.root = next;
 
     let isRed: boolean;
-    if (left && right) {
+    if (left && right && next) {
       isRed = next.rbRed; // next cannot be null if left AND right exist
       next.rbRed = node.rbRed;
       next.rbLeft = left;
       left.rbParent = next;
       if (next !== right) {
-        parent = next.rbParent;
+        parent = next.rbParent as RBNode;
         next.rbParent = node.rbParent;
-        node = next.rbRight; // We know that next.rbRight will be correct type.
+        node = next.rbRight as RBNode; // We know that next.rbRight will be correct type.
         parent.rbLeft = node; // And that parent exists
         next.rbRight = right;
         right.rbParent = next;
       } else {
         next.rbParent = parent;
         parent = next;
-        node = next.rbRight; // We know that next.rbRight will be the correct type
+        node = next.rbRight as RBNode; // We know that next.rbRight will be the correct type
       }
     } else {
       isRed = node.rbRed;
-      node = next; // we know that node will now be the correct type
+      node = next as RBNode; // we know that node will now be the correct type
     }
     if (node) node.rbParent = parent;
     if (isRed) return;
@@ -818,47 +819,48 @@ class RBTree {
     let sibling: RBNode | null;
     do {
       if (node === this.root) break;
-      if (node === parent.rbLeft) {
+      if (node === parent?.rbLeft) {
         // parent exists
-        sibling = parent.rbRight;
+        sibling = parent.rbRight as RBNode;
         if (sibling.rbRed) {
           sibling.rbRed = false;
           parent.rbRed = true;
           this.rbRotateLeft(parent);
-          sibling = parent.rbRight;
+          sibling = parent.rbRight as RBNode;
         }
         if ((sibling.rbLeft && sibling.rbLeft.rbRed) || (sibling.rbRight && sibling.rbRight.rbRed)) {
           if (!sibling.rbRight || !sibling.rbRight.rbRed) {
-            sibling!.rbLeft!.rbRed = false;
-            sibling!.rbRed = true;
+            if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
+            sibling.rbRed = true;
             this.rbRotateRight(sibling);
-            sibling = parent.rbRight;
+            sibling = parent.rbRight as RBNode;
           }
           sibling.rbRed = parent.rbRed;
-          parent.rbRed = sibling.rbRight.rbRed = false;
+          if (sibling.rbRight) sibling.rbRight.rbRed = false;
           this.rbRotateLeft(parent);
-          node = this.root; // root exists
+          node = this.root as RBNode; // root exists
           break;
         }
       } else {
-        sibling = parent!.rbLeft;
+        if (!parent) break;  // Add null check
+        sibling = parent.rbLeft as RBNode;
         if (sibling.rbRed) {
           sibling.rbRed = false;
           parent.rbRed = true;
           this.rbRotateRight(parent);
-          sibling = parent.rbLeft;
+          sibling = parent.rbLeft as RBNode;
         }
         if ((sibling.rbLeft && sibling.rbLeft.rbRed) || (sibling.rbRight && sibling.rbRight.rbRed)) {
           if (!sibling.rbLeft || !sibling.rbLeft.rbRed) {
-            sibling.rbRight.rbRed = false;
+            if (sibling.rbRight) sibling.rbRight.rbRed = false;
             sibling.rbRed = true;
             this.rbRotateLeft(sibling);
-            sibling = parent.rbLeft;
+            sibling = parent.rbLeft as RBNode;
           }
           sibling.rbRed = parent.rbRed;
-          parent.rbRed = sibling.rbLeft.rbRed = false;
+          if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
           this.rbRotateRight(parent);
-          node = this.root;
+          node = this.root as RBNode;
           break;
         }
       }
