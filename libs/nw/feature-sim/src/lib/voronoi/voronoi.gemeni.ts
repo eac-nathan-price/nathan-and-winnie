@@ -176,7 +176,8 @@ export class Voronoi {
     this.beachsectionJunkyard.push(beachsection);
   }
 
-  removeBeachsection(beachsection: Beachsection) {
+  removeBeachsection(beachsection: Beachsection | null) {
+    if (!beachsection) return;
     const circle = beachsection.circleEvent;
     if (!circle) return;
     const x = circle.x;
@@ -231,27 +232,27 @@ export class Voronoi {
     let lArc: Beachsection | null = null;
     let rArc: Beachsection | null = null;
     let dxl, dxr;
-    let node = this.beachline.root;
+    let node = this.beachline.root as Beachsection;
 
     while (node) {
-      dxl = this.leftBreakPoint(node as Beachsection, directrix) - x; // Cast to Beachsection
-      if (dxl > 1e-9) node = node.rbLeft;
+      dxl = this.leftBreakPoint(node as Beachsection, directrix) - x;
+      if (dxl > 1e-9) node = node.rbLeft as Beachsection;
       else {
-        dxr = x - this.rightBreakPoint(node as Beachsection, directrix); // Cast to Beachsection
+        dxr = x - this.rightBreakPoint(node as Beachsection, directrix);
         if (dxr > 1e-9) {
           if (!node.rbRight) {
-            lArc = node as Beachsection; // Type assertion
+            lArc = node;
             break;
           }
-          node = node.rbRight;
+          node = node.rbRight as Beachsection;
         } else {
           if (dxl > -1e-9) {
-            lArc = node.rbPrevious as Beachsection | null; // Type assertion
-            rArc = node as Beachsection; // Type assertion
+            lArc = node.rbPrevious as Beachsection;
+            rArc = node;
           } else if (dxr > -1e-9) {
-            lArc = node as Beachsection; // Type assertion
-            rArc = node.rbNext as Beachsection | null; // Type assertion
-          } else lArc = rArc = node as Beachsection; // Type assertion
+            lArc = node;
+            rArc = node.rbNext as Beachsection;
+          } else lArc = rArc = node;
           break;
         }
       }
@@ -262,10 +263,10 @@ export class Voronoi {
 
     if (!lArc && !rArc) return;
 
-    if (lArc === rArc) {
+    if (lArc && rArc && lArc === rArc) {
       this.detachCircleEvent(lArc); //lArc should exist
 
-      rArc = this.createBeachsection(lArc.site);
+      rArc = this.createBeachsection(lArc.site as Site);
       this.beachline.rbInsertSuccessor(newArc, rArc); //rArc has just been made.
 
       newArc.edge = rArc.edge = this.createEdge(lArc.site, newArc.site);
@@ -280,9 +281,9 @@ export class Voronoi {
       return;
     }
 
-    if (lArc !== rArc) {
-      this.detachCircleEvent(lArc); //lArc should exist here
-      this.detachCircleEvent(rArc); //rArc should exist here
+    if (lArc && rArc && lArc.site && rArc.site && lArc !== rArc) {
+      this.detachCircleEvent(lArc as Beachsection); //lArc should exist here
+      this.detachCircleEvent(rArc as Beachsection); //rArc should exist here
 
       const lSite = lArc.site;
       const ax = lSite.x;
@@ -318,7 +319,7 @@ export class Voronoi {
     const lSite = lArc.site;
     const cSite = arc.site;
     const rSite = rArc.site;
-    if (lSite === rSite) return;
+    if (lSite === rSite || !lSite || !cSite || !rSite) return;
     const bx = cSite.x;
     const by = cSite.y;
     const ax = lSite.x - bx;
@@ -341,16 +342,16 @@ export class Voronoi {
     circleEvent.ycenter = ycenter;
     arc.circleEvent = circleEvent;
     let predecessor: RBNode | null = null;
-    let node = this.circleEvents.root;
+    let node = this.circleEvents.root as CircleEvent;
     while (node) {
       if (circleEvent.y < node.y || (circleEvent.y === node.y && circleEvent.x <= node.x)) {
-        if (node.rbLeft) node = node.rbLeft;
+        if (node.rbLeft) node = node.rbLeft as CircleEvent;
         else {
-          predecessor = node.rbPrevious;
+          predecessor = node.rbPrevious as CircleEvent;
           break;
         }
       } else {
-        if (node.rbRight) node = node.rbRight;
+        if (node.rbRight) node = node.rbRight as CircleEvent;
         else {
           predecessor = node;
           break;
@@ -364,7 +365,7 @@ export class Voronoi {
   detachCircleEvent(arc: Beachsection) {
     const circleEvent = arc.circleEvent;
     if (circleEvent) {
-      if (!circleEvent.rbPrevious) this.firstCircleEvent = circleEvent.rbNext;
+      if (!circleEvent.rbPrevious) this.firstCircleEvent = circleEvent.rbNext as CircleEvent;
       this.circleEvents.rbRemoveNode(circleEvent);
       this.circleEventJunkyard.push(circleEvent);
       arc.circleEvent = null;
@@ -381,18 +382,25 @@ export class Voronoi {
     const yb = bbox.yb;
     const lSite = edge.lSite;
     const rSite = edge.rSite;
+    if (!lSite || !rSite) return false;
     const lx = lSite.x;
     const ly = lSite.y;
     const rx = rSite.x;
     const ry = rSite.y;
     const fx = (lx + rx) / 2;
     const fy = (ly + ry) / 2;
-    let fm, fb;
+    let fm: number | undefined;
+    let fb: number | undefined;
     this.cells[lSite.voronoiId].closeMe = true;
     this.cells[rSite.voronoiId].closeMe = true;
     if (ry !== ly) {
       fm = (lx - rx) / (ry - ly);
       fb = fy - fm * fx;
+    }
+
+    // Initialize fb to a default value if it wasn't set
+    if (fb === undefined) {
+      fb = fy;
     }
 
     if (fm === undefined) {
@@ -433,6 +441,7 @@ export class Voronoi {
   }
 
   clipEdge(edge: Edge, bbox: Bbox) {
+    if (!edge.va || !edge.vb) return false;
     const ax = edge.va.x; // Added ! operators, we are sure that va, vb are defined.
     const ay = edge.va.y;
     const bx = edge.vb.x;
@@ -488,7 +497,7 @@ export class Voronoi {
 
     if (t0 > 0) edge.va = this.createVertex(ax + t0 * dx, ay + t0 * dy);
     if (t1 < 1) edge.vb = this.createVertex(ax + t1 * dx, ay + t1 * dy);
-    if (t0 > 0 || t1 < 1) {
+    if ((t0 > 0 || t1 < 1) && edge.lSite && edge.rSite) {
       this.cells[edge.lSite.voronoiId].closeMe = true;
       this.cells[edge.rSite.voronoiId].closeMe = true;
     }
@@ -504,7 +513,7 @@ export class Voronoi {
 
     while (iEdge--) {
       edge = edges[iEdge];
-
+      if (!edge.va || !edge.vb) continue;
       if (!this.connectEdge(edge, bbox) || !this.clipEdge(edge, bbox) || (abs_fn(edge.va.x - edge.vb.x) < 1e-9 && abs_fn(edge.va.y - edge.vb.y) < 1e-9)) {
         edge.va = edge.vb = null;
         edges.splice(iEdge, 1);
@@ -537,7 +546,7 @@ export class Voronoi {
       while (++iLeft < nHalfedges) {
         va = halfedges[iLeft].getEndpoint(); // Guaranteed by prepareHalfedges
         vz = halfedges[(iLeft + 1) % nHalfedges].getStartpoint(); // Guaranteed by prepareHalfedges
-
+        if (!va || !vz) continue;
         if (abs_fn(va.x - vz.x) >= 1e-9 || abs_fn(va.y - vz.y) >= 1e-9) {
           let fallthrough = false;
           if (this.equalWithEpsilon(va.x, xl) && this.lessThanWithEpsilon(va.y, yb)) {
@@ -613,7 +622,7 @@ export class Voronoi {
         }
       }
     }
-    cell.closeMe = false;
+    if (cell) cell.closeMe = false;
   }
 
   quantizeSites(sites: Site[]) {
@@ -627,7 +636,7 @@ export class Voronoi {
     }
   }
 
-  recycle(diagram: Diagram) {
+  recycle(diagram: Diagram | null) {
     if (diagram) {
       if (diagram instanceof this.Diagram) {
         this.vertexJunkyard = this.vertexJunkyard.concat(diagram.vertices);
@@ -940,8 +949,8 @@ class Edge {
   constructor(
     public lSite: Site | null = null,
     public rSite: Site | null = null,
-    public va?: Vertex,
-    public vb?: Vertex
+    public va?: Vertex | null,
+    public vb?: Vertex | null
   ) {}
 }
 
