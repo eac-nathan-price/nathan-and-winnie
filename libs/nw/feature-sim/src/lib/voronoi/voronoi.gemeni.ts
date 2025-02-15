@@ -132,7 +132,8 @@ export class Voronoi {
     return edge;
   }
 
-  setEdgeStartpoint(edge: Edge, lSite: Site, rSite: Site, vertex: Vertex) {
+  setEdgeStartpoint(edge: Edge | null, lSite: Site | null, rSite: Site | null, vertex: Vertex) {
+    if (!edge) return;
     if (!edge.va && !edge.vb) {
       edge.va = vertex;
       edge.lSite = lSite;
@@ -141,7 +142,8 @@ export class Voronoi {
     else edge.va = vertex;
   }
 
-  setEdgeEndpoint(edge: Edge, lSite: Site, rSite: Site, vertex: Vertex) {
+  setEdgeEndpoint(edge: Edge | null, lSite: Site, rSite: Site, vertex: Vertex) {
+    if (!edge) return;
     this.setEdgeStartpoint(edge, rSite, lSite, vertex);
   }
 
@@ -202,23 +204,23 @@ export class Voronoi {
 
     let lArc = previous;
     while (lArc.circleEvent && abs_fn(x - lArc.circleEvent.x) < 1e-9 && abs_fn(y - lArc.circleEvent.ycenter) < 1e-9) {
-      previous = lArc.rbPrevious as Beachsection | null; // Type assertion
+      previous = lArc.rbPrevious as Beachsection;
       disappearingTransitions.unshift(lArc);
       this.detachBeachsection(lArc);
       lArc = previous;
     }
-    disappearingTransitions.unshift(lArc); // lArc should exist here
-    this.detachCircleEvent(lArc); // lArc should exist here
+    disappearingTransitions.unshift(lArc);
+    this.detachCircleEvent(lArc);
 
     let rArc = next;
     while (rArc.circleEvent && abs_fn(x - rArc.circleEvent.x) < 1e-9 && abs_fn(y - rArc.circleEvent.ycenter) < 1e-9) {
-      next = rArc.rbNext as Beachsection | null; // Type assertion
+      next = rArc.rbNext as Beachsection;
       disappearingTransitions.push(rArc);
       this.detachBeachsection(rArc);
       rArc = next;
     }
-    disappearingTransitions.push(rArc); //rArc should exist here
-    this.detachCircleEvent(rArc); //rArc should exist here
+    disappearingTransitions.push(rArc);
+    this.detachCircleEvent(rArc);
 
     const nArcs = disappearingTransitions.length;
     let iArc;
@@ -232,8 +234,8 @@ export class Voronoi {
     rArc = disappearingTransitions[nArcs - 1] as Beachsection;
     rArc.edge = this.createEdge(lArc.site, rArc.site, undefined, vertex);
 
-    this.attachCircleEvent(lArc); //lArc should exist here
-    this.attachCircleEvent(rArc); //rArc should exist here
+    this.attachCircleEvent(lArc);
+    this.attachCircleEvent(rArc);
   }
 
   addBeachsection(site: Site) {
@@ -934,53 +936,42 @@ interface Bbox {
 }
 
 class Diagram {
-  vertices: Vertex[];
-  edges: Edge[];
-  cells: Cell[];
-  execTime: number;
-  constructor() {
-    this.vertices = [];
-    this.edges = [];
-    this.cells = [];
-    this.execTime = 0;
-  }
+  vertices: Vertex[] = [];
+  edges: Edge[] = [];
+  cells: Cell[] = [];
+  execTime = 0;
 }
 
 class Vertex {
-  x: number;
-  y: number;
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
+  constructor(
+    public x: number,
+    public y: number
+  ) {}
 }
 
 class Edge {
-  lSite: Site;
-  rSite: Site | null;
-  va: Vertex | undefined;
-  vb: Vertex | undefined;
-  constructor(lSite: Site, rSite: Site | null) {
-    this.lSite = lSite;
-    this.rSite = rSite;
-    this.va = this.vb = undefined;
-  }
+  constructor(
+    public lSite: Site | null = null,
+    public rSite: Site | null = null,
+    public va?: Vertex,
+    public vb?: Vertex
+  ) {}
 }
 
 class Halfedge {
-  site: Site;
-  edge: Edge;
   angle = 0;
 
-  constructor(edge: Edge, lSite: Site, rSite: Site | null) {
-    this.site = lSite;
-    this.edge = edge;
-    if (rSite) this.angle = Math.atan2(rSite.y - lSite.y, rSite.x - lSite.x);
+  constructor(
+    public edge: Edge,
+    public site: Site,
+    rSite: Site | null
+  ) {
+    if (rSite) this.angle = Math.atan2(rSite.y - site.y, rSite.x - site.x);
     else {
       const va = edge.va; // va and vb will be defined
       const vb = edge.vb;
       if (!va || !vb) return;
-      this.angle = edge.lSite === lSite ? Math.atan2(vb.x - va.x, va.y - vb.y) : Math.atan2(va.x - vb.x, vb.y - va.y);
+      this.angle = edge.lSite === site ? Math.atan2(vb.x - va.x, va.y - vb.y) : Math.atan2(va.x - vb.x, vb.y - va.y);
     }
   }
 
@@ -994,15 +985,12 @@ class Halfedge {
 }
 
 class Cell {
-  site: Site;
-  halfedges: Halfedge[];
-  closeMe: boolean;
+  halfedges: Halfedge[] = [];
+  closeMe = false;
 
-  constructor(site: Site) {
-    this.site = site;
-    this.halfedges = [];
-    this.closeMe = false;
-  }
+  constructor(
+    public site: Site
+  ) {}
 
   init(site: Site) {
     this.site = site;
