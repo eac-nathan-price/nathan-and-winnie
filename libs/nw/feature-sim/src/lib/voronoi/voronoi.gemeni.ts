@@ -689,7 +689,7 @@ export class Voronoi {
   }
 }
 
-class RBTree {
+export class RBTree {
   root: RBNode | null = null;
 
   rbInsertSuccessor(node: RBNode | null, successor: RBNode) {
@@ -952,40 +952,40 @@ class RBTree {
   }
 }
 
-interface Site {
+export interface Site {
   x: number;
   y: number;
   voronoiId: number;
 }
 
-interface SiteInput {
+export interface SiteInput {
   x: number;
   y: number;
   voronoiId?: number;
 }
 
-interface Bbox {
+export interface Bbox {
   xl: number;
   xr: number;
   yt: number;
   yb: number;
 }
 
-class Diagram {
+export class Diagram {
   vertices: Vertex[] = [];
   edges: Edge[] = [];
   cells: Cell[] = [];
   execTime = 0;
 }
 
-class Vertex {
+export class Vertex {
   constructor(
     public x: number,
     public y: number
   ) {}
 }
 
-class Edge {
+export class Edge {
   va: Vertex | null = null;
   vb: Vertex | null = null;
 
@@ -995,7 +995,7 @@ class Edge {
   ) {}
 }
 
-class Halfedge {
+export class Halfedge {
   angle = 0;
 
   constructor(
@@ -1040,7 +1040,7 @@ class Halfedge {
   }
 }
 
-class Cell {
+export class Cell {
   halfedges: Halfedge[] = [];
   closeMe = false;
 
@@ -1125,7 +1125,7 @@ class Cell {
   }
 }
 
-class RBNode {
+export class RBNode {
   rbLeft: RBNode | null = null;
   rbNext: RBNode | null = null;
   rbParent: RBNode | null = null;
@@ -1134,13 +1134,13 @@ class RBNode {
   rbRight: RBNode | null = null;
 }
 
-class Beachsection extends RBNode {
+export class Beachsection extends RBNode {
   site: Site | null = null;
   circleEvent: CircleEvent | null = null;
   edge: Edge | null = null;
 }
 
-class CircleEvent extends RBNode {
+export class CircleEvent extends RBNode {
   arc: Beachsection | null = null;
   site: Site | null = null;
   x = 0;

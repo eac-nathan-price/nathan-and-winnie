@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import * as THREE from 'three';
-import { Voronoi } from './voronoi/voronoi.gemeni';
+import { Voronoi, Vertex } from './voronoi/voronoi.gemeni';
 
 class Random {
   static float(min: number, max: number) {
@@ -37,13 +37,17 @@ class Random {
 })
 export class SimComponent implements OnInit { 
   target = viewChild.required<ElementRef>('target');
-
   scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  renderer = new THREE.WebGLRenderer();
-  
-  // Remove the cube-related properties and add custom mesh
-  customMesh: THREE.Mesh;
+  camera!: THREE.PerspectiveCamera;
+  renderer!: THREE.WebGLRenderer;
+  customMesh!: THREE.Mesh;
+
+  constructor() {
+    this.renderer = new THREE.WebGLRenderer();
+    this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+    this.camera.position.z = 5;
+    this.generateVoronoi();
+  }
 
   generateVoronoi() {
     const voronoi = new Voronoi();
@@ -55,49 +59,66 @@ export class SimComponent implements OnInit {
     };
     const sites = Array.from({ length: 10 }, () => Random.vector2(-5, 5));
     const diagram = voronoi.compute(sites, bbox);
-    console.log(diagram);
-  }
-  
-
-  constructor() {
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.camera.position.z = 5;
-
-    console.log('Generating voronoi');
-    this.generateVoronoi();
     
-    // Define unique vertices
-    const vertices = new Float32Array([
-      -1.0, -1.0, 0.0,  // vertex 0
-       1.0, -1.0, 0.0,  // vertex 1
-       0.0,  1.0, 0.0,  // vertex 2
-       2.0,  1.0, 0.0   // vertex 3
-    ]);
+    const vertices: number[] = [];
+    const indices: number[] = [];
+    let vertexIndex = 0;
 
-    // Define indices to form triangles
-    const indices = new Uint16Array([
-      0, 1, 2,  // first triangle
-      2, 3, 1   // second triangle
-    ]);
+    // Process each cell in the diagram
+    diagram.cells.forEach(cell => {
+      if (!cell.site) return;
+      
+      // Ensure edges are properly ordered
+      cell.prepareHalfedges();
+      
+      // Get ordered vertices around the cell
+      const cellVertices: Vertex[] = [];
+      cell.halfedges.forEach(halfedge => {
+        const vertex = halfedge.getStartpoint();
+        if (vertex) {
+          cellVertices.push(vertex);
+        }
+      });
 
-    // Create buffer geometry
+      if (cellVertices.length < 3) return;
+
+      // Add cell center
+      const centerX = cell.site.x;
+      const centerY = cell.site.y;
+      vertices.push(centerX, centerY, 0);
+      const centerIndex = vertexIndex++;
+
+      // Add all vertices of the cell boundary
+      cellVertices.forEach(vertex => {
+        vertices.push(vertex.x, vertex.y, 0);
+        vertexIndex++;
+      });
+
+      // Create triangles fan from center to each edge
+      for (let i = 0; i < cellVertices.length; i++) {
+        indices.push(
+          centerIndex,
+          centerIndex + i + 1,
+          centerIndex + ((i + 1) % cellVertices.length) + 1
+        );
+      }
+    });
+
+    // Create and set up geometry
     const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+    geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
     
-    // Add vertices and indices
-    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-    
-    // Create material
     const material = new THREE.MeshBasicMaterial({ 
       color: 0x00ff00,
       side: THREE.DoubleSide,
       wireframe: true
     });
     
-    // Create mesh and add to scene
     this.customMesh = new THREE.Mesh(geometry, material);
     this.scene.add(this.customMesh);
   }
+  
 
   toolbar = inject(ToolbarService);
   ngOnInit() {
@@ -108,13 +129,13 @@ export class SimComponent implements OnInit {
       route: '/sim',
     });
 
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    
     const container = this.target().nativeElement;
     container.appendChild(this.renderer.domElement);
-    
     this.updateSize();
     
     window.addEventListener('resize', () => this.updateSize());
-    
     this.renderer.setAnimationLoop(this.animate.bind(this));
   }
 
