@@ -73,8 +73,19 @@ export class Voronoi {
     return new this.Cell(site);
   }
 
-  createHalfedge(edge: Edge, lSite: Site, rSite: Site | null) {
-    return new this.Halfedge(edge, lSite, rSite);
+  createHalfedge(edge: Edge, lSite: Site, rSite: Site | null): Halfedge {
+    if (!edge || !lSite) {
+      throw new Error('createHalfedge requires valid edge and left site');
+    }
+    try {
+      return new this.Halfedge(edge, lSite, rSite);
+    } catch (e) {
+      console.error('Failed to create halfedge:', e);
+      // Create a minimal valid halfedge as fallback
+      const halfedge = new this.Halfedge(edge, lSite, null);
+      halfedge.angle = 0;
+      return halfedge;
+    }
   }
 
   createVertex(x: number, y: number) {
@@ -95,7 +106,8 @@ export class Voronoi {
     else {
       edge.lSite = lSite;
       edge.rSite = rSite;
-      edge.va = edge.vb = undefined;
+      edge.va = null;
+      edge.vb = null;
     }
 
     this.edges.push(edge);
@@ -106,13 +118,14 @@ export class Voronoi {
     return edge;
   }
 
-  createBorderEdge(lSite: Site, va: Vertex, vb: Vertex) {
-    let edge = this.edgeJunkyard.pop();
-    if (!edge) edge = new this.Edge(lSite, null);
-    else {
-      edge.lSite = lSite;
-      edge.rSite = null;
+  createBorderEdge(lSite: Site, va: Vertex, vb: Vertex): Edge {
+    if (!lSite || !va || !vb) {
+      throw new Error('createBorderEdge requires valid site and vertices');
     }
+    
+    const edge = this.edgeJunkyard.pop() || new this.Edge(lSite, null);
+    edge.lSite = lSite;
+    edge.rSite = null;
     edge.va = va;
     edge.vb = vb;
     this.edges.push(edge);
@@ -542,56 +555,15 @@ export class Voronoi {
       halfedges = cell.halfedges;
       nHalfedges = halfedges.length;
 
-      iLeft = -1;
-      while (++iLeft < nHalfedges) {
-        va = halfedges[iLeft].getEndpoint(); // Guaranteed by prepareHalfedges
-        vz = halfedges[(iLeft + 1) % nHalfedges].getStartpoint(); // Guaranteed by prepareHalfedges
+      iLeft = 0;
+      while (iLeft < nHalfedges) {
+        va = halfedges[iLeft].getEndpoint();
+        vz = halfedges[(iLeft + 1) % nHalfedges].getStartpoint();
         if (!va || !vz) continue;
         if (abs_fn(va.x - vz.x) >= 1e-9 || abs_fn(va.y - vz.y) >= 1e-9) {
-          let fallthrough = false;
+          // Try each border in sequence
           if (this.equalWithEpsilon(va.x, xl) && this.lessThanWithEpsilon(va.y, yb)) {
-            lastBorderSegment = this.equalWithEpsilon(vz.x, xl);
-              vb = this.createVertex(xl, lastBorderSegment ? vz.y : yb);
-              edge = this.createBorderEdge(cell.site, va, vb);
-              iLeft++;
-              halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-              nHalfedges++;
-              if (lastBorderSegment) continue;
-              va = vb;
-              fallthrough = true;
-          }
-          if (fallthrough || (this.equalWithEpsilon(va.y, yb) && this.lessThanWithEpsilon(va.x, xr))) {
-            lastBorderSegment = this.equalWithEpsilon(vz.y, yb);
-            vb = this.createVertex(lastBorderSegment ? vz.x : xr, yb);
-            edge = this.createBorderEdge(cell.site, va, vb);
-            iLeft++;
-            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-            nHalfedges++;
-            if (lastBorderSegment) continue;
-            va = vb;
-            fallthrough = true;
-          }
-          if (fallthrough || (this.equalWithEpsilon(va.x, xr) && this.greaterThanWithEpsilon(va.y, yt))) {
-            lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
-            vb = this.createVertex(xr, lastBorderSegment ? vz.y : yt);
-            edge = this.createBorderEdge(cell.site, va, vb);
-            iLeft++;
-            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-            nHalfedges++;
-            if (lastBorderSegment) continue;
-            va = vb;
-            fallthrough = true;
-          }
-          if (fallthrough || (this.equalWithEpsilon(va.y, yt) && this.greaterThanWithEpsilon(va.x, xl))) {
-            lastBorderSegment = this.equalWithEpsilon(vz.y, yt);
-            vb = this.createVertex(lastBorderSegment ? vz.x : xl, yt);
-            edge = this.createBorderEdge(cell.site, va, vb);
-            iLeft++;
-            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-            nHalfedges++;
-            if (lastBorderSegment) continue;
-            va = vb;
-
+            // Left border
             lastBorderSegment = this.equalWithEpsilon(vz.x, xl);
             vb = this.createVertex(xl, lastBorderSegment ? vz.y : yb);
             edge = this.createBorderEdge(cell.site, va, vb);
@@ -600,7 +572,9 @@ export class Voronoi {
             nHalfedges++;
             if (lastBorderSegment) continue;
             va = vb;
-
+          }
+          if (this.equalWithEpsilon(va.y, yb) && this.lessThanWithEpsilon(va.x, xr)) {
+            // Bottom border
             lastBorderSegment = this.equalWithEpsilon(vz.y, yb);
             vb = this.createVertex(lastBorderSegment ? vz.x : xr, yb);
             edge = this.createBorderEdge(cell.site, va, vb);
@@ -609,7 +583,9 @@ export class Voronoi {
             nHalfedges++;
             if (lastBorderSegment) continue;
             va = vb;
-
+          }
+          if (this.equalWithEpsilon(va.x, xr) && this.greaterThanWithEpsilon(va.y, yt)) {
+            // Right border
             lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
             vb = this.createVertex(xr, lastBorderSegment ? vz.y : yt);
             edge = this.createBorderEdge(cell.site, va, vb);
@@ -617,12 +593,33 @@ export class Voronoi {
             halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
             nHalfedges++;
             if (lastBorderSegment) continue;
+            va = vb;
           }
-          throw 'Voronoi.closeCells() > this makes no sense!';
+          if (this.equalWithEpsilon(va.y, yt) && this.greaterThanWithEpsilon(va.x, xl)) {
+            // Top border
+            lastBorderSegment = this.equalWithEpsilon(vz.y, yt);
+            vb = this.createVertex(lastBorderSegment ? vz.x : xl, yt);
+            edge = this.createBorderEdge(cell.site, va, vb);
+            iLeft++;
+            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
+            nHalfedges++;
+            if (lastBorderSegment) continue;
+            va = vb;
+          }
+
+          // Close any remaining gap
+          if (va.x !== vz.x || va.y !== vz.y) {
+            vb = this.createVertex(va.x, va.y);
+            edge = this.createBorderEdge(cell.site, va, vb);
+            iLeft++;
+            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
+            nHalfedges++;
+          }
         }
+        iLeft++;
       }
+      cell.closeMe = false;
     }
-    if (cell) cell.closeMe = false;
   }
 
   quantizeSites(sites: Site[]) {
@@ -700,13 +697,17 @@ class RBTree {
     if (node) {
       successor.rbPrevious = node;
       successor.rbNext = node.rbNext;
-      if (node.rbNext) node.rbNext.rbPrevious = successor;
+      if (node.rbNext) {
+        node.rbNext.rbPrevious = successor;
+      }
       node.rbNext = successor;
       if (node.rbRight) {
         node = node.rbRight;
         while (node.rbLeft) node = node.rbLeft;
         node.rbLeft = successor;
-      } else node.rbRight = successor;
+      } else {
+        node.rbRight = successor;
+      }
       parent = node;
     } else if (this.root) {
       node = this.getFirst(this.root);
@@ -724,12 +725,14 @@ class RBTree {
     successor.rbParent = parent;
     successor.rbRed = true;
 
+    // Fix up the modified tree
     let grandpa: RBNode | null;
     let uncle: RBNode | null;
     node = successor;
     while (parent && parent.rbRed) {
-      grandpa = parent.rbParent; // We know parent exists, so grandpa must also exist
+      grandpa = parent.rbParent;
       if (!grandpa) break;
+
       if (parent === grandpa.rbLeft) {
         uncle = grandpa.rbRight;
         if (uncle && uncle.rbRed) {
@@ -740,9 +743,10 @@ class RBTree {
           if (node === parent.rbRight) {
             this.rbRotateLeft(parent);
             node = parent;
-            parent = node.rbParent as RBNode;
+            parent = node.rbParent;
+            if (!parent) break;
           }
-          parent.rbRed = false; // Parent will exist at this point
+          parent.rbRed = false;
           grandpa.rbRed = true;
           this.rbRotateRight(grandpa);
         }
@@ -756,16 +760,19 @@ class RBTree {
           if (node === parent.rbLeft) {
             this.rbRotateRight(parent);
             node = parent;
-            parent = node.rbParent as RBNode;
+            parent = node.rbParent;
+            if (!parent) break;
           }
-          parent.rbRed = false; // Parent will exist at this point
+          parent.rbRed = false;
           grandpa.rbRed = true;
           this.rbRotateLeft(grandpa);
         }
       }
       parent = node.rbParent;
     }
-    if (this.root) this.root.rbRed = false; // Root always exists
+    if (this.root) {
+      this.root.rbRed = false;
+    }
   }
 
   rbRemoveNode(node: RBNode) {
@@ -777,109 +784,134 @@ class RBTree {
     const left = node.rbLeft;
     const right = node.rbRight;
     let next: RBNode | null;
+    let isRed: boolean;
 
-    if (!left) next = right;
-    else if (!right) next = left;
-    else next = this.getFirst(right);
+    if (!left) {
+      next = right;
+    } else if (!right) {
+      next = left;
+    } else {
+      next = this.getFirst(right);
+    }
 
     if (parent) {
-      if (parent.rbLeft === node) parent.rbLeft = next;
-      else parent.rbRight = next;
-    } else this.root = next;
+      if (parent.rbLeft === node) {
+        parent.rbLeft = next;
+      } else {
+        parent.rbRight = next;
+      }
+    } else {
+      this.root = next;
+    }
 
-    let isRed: boolean;
-    if (left && right && next) {
-      isRed = next.rbRed; // next cannot be null if left AND right exist
+    if (left && right && next !== right) {
+      if (!next) return;
+      isRed = next.rbRed;
       next.rbRed = node.rbRed;
       next.rbLeft = left;
       left.rbParent = next;
       if (next !== right) {
         parent = next.rbParent as RBNode;
         next.rbParent = node.rbParent;
-        node = next.rbRight as RBNode; // We know that next.rbRight will be correct type.
-        parent.rbLeft = node; // And that parent exists
+        node = next.rbRight as RBNode;
+        parent.rbLeft = node;
+        if (node) node.rbParent = parent;
         next.rbRight = right;
         right.rbParent = next;
       } else {
         next.rbParent = parent;
         parent = next;
-        node = next.rbRight as RBNode; // We know that next.rbRight will be the correct type
+        node = next.rbRight as RBNode;
       }
     } else {
       isRed = node.rbRed;
-      node = next as RBNode; // we know that node will now be the correct type
-    }
-    if (node) node.rbParent = parent;
-    if (isRed) return;
-    if (node && node.rbRed) {
-      node.rbRed = false;
-      return;
+      node = next as RBNode;
+      if (node) node.rbParent = parent;
     }
 
-    let sibling: RBNode | null;
-    do {
-      if (node === this.root) break;
-      if (node === parent?.rbLeft) {
-        // parent exists
-        sibling = parent.rbRight as RBNode;
-        if (sibling.rbRed) {
-          sibling.rbRed = false;
-          parent.rbRed = true;
-          this.rbRotateLeft(parent);
-          sibling = parent.rbRight as RBNode;
-        }
-        if ((sibling.rbLeft && sibling.rbLeft.rbRed) || (sibling.rbRight && sibling.rbRight.rbRed)) {
-          if (!sibling.rbRight || !sibling.rbRight.rbRed) {
-            if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
-            sibling.rbRed = true;
-            this.rbRotateRight(sibling);
-            sibling = parent.rbRight as RBNode;
+    if (!isRed) {
+      while (parent && (!node || !node.rbRed)) {
+        if (node === parent.rbLeft) {
+          let sibling = parent.rbRight;
+          if (sibling && sibling.rbRed) {
+            sibling.rbRed = false;
+            parent.rbRed = true;
+            this.rbRotateLeft(parent);
+            sibling = parent.rbRight;
           }
-          sibling.rbRed = parent.rbRed;
-          if (sibling.rbRight) sibling.rbRight.rbRed = false;
-          this.rbRotateLeft(parent);
-          node = this.root as RBNode; // root exists
-          break;
-        }
-      } else {
-        if (!parent) break;  // Add null check
-        sibling = parent.rbLeft as RBNode;
-        if (sibling.rbRed) {
-          sibling.rbRed = false;
-          parent.rbRed = true;
-          this.rbRotateRight(parent);
-          sibling = parent.rbLeft as RBNode;
-        }
-        if ((sibling.rbLeft && sibling.rbLeft.rbRed) || (sibling.rbRight && sibling.rbRight.rbRed)) {
-          if (!sibling.rbLeft || !sibling.rbLeft.rbRed) {
-            if (sibling.rbRight) sibling.rbRight.rbRed = false;
-            sibling.rbRed = true;
-            this.rbRotateLeft(sibling);
-            sibling = parent.rbLeft as RBNode;
+          if (sibling) {
+            const siblingLeftRed = sibling.rbLeft && sibling.rbLeft.rbRed;
+            const siblingRightRed = sibling.rbRight && sibling.rbRight.rbRed;
+            if (!siblingLeftRed && !siblingRightRed) {
+              sibling.rbRed = true;
+              node = parent;
+              parent = parent.rbParent;
+            } else {
+              if (!siblingRightRed) {
+                if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
+                sibling.rbRed = true;
+                this.rbRotateRight(sibling);
+                sibling = parent.rbRight;
+              }
+              if (sibling) {
+                sibling.rbRed = parent.rbRed;
+                if (sibling.rbRight) sibling.rbRight.rbRed = false;
+              }
+              parent.rbRed = false;
+              this.rbRotateLeft(parent);
+              node = this.root as RBNode;
+              parent = null;
+            }
           }
-          sibling.rbRed = parent.rbRed;
-          if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
-          this.rbRotateRight(parent);
-          node = this.root as RBNode;
-          break;
+        } else {
+          let sibling = parent.rbLeft;
+          if (sibling && sibling.rbRed) {
+            sibling.rbRed = false;
+            parent.rbRed = true;
+            this.rbRotateRight(parent);
+            sibling = parent.rbLeft;
+          }
+          if (sibling) {
+            const siblingLeftRed = sibling.rbLeft && sibling.rbLeft.rbRed;
+            const siblingRightRed = sibling.rbRight && sibling.rbRight.rbRed;
+            if (!siblingLeftRed && !siblingRightRed) {
+              sibling.rbRed = true;
+              node = parent;
+              parent = parent.rbParent;
+            } else {
+              if (!siblingLeftRed) {
+                if (sibling.rbRight) sibling.rbRight.rbRed = false;
+                sibling.rbRed = true;
+                this.rbRotateLeft(sibling);
+                sibling = parent.rbLeft;
+              }
+              if (sibling) {
+                sibling.rbRed = parent.rbRed;
+                if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
+              }
+              parent.rbRed = false;
+              this.rbRotateRight(parent);
+              node = this.root as RBNode;
+              parent = null;
+            }
+          }
         }
       }
-      sibling.rbRed = true;
-      node = parent;
-      parent = parent.rbParent;
-    } while (!node.rbRed);
-    if (node) node.rbRed = false;
+      if (node) node.rbRed = false;
+    }
   }
 
   rbRotateLeft(node: RBNode) {
     const p = node;
-    const q = node.rbRight; // We know rbRight exists
+    const q = node.rbRight;
     if (!q) return;
     const parent = p.rbParent;
     if (parent) {
       if (parent.rbLeft === p) parent.rbLeft = q;
       else parent.rbRight = q;
-    } else this.root = q;
+    } else {
+      this.root = q;
+    }
     q.rbParent = parent;
     p.rbParent = q;
     p.rbRight = q.rbLeft;
@@ -889,13 +921,15 @@ class RBTree {
 
   rbRotateRight(node: RBNode) {
     const p = node;
-    const q = node.rbLeft; // We know rbLeft exists
+    const q = node.rbLeft;
     if (!q) return;
     const parent = p.rbParent;
     if (parent) {
       if (parent.rbLeft === p) parent.rbLeft = q;
       else parent.rbRight = q;
-    } else this.root = q;
+    } else {
+      this.root = q;
+    }
     q.rbParent = parent;
     p.rbParent = q;
     p.rbLeft = q.rbRight;
@@ -903,13 +937,17 @@ class RBTree {
     q.rbRight = p;
   }
 
-  getFirst(node: RBNode) {
-    while (node.rbLeft) node = node.rbLeft;
+  getFirst(node: RBNode): RBNode {
+    while (node.rbLeft) {
+      node = node.rbLeft;
+    }
     return node;
   }
 
-  getLast(node: RBNode) {
-    while (node.rbRight) node = node.rbRight;
+  getLast(node: RBNode): RBNode {
+    while (node.rbRight) {
+      node = node.rbRight;
+    }
     return node;
   }
 }
@@ -948,11 +986,12 @@ class Vertex {
 }
 
 class Edge {
+  va: Vertex | null = null;
+  vb: Vertex | null = null;
+
   constructor(
     public lSite: Site | null = null,
-    public rSite: Site | null = null,
-    public va?: Vertex | null,
-    public vb?: Vertex | null
+    public rSite: Site | null = null
   ) {}
 }
 
@@ -964,21 +1003,40 @@ class Halfedge {
     public site: Site,
     rSite: Site | null
   ) {
-    if (rSite) this.angle = Math.atan2(rSite.y - site.y, rSite.x - site.x);
-    else {
-      const va = edge.va; // va and vb will be defined
+    // Safety check for required properties
+    if (!edge || !site) {
+      throw new Error('Halfedge requires valid edge and site');
+    }
+
+    if (rSite) {
+      // Calculate angle between sites
+      this.angle = Math.atan2(rSite.y - site.y, rSite.x - site.x);
+    } else {
+      // Calculate angle between vertices
+      const va = edge.va;
       const vb = edge.vb;
-      if (!va || !vb) return;
-      this.angle = edge.lSite === site ? Math.atan2(vb.x - va.x, va.y - vb.y) : Math.atan2(va.x - vb.x, vb.y - va.y);
+      
+      // Safety check for vertices
+      if (!va || !vb) {
+        this.angle = 0; // Set default angle
+        return;
+      }
+
+      // Calculate angle based on edge direction
+      this.angle = edge.lSite === site ? 
+        Math.atan2(vb.x - va.x, va.y - vb.y) :
+        Math.atan2(va.x - vb.x, vb.y - va.y);
     }
   }
 
-  getStartpoint() {
-    return this.edge.lSite === this.site ? this.edge.va : this.edge.vb; // va and vb will be defined.
+  getStartpoint(): Vertex | null {
+    if (!this.edge || !this.edge.va || !this.edge.vb) return null;
+    return this.edge.lSite === this.site ? this.edge.va : this.edge.vb;
   }
 
-  getEndpoint() {
-    return this.edge.lSite === this.site ? this.edge.vb : this.edge.va; // va and vb will be defined.
+  getEndpoint(): Vertex | null {
+    if (!this.edge || !this.edge.va || !this.edge.vb) return null;
+    return this.edge.lSite === this.site ? this.edge.vb : this.edge.va;
   }
 }
 
