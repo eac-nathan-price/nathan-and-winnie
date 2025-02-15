@@ -189,23 +189,19 @@ export class Voronoi {
 
   removeBeachsection(beachsection: Beachsection) {
     const circle = beachsection.circleEvent;
+    if (!circle) return;
     const x = circle.x;
     const y = circle.ycenter;
     const vertex = this.createVertex(x, y);
-    let previous = beachsection.rbPrevious as Beachsection | null; // Type assertion
-    let next = beachsection.rbNext as Beachsection | null; // Type assertion
+    let previous = beachsection.rbPrevious as Beachsection;
+    let next = beachsection.rbNext as Beachsection;
     const disappearingTransitions = [beachsection];
     const abs_fn = Math.abs;
 
     this.detachBeachsection(beachsection);
 
     let lArc = previous;
-    while (
-      lArc && // Check for null lArc
-      lArc.circleEvent &&
-      abs_fn(x - lArc.circleEvent.x) < 1e-9 &&
-      abs_fn(y - lArc.circleEvent.ycenter) < 1e-9
-    ) {
+    while (lArc.circleEvent && abs_fn(x - lArc.circleEvent.x) < 1e-9 && abs_fn(y - lArc.circleEvent.ycenter) < 1e-9) {
       previous = lArc.rbPrevious as Beachsection | null; // Type assertion
       disappearingTransitions.unshift(lArc);
       this.detachBeachsection(lArc);
@@ -215,12 +211,7 @@ export class Voronoi {
     this.detachCircleEvent(lArc); // lArc should exist here
 
     let rArc = next;
-    while (
-      rArc && //check for null rArc
-      rArc.circleEvent &&
-      abs_fn(x - rArc.circleEvent.x) < 1e-9 &&
-      abs_fn(y - rArc.circleEvent.ycenter) < 1e-9
-    ) {
+    while (rArc.circleEvent && abs_fn(x - rArc.circleEvent.x) < 1e-9 && abs_fn(y - rArc.circleEvent.ycenter) < 1e-9) {
       next = rArc.rbNext as Beachsection | null; // Type assertion
       disappearingTransitions.push(rArc);
       this.detachBeachsection(rArc);
@@ -883,6 +874,7 @@ class RBTree {
   rbRotateLeft(node: RBNode) {
     const p = node;
     const q = node.rbRight; // We know rbRight exists
+    if (!q) return;
     const parent = p.rbParent;
     if (parent) {
       if (parent.rbLeft === p) parent.rbLeft = q;
@@ -898,6 +890,7 @@ class RBTree {
   rbRotateRight(node: RBNode) {
     const p = node;
     const q = node.rbLeft; // We know rbLeft exists
+    if (!q) return;
     const parent = p.rbParent;
     if (parent) {
       if (parent.rbLeft === p) parent.rbLeft = q;
