@@ -1,34 +1,20 @@
 export class Voronoi {
-  vertices: Vertex[];
-  edges: Edge[];
-  cells: Cell[];
-  beachsectionJunkyard: Beachsection[];
-  circleEventJunkyard: CircleEvent[];
-  vertexJunkyard: Vertex[];
-  edgeJunkyard: Edge[];
-  cellJunkyard: Cell[];
-  private beachline: RBTree;
-  private circleEvents: RBTree;
-  private firstCircleEvent: CircleEvent | null;
+  vertices: Vertex[] = [];
+  edges: Edge[] = [];
+  cells: Cell[] = [];
+  beachsectionJunkyard: Beachsection[] = [];
+  circleEventJunkyard: CircleEvent[] = [];
+  vertexJunkyard: Vertex[] = [];
+  edgeJunkyard: Edge[] = [];
+  cellJunkyard: Cell[] = [];
+  private beachline = new RBTree();
+  private circleEvents = new RBTree();
+  private firstCircleEvent: CircleEvent | null = null;
 
   static epsilon = 1e-9;
   static invEpsilon = 1.0 / Voronoi.epsilon;
   private sqrt = Math.sqrt;
   private abs = Math.abs;
-
-  constructor() {
-    this.vertices = [];
-    this.edges = [];
-    this.cells = [];
-    this.beachsectionJunkyard = [];
-    this.circleEventJunkyard = [];
-    this.vertexJunkyard = [];
-    this.edgeJunkyard = [];
-    this.cellJunkyard = [];
-    this.beachline = new RBTree();
-    this.circleEvents = new RBTree();
-    this.firstCircleEvent = null;
-  }
 
   reset() {
     this.beachline = new RBTree();
@@ -102,7 +88,8 @@ export class Voronoi {
     return v;
   }
 
-  createEdge(lSite: Site, rSite: Site, va?: Vertex, vb?: Vertex) {
+  createEdge(lSite: Site | null, rSite: Site | null, va?: Vertex, vb?: Vertex) {
+    if (!lSite || !rSite) throw new Error('lSite and rSite must be defined');
     let edge = this.edgeJunkyard.pop();
     if (!edge) edge = new this.Edge(lSite, rSite);
     else {
@@ -142,7 +129,7 @@ export class Voronoi {
     else edge.va = vertex;
   }
 
-  setEdgeEndpoint(edge: Edge | null, lSite: Site, rSite: Site, vertex: Vertex) {
+  setEdgeEndpoint(edge: Edge | null, lSite: Site | null, rSite: Site | null, vertex: Vertex) {
     if (!edge) return;
     this.setEdgeStartpoint(edge, rSite, lSite, vertex);
   }
