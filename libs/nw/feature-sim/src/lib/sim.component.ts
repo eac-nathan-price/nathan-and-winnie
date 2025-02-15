@@ -2,6 +2,7 @@ import { Component, ElementRef, inject, OnInit, viewChild, PLATFORM_ID } from '@
 import { CommonModule } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Voronoi, Vertex } from './voronoi/voronoi.gemeni';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -42,6 +43,7 @@ export class SimComponent implements OnInit {
   scene = new THREE.Scene();
   camera!: THREE.PerspectiveCamera;
   renderer!: THREE.WebGLRenderer;
+  controls!: OrbitControls;
   customMesh!: THREE.Mesh;
 
   constructor() {
@@ -65,10 +67,12 @@ export class SimComponent implements OnInit {
       container.appendChild(this.renderer.domElement);
       this.updateSize();
       
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.enableDamping = true;
+      
       window.addEventListener('resize', () => this.updateSize());
       this.renderer.setAnimationLoop(this.animate.bind(this));
 
-      // Generate voronoi after renderer is initialized
       this.generateVoronoi();
     }
   }
@@ -83,21 +87,12 @@ export class SimComponent implements OnInit {
     };
     const sites = Array.from({ length: 10 }, () => Random.vector2(-5, 5));
     const diagram = voronoi.compute(sites, bbox);
-    
-    const vertices: number[] = [];
-    const indices: number[] = [];
-    let vertexIndex = 0;
 
-    // Find first valid cell and render only that one
-    const cell = diagram.cells.find(cell => {
-      if (!cell.site) return false;
+    // Process each cell in the diagram
+    diagram.cells.forEach(cell => {
+      if (!cell.site) return;
+      
       cell.prepareHalfedges();
-      const vertices = cell.halfedges.map(h => h.getStartpoint()).filter(v => v !== null);
-      return vertices.length >= 3;
-    });
-
-    if (cell && cell.site) {
-      // Get ordered vertices around the cell
       const cellVertices: Vertex[] = [];
       cell.halfedges.forEach(halfedge => {
         const vertex = halfedge.getStartpoint();
@@ -106,39 +101,42 @@ export class SimComponent implements OnInit {
         }
       });
 
+      if (cellVertices.length < 3) return;
+
+      const vertices: number[] = [];
+      const indices: number[] = [];
+      
       // Add cell center
       vertices.push(cell.site.x, cell.site.y, 0);
-      const centerIndex = vertexIndex++;
-
-      // Add all vertices of the cell boundary
+      
+      // Add boundary vertices
       cellVertices.forEach(vertex => {
         vertices.push(vertex.x, vertex.y, 0);
-        vertexIndex++;
       });
 
-      // Create triangles fan from center to each edge
+      // Create triangles fan from center
       for (let i = 0; i < cellVertices.length; i++) {
         indices.push(
-          centerIndex,
-          centerIndex + i + 1,
-          centerIndex + ((i + 1) % cellVertices.length) + 1
+          0, // center is always first vertex
+          i + 1,
+          ((i + 1) % cellVertices.length) + 1
         );
       }
-    }
 
-    // Create and set up geometry
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-    geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
-    
-    const material = new THREE.MeshBasicMaterial({ 
-      color: 0x00ff00,
-      side: THREE.DoubleSide,
-      wireframe: true
+      // Create geometry for this cell
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+      geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
+      
+      const material = new THREE.MeshBasicMaterial({ 
+        color: 0x00ff00,
+        side: THREE.DoubleSide,
+        wireframe: true
+      });
+      
+      const mesh = new THREE.Mesh(geometry, material);
+      this.scene.add(mesh);
     });
-    
-    this.customMesh = new THREE.Mesh(geometry, material);
-    this.scene.add(this.customMesh);
   }
   
   private updateSize() {
@@ -152,9 +150,7 @@ export class SimComponent implements OnInit {
   }
 
   animate() {
-    // Update rotation of custom mesh instead of cube
-    this.customMesh.rotation.x += 0.01;
-    this.customMesh.rotation.y += 0.01;
+    this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
 
