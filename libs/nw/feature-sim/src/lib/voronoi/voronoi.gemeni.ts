@@ -646,8 +646,27 @@ export class Voronoi {
   compute(sites: SiteInput[], bbox: Bbox) {
     const startTime = new Date();
     this.reset();
+
+    // Validate and normalize input sites
+    if (!sites || sites.length === 0) {
+      throw new Error('No sites provided');
+    }
+
+    // Ensure sites are within bbox
+    sites = sites.filter(site => 
+      site.x >= bbox.xl && site.x <= bbox.xr && 
+      site.y >= bbox.yt && site.y <= bbox.yb
+    );
+
+    if (sites.length === 0) {
+      throw new Error('No sites within bbox');
+    }
+
+    // Quantize sites to prevent floating point issues
+    this.quantizeSites(sites as Site[]);
+
     const siteEvents = sites.slice(0);
-    siteEvents.sort(function (a, b) {
+    siteEvents.sort((a, b) => {
       const r = b.y - a.y;
       if (r) return r;
       return b.x - a.x;
@@ -655,36 +674,68 @@ export class Voronoi {
 
     let site = siteEvents.pop();
     let siteid = 0;
-    let xsitex, xsitey;
+    let xsitex: number | undefined, xsitey: number | undefined;
     const cells = this.cells;
     let circle;
 
-    for (;;) {
+    // Process all sites and circle events
+    while (site || this.firstCircleEvent) {
       circle = this.firstCircleEvent;
+
+      // Handle site or circle event, whichever comes first
       if (site && (!circle || site.y < circle.y || (site.y === circle.y && site.x < circle.x))) {
+        // New site event
         if (site.x !== xsitex || site.y !== xsitey) {
           cells[siteid] = this.createCell(site as Site);
           site.voronoiId = siteid++;
-
           this.addBeachsection(site as Site);
-
           xsitey = site.y;
           xsitex = site.x;
         }
         site = siteEvents.pop();
-      } else if (circle) this.removeBeachsection(circle.arc);
-      else break;
+      } else if (circle) {
+        // Circle event - remove beach section
+        this.removeBeachsection(circle.arc);
+      } else {
+        break;
+      }
     }
 
+    // Post-process the diagram
     this.clipEdges(bbox);
     this.closeCells(bbox);
-    const stopTime = new Date();
+
+    // Validate the result
     const diagram = new this.Diagram();
     diagram.cells = this.cells;
     diagram.edges = this.edges;
     diagram.vertices = this.vertices;
-    diagram.execTime = stopTime.getTime() - startTime.getTime();
+
+    // Verify each cell has a complete edge loop
+    for (const cell of diagram.cells) {
+      if (!cell.prepareHalfedges()) {
+        console.error('Cell has incomplete edge loop:', cell);
+      }
+      
+      // Verify cell contains its site
+      const bbox = cell.getBbox();
+      if (!bbox || cell.pointIntersection(cell.site.x, cell.site.y) <= 0) {
+        console.error('Cell does not contain its site:', cell);
+      }
+    }
+
+    // Verify edges
+    for (const edge of diagram.edges) {
+      if (!edge.va || !edge.vb) {
+        console.error('Edge missing vertices:', edge);
+      }
+    }
+
+    diagram.execTime = new Date().getTime() - startTime.getTime();
+    
+    // Reset internal state
     this.reset();
+    
     return diagram;
   }
 }

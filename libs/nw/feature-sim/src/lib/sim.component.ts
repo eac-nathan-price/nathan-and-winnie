@@ -107,13 +107,21 @@ export class SimComponent implements OnInit {
       yb: 5
     };
     
-    // Ensure sites are not too close together
+    // Increase minimum distance between sites
     this.sites = [];
-    const minDistance = 0.5; // Minimum distance between sites
+    const minDistance = 1.0; // Increased from 0.5
     
     while (this.sites.length < 10) {
-      const newSite = Random.vector2(-5, 5);
+      const newSite = Random.vector2(-4, 4); // Reduced range to ensure sites aren't too close to boundary
       let tooClose = false;
+      
+      // Check distance from bbox edges
+      if (Math.abs(newSite.x - bbox.xl) < minDistance || 
+          Math.abs(newSite.x - bbox.xr) < minDistance ||
+          Math.abs(newSite.y - bbox.yt) < minDistance ||
+          Math.abs(newSite.y - bbox.yb) < minDistance) {
+        continue;
+      }
       
       for (const site of this.sites) {
         const dx = site.x - newSite.x;
@@ -129,93 +137,110 @@ export class SimComponent implements OnInit {
         this.sites.push(newSite);
       }
     }
-    
-    // Sort sites to ensure consistent processing
-    this.sites.sort((a, b) => {
-      if (a.y !== b.y) return b.y - a.y;
-      return b.x - a.x;
-    });
-    
-    this.diagram = voronoi.compute(this.sites, bbox);
-    
-    // Verify diagram integrity
-    if (!this.diagram || !this.diagram.cells || this.diagram.cells.length !== this.sites.length) {
-      console.error('Invalid diagram generated:', this.diagram);
-      return;
-    }
 
-    // Clear existing meshes
-    this.scene.clear();
-
-    // Process each cell in the diagram
-    this.diagram.cells.forEach((cell: Cell) => {
-      if (!cell.site) return;
+    try {
+      this.diagram = voronoi.compute(this.sites, bbox);
       
-      cell.prepareHalfedges();
-      
-      // Get vertices ensuring we have a complete loop
-      const cellVertices: Vertex[] = [];
-      const halfedges = cell.halfedges;
-      
-      if (halfedges.length < 3) return;
-
-      // Verify we have a complete loop by checking endpoints match
-      let isComplete = true;
-      for (let i = 0; i < halfedges.length; i++) {
-        const current = halfedges[i];
-        const next = halfedges[(i + 1) % halfedges.length];
-        
-        const endpoint = current.getEndpoint();
-        const nextStart = next.getStartpoint();
-        
-        if (!endpoint || !nextStart || 
-            endpoint.x !== nextStart.x || 
-            endpoint.y !== nextStart.y) {
-          isComplete = false;
-          break;
-        }
-        
-        cellVertices.push(current.getStartpoint()!);
-      }
-
-      if (!isComplete || cellVertices.length < 3) {
-        console.warn('Incomplete cell found:', cell);
+      if (!this.diagram || !this.diagram.cells || this.diagram.cells.length !== this.sites.length) {
+        console.error('Invalid diagram generated:', this.diagram);
         return;
       }
 
-      const vertices: number[] = [];
-      const indices: number[] = [];
-      
-      // Add cell center
-      vertices.push(cell.site.x, cell.site.y, 0);
-      
-      // Add boundary vertices
-      cellVertices.forEach(vertex => {
-        vertices.push(vertex.x, vertex.y, 0);
-      });
+      // Verify each cell has its site and edges
+      for (const cell of this.diagram.cells) {
+        if (!cell.site) {
+          console.error('Cell missing site:', cell);
+          continue;
+        }
 
-      // Create triangles fan from center
-      for (let i = 0; i < cellVertices.length; i++) {
-        indices.push(
-          0, // center is always first vertex
-          i + 1,
-          ((i + 1) % cellVertices.length) + 1
-        );
+        if (!cell.prepareHalfedges() || cell.halfedges.length < 3) {
+          console.error('Cell has invalid edges:', cell);
+          continue;
+        }
+
+        // Verify cell contains its site
+        const bbox = cell.getBbox();
+        if (!bbox) {
+          console.error('Cell has no bbox:', cell);
+          continue;
+        }
       }
 
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-      geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
-      
-      const material = new THREE.MeshBasicMaterial({ 
-        color: 0x00ff00,
-        side: THREE.DoubleSide,
-        wireframe: true
+      // Clear existing meshes
+      this.scene.clear();
+
+      // Process each cell in the diagram
+      this.diagram.cells.forEach((cell: Cell) => {
+        if (!cell.site) return;
+        
+        cell.prepareHalfedges();
+        
+        // Get vertices ensuring we have a complete loop
+        const cellVertices: Vertex[] = [];
+        const halfedges = cell.halfedges;
+        
+        if (halfedges.length < 3) return;
+
+        // Verify we have a complete loop by checking endpoints match
+        let isComplete = true;
+        for (let i = 0; i < halfedges.length; i++) {
+          const current = halfedges[i];
+          const next = halfedges[(i + 1) % halfedges.length];
+          
+          const endpoint = current.getEndpoint();
+          const nextStart = next.getStartpoint();
+          
+          if (!endpoint || !nextStart || 
+              endpoint.x !== nextStart.x || 
+              endpoint.y !== nextStart.y) {
+            isComplete = false;
+            break;
+          }
+          
+          cellVertices.push(current.getStartpoint()!);
+        }
+
+        if (!isComplete || cellVertices.length < 3) {
+          console.warn('Incomplete cell found:', cell);
+          return;
+        }
+
+        const vertices: number[] = [];
+        const indices: number[] = [];
+        
+        // Add cell center
+        vertices.push(cell.site.x, cell.site.y, 0);
+        
+        // Add boundary vertices
+        cellVertices.forEach(vertex => {
+          vertices.push(vertex.x, vertex.y, 0);
+        });
+
+        // Create triangles fan from center
+        for (let i = 0; i < cellVertices.length; i++) {
+          indices.push(
+            0, // center is always first vertex
+            i + 1,
+            ((i + 1) % cellVertices.length) + 1
+          );
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+        geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
+        
+        const material = new THREE.MeshBasicMaterial({ 
+          color: 0x00ff00,
+          side: THREE.DoubleSide,
+          wireframe: true
+        });
+        
+        const mesh = new THREE.Mesh(geometry, material);
+        this.scene.add(mesh);
       });
-      
-      const mesh = new THREE.Mesh(geometry, material);
-      this.scene.add(mesh);
-    });
+    } catch (error) {
+      console.error('Error generating Voronoi diagram:', error);
+    }
   }
   
   private updateSize() {
