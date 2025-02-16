@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { Voronoi, Vertex } from './voronoi/voronoi.gemeni';
+import { Voronoi, Vertex, Cell, Edge, Diagram, SiteInput } from './voronoi/voronoi.gemeni';
 import { isPlatformBrowser } from '@angular/common';
 
 class Random {
@@ -45,6 +45,9 @@ export class SimComponent implements OnInit {
   renderer!: THREE.WebGLRenderer;
   controls!: OrbitControls;
   customMesh!: THREE.Mesh;
+  canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
+  private diagram: Diagram | undefined; // Store the voronoi diagram
+  private sites: SiteInput[] = []; // Store the sites
 
   constructor() {
     this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
@@ -70,10 +73,14 @@ export class SimComponent implements OnInit {
       this.controls = new OrbitControls(this.camera, this.renderer.domElement);
       this.controls.enableDamping = true;
       
-      window.addEventListener('resize', () => this.updateSize());
+      window.addEventListener('resize', () => {
+        this.updateSize();
+        this.render2D(); // Re-render 2D on resize
+      });
       this.renderer.setAnimationLoop(this.animate.bind(this));
 
       this.generateVoronoi();
+      this.render2D(); // Add initial 2D render
     }
   }
 
@@ -85,11 +92,11 @@ export class SimComponent implements OnInit {
       yt: -5,
       yb: 5
     };
-    const sites = Array.from({ length: 10 }, () => Random.vector2(-5, 5));
-    const diagram = voronoi.compute(sites, bbox);
+    this.sites = Array.from({ length: 10 }, () => Random.vector2(-5, 5));
+    this.diagram = voronoi.compute(this.sites, bbox);
 
     // Process each cell in the diagram
-    diagram.cells.forEach(cell => {
+    this.diagram.cells.forEach((cell: Cell) => {
       if (!cell.site) return;
       
       cell.prepareHalfedges();
@@ -147,6 +154,67 @@ export class SimComponent implements OnInit {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
+    
+    // Update canvas size
+    const canvas = this.canvas().nativeElement;
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    this.render2D();
+  }
+
+  render2D() {
+    const canvas = this.canvas();
+    const ctx = canvas.nativeElement.getContext('2d');
+    if (!ctx || !this.diagram) return;
+
+    // Set canvas size to match container
+    const container = canvas.nativeElement;
+    canvas.nativeElement.width = container.clientWidth;
+    canvas.nativeElement.height = container.clientHeight;
+
+    // Calculate scale and translation to fit the diagram
+    const scale = Math.min(container.width / 20, container.height / 20);
+    const translateX = container.width / 2;
+    const translateY = container.height / 2;
+
+    // Clear background
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, container.width, container.height);
+    
+    // Transform coordinates
+    ctx.save();
+    ctx.translate(translateX, translateY);
+    ctx.scale(scale, scale);
+
+    // Draw edges with thinner lines
+    ctx.beginPath();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 0.5 / scale; // Make lines thinner relative to scale
+    this.diagram.edges.forEach((edge: Edge) => {
+      if (!edge.va || !edge.vb) return;
+      ctx.moveTo(edge.va.x, edge.va.y);
+      ctx.lineTo(edge.vb.x, edge.vb.y);
+    });
+    ctx.stroke();
+
+    // Draw vertices (made smaller)
+    ctx.beginPath();
+    ctx.fillStyle = 'red';
+    this.diagram.vertices.forEach((v: Vertex) => {
+      ctx.rect(v.x - 0.05, v.y - 0.05, 0.1, 0.1);
+    });
+    ctx.fill();
+
+    // Draw sites (made smaller)
+    ctx.beginPath();
+    ctx.fillStyle = '#44f';
+    this.sites.forEach(site => {
+      ctx.rect(site.x - 0.05, site.y - 0.05, 0.1, 0.1);
+    });
+    ctx.fill();
+
+    ctx.restore();
   }
 
   animate() {
