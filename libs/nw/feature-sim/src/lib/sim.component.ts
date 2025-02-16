@@ -6,6 +6,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Voronoi, Vertex, Cell, Edge, Diagram, SiteInput } from './voronoi/voronoi.gemeni';
 import { isPlatformBrowser } from '@angular/common';
 
+enum VisualizationMode {
+  All,
+  None,
+  GreenOnly,
+  BlackOnly
+}
+
 class Random {
   static float(min: number, max: number) {
     return Math.random() * (max - min) + min;
@@ -48,6 +55,7 @@ export class SimComponent implements OnInit {
   canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private diagram: Diagram | undefined; // Store the voronoi diagram
   private sites: SiteInput[] = []; // Store the sites
+  private visualizationMode = VisualizationMode.All;
 
   constructor() {
     this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
@@ -81,6 +89,12 @@ export class SimComponent implements OnInit {
 
       this.generateVoronoi();
       this.render2D(); // Add initial 2D render
+
+      // Add click handler for canvas
+      this.canvas().nativeElement.addEventListener('click', () => {
+        this.visualizationMode = (this.visualizationMode + 1) % 4;
+        this.render2D();
+      });
     }
   }
 
@@ -188,33 +202,39 @@ export class SimComponent implements OnInit {
     ctx.scale(scale, -scale); // Negating Y scale to flip the axis
 
     // Draw edges
-    ctx.beginPath();
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 0.5 / scale;
-    this.diagram.edges.forEach((edge: Edge) => {
-      if (!edge.va || !edge.vb) return;
-      ctx.moveTo(edge.va.x, edge.va.y);
-      ctx.lineTo(edge.vb.x, edge.vb.y);
-    });
-    ctx.stroke();
+    if (this.visualizationMode === VisualizationMode.All || 
+        this.visualizationMode === VisualizationMode.BlackOnly) {
+      ctx.beginPath();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 0.5 / scale;
+      this.diagram.edges.forEach((edge: Edge) => {
+        if (!edge.va || !edge.vb) return;
+        ctx.moveTo(edge.va.x, edge.va.y);
+        ctx.lineTo(edge.vb.x, edge.vb.y);
+      });
+      ctx.stroke();
+    }
 
     // Draw debug lines from sites to vertices
-    ctx.beginPath();
-    ctx.strokeStyle = '#0f0';
-    ctx.lineWidth = 0.3 / scale;
-    this.diagram.cells.forEach((cell: Cell) => {
-      const site = cell.site;
-      cell.halfedges.forEach(halfedge => {
-        const vertex = halfedge.getStartpoint();
-        if (vertex) {
-          ctx.moveTo(site.x, site.y);
-          ctx.lineTo(vertex.x, vertex.y);
-        }
+    if (this.visualizationMode === VisualizationMode.All || 
+        this.visualizationMode === VisualizationMode.GreenOnly) {
+      ctx.beginPath();
+      ctx.strokeStyle = '#0f0';
+      ctx.lineWidth = 0.3 / scale;
+      this.diagram.cells.forEach((cell: Cell) => {
+        const site = cell.site;
+        cell.halfedges.forEach(halfedge => {
+          const vertex = halfedge.getStartpoint();
+          if (vertex) {
+            ctx.moveTo(site.x, site.y);
+            ctx.lineTo(vertex.x, vertex.y);
+          }
+        });
       });
-    });
-    ctx.stroke();
+      ctx.stroke();
+    }
 
-    // Draw vertices
+    // Always draw vertices and sites
     ctx.beginPath();
     ctx.fillStyle = 'red';
     this.diagram.vertices.forEach((v: Vertex) => {
@@ -222,7 +242,6 @@ export class SimComponent implements OnInit {
     });
     ctx.fill();
 
-    // Draw sites
     ctx.beginPath();
     ctx.fillStyle = '#44f';
     this.sites.forEach(site => {
