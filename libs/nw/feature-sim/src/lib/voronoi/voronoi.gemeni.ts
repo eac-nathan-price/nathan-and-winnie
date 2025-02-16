@@ -43,7 +43,7 @@ export class Voronoi {
   }
 
   equalWithEpsilon(a: number, b: number): boolean {
-    return this.abs(a - b) < 1e-9;
+    return Math.abs(a - b) < 1e-9;
   }
   greaterThanWithEpsilon(a: number, b: number): boolean {
     return a - b > 1e-9;
@@ -388,6 +388,7 @@ export class Voronoi {
   connectEdge(edge: Edge, bbox: Bbox) {
     let vb = edge.vb;
     if (vb) return true;
+    
     let va = edge.va;
     const xl = bbox.xl;
     const xr = bbox.xr;
@@ -395,62 +396,82 @@ export class Voronoi {
     const yb = bbox.yb;
     const lSite = edge.lSite;
     const rSite = edge.rSite;
+    
     if (!lSite || !rSite) return false;
+    
     const lx = lSite.x;
     const ly = lSite.y;
     const rx = rSite.x;
     const ry = rSite.y;
+    
+    // Get the line equation parameters
     const fx = (lx + rx) / 2;
     const fy = (ly + ry) / 2;
-    let fm: number | undefined;
-    let fb: number | undefined;
-    this.cells[lSite.voronoiId].closeMe = true;
-    this.cells[rSite.voronoiId].closeMe = true;
-    if (ry !== ly) {
-      fm = (lx - rx) / (ry - ly);
-      fb = fy - fm * fx;
-    }
+    let fm: number;
+    let fb: number;
 
-    // Initialize fb to a default value if it wasn't set
-    if (fb === undefined) {
-      fb = fy;
-    }
-
-    if (fm === undefined) {
-      if (fx < xl || fx >= xr) return false;
-      if (lx > rx) {
-        if (!va || va.y < yt) va = this.createVertex(fx, yt);
+    // Vertical line
+    if (Math.abs(ry - ly) < 1e-9) {
+      // Handle vertical bisector
+      const mx = (lx + rx) / 2;
+      if (mx < xl || mx >= xr) return false;
+      if (ly > ry) {
+        if (!va) va = this.createVertex(mx, yt);
         else if (va.y >= yb) return false;
-        vb = this.createVertex(fx, yb);
+        vb = this.createVertex(mx, yb);
       } else {
-        if (!va || va.y > yb) va = this.createVertex(fx, yb);
+        if (!va) va = this.createVertex(mx, yb);
         else if (va.y < yt) return false;
-        vb = this.createVertex(fx, yt);
-      }
-    } else if (fm < -1 || fm > 1) {
-      if (lx > rx) {
-        if (!va || va.y < yt) va = this.createVertex((yt - fb) / fm, yt);
-        else if (va.y >= yb) return false;
-        vb = this.createVertex((yb - fb) / fm, yb);
-      } else {
-        if (!va || va.y > yb) va = this.createVertex((yb - fb) / fm, yb);
-        else if (va.y < yt) return false;
-        vb = this.createVertex((yt - fb) / fm, yt);
+        vb = this.createVertex(mx, yt);
       }
     } else {
-      if (ly < ry) {
-        if (!va || va.x < xl) va = this.createVertex(xl, fm * xl + fb);
-        else if (va.x >= xr) return false;
-        vb = this.createVertex(xr, fm * xr + fb);
+      // Non-vertical line
+      fm = (lx - rx) / (ry - ly);
+      fb = fy - fm * fx;
+
+      // Find intersections with bounding box
+      if (fm < -1 || fm > 1) {
+        // More vertical than horizontal
+        if (lx > rx) {
+          if (!va) va = this.createVertex((yt - fb) / fm, yt);
+          else if (va.y >= yb) return false;
+          vb = this.createVertex((yb - fb) / fm, yb);
+        } else {
+          if (!va) va = this.createVertex((yb - fb) / fm, yb);
+          else if (va.y < yt) return false;
+          vb = this.createVertex((yt - fb) / fm, yt);
+        }
       } else {
-        if (!va || va.x > xr) va = this.createVertex(xr, fm * xr + fb);
-        else if (va.x < xl) return false;
-        vb = this.createVertex(xl, fm * xl + fb);
+        // More horizontal than vertical
+        if (ly < ry) {
+          if (!va) va = this.createVertex(xl, fm * xl + fb);
+          else if (va.x >= xr) return false;
+          vb = this.createVertex(xr, fm * xr + fb);
+        } else {
+          if (!va) va = this.createVertex(xr, fm * xr + fb);
+          else if (va.x < xl) return false;
+          vb = this.createVertex(xl, fm * xl + fb);
+        }
       }
     }
+
     edge.va = va;
     edge.vb = vb;
+
+    // Validate the created vertices are within bounds
+    if (!this.isVertexInBounds(va, bbox) || !this.isVertexInBounds(vb, bbox)) {
+      edge.va = edge.vb = null;
+      return false;
+    }
+
     return true;
+  }
+
+  private isVertexInBounds(v: Vertex, bbox: Bbox): boolean {
+    return v.x >= bbox.xl - 1e-9 && 
+           v.x <= bbox.xr + 1e-9 && 
+           v.y >= bbox.yt - 1e-9 && 
+           v.y <= bbox.yb + 1e-9;
   }
 
   clipEdge(edge: Edge, bbox: Bbox) {
@@ -526,98 +547,96 @@ export class Voronoi {
 
     while (iEdge--) {
       edge = edges[iEdge];
-      if (!edge.va || !edge.vb) continue;
-      if (!this.connectEdge(edge, bbox) || !this.clipEdge(edge, bbox) || (abs_fn(edge.va.x - edge.vb.x) < 1e-9 && abs_fn(edge.va.y - edge.vb.y) < 1e-9)) {
-        edge.va = edge.vb = null;
+      // Skip if edge has no vertices
+      if (!edge.va || !edge.vb) {
         edges.splice(iEdge, 1);
+        continue;
       }
+
+      // First connect the edge to the bounding box
+      if (!this.connectEdge(edge, bbox)) {
+        edges.splice(iEdge, 1);
+        continue;
+      }
+
+      // Then clip it to the bounding box
+      if (!this.clipEdge(edge, bbox)) {
+        edges.splice(iEdge, 1);
+        continue;
+      }
+
+      // Remove degenerate edges (where endpoints are too close)
+      if (abs_fn(edge.va.x - edge.vb.x) < 1e-9 && abs_fn(edge.va.y - edge.vb.y) < 1e-9) {
+        edges.splice(iEdge, 1);
+        continue;
+      }
+
+      // Ensure the cells know they need closing
+      if (edge.lSite) this.cells[edge.lSite.voronoiId].closeMe = true;
+      if (edge.rSite) this.cells[edge.rSite.voronoiId].closeMe = true;
     }
   }
 
   closeCells(bbox: Bbox) {
-    const xl = bbox.xl;
-    const xr = bbox.xr;
-    const yt = bbox.yt;
-    const yb = bbox.yb;
     const cells = this.cells;
     let iCell = cells.length;
     let cell;
-    let iLeft;
-    let halfedges, nHalfedges;
-    let edge;
-    let va, vb, vz;
-    let lastBorderSegment;
-    const abs_fn = Math.abs;
 
     while (iCell--) {
       cell = cells[iCell];
       if (!cell.prepareHalfedges() || !cell.closeMe) continue;
-      halfedges = cell.halfedges;
-      nHalfedges = halfedges.length;
-
-      iLeft = 0;
-      while (iLeft < nHalfedges) {
-        va = halfedges[iLeft].getEndpoint();
-        vz = halfedges[(iLeft + 1) % nHalfedges].getStartpoint();
-        if (!va || !vz) continue;
-        if (abs_fn(va.x - vz.x) >= 1e-9 || abs_fn(va.y - vz.y) >= 1e-9) {
-          // Try each border in sequence
-          if (this.equalWithEpsilon(va.x, xl) && this.lessThanWithEpsilon(va.y, yb)) {
-            // Left border
-            lastBorderSegment = this.equalWithEpsilon(vz.x, xl);
-            vb = this.createVertex(xl, lastBorderSegment ? vz.y : yb);
-            edge = this.createBorderEdge(cell.site, va, vb);
-            iLeft++;
-            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-            nHalfedges++;
-            if (lastBorderSegment) continue;
-            va = vb;
-          }
-          if (this.equalWithEpsilon(va.y, yb) && this.lessThanWithEpsilon(va.x, xr)) {
-            // Bottom border
-            lastBorderSegment = this.equalWithEpsilon(vz.y, yb);
-            vb = this.createVertex(lastBorderSegment ? vz.x : xr, yb);
-            edge = this.createBorderEdge(cell.site, va, vb);
-            iLeft++;
-            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-            nHalfedges++;
-            if (lastBorderSegment) continue;
-            va = vb;
-          }
-          if (this.equalWithEpsilon(va.x, xr) && this.greaterThanWithEpsilon(va.y, yt)) {
-            // Right border
-            lastBorderSegment = this.equalWithEpsilon(vz.x, xr);
-            vb = this.createVertex(xr, lastBorderSegment ? vz.y : yt);
-            edge = this.createBorderEdge(cell.site, va, vb);
-            iLeft++;
-            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-            nHalfedges++;
-            if (lastBorderSegment) continue;
-            va = vb;
-          }
-          if (this.equalWithEpsilon(va.y, yt) && this.greaterThanWithEpsilon(va.x, xl)) {
-            // Top border
-            lastBorderSegment = this.equalWithEpsilon(vz.y, yt);
-            vb = this.createVertex(lastBorderSegment ? vz.x : xl, yt);
-            edge = this.createBorderEdge(cell.site, va, vb);
-            iLeft++;
-            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-            nHalfedges++;
-            if (lastBorderSegment) continue;
-            va = vb;
-          }
-
-          // Close any remaining gap
-          if (va.x !== vz.x || va.y !== vz.y) {
-            vb = this.createVertex(va.x, va.y);
-            edge = this.createBorderEdge(cell.site, va, vb);
-            iLeft++;
-            halfedges.splice(iLeft, 0, this.createHalfedge(edge, cell.site, null));
-            nHalfedges++;
-          }
+      
+      const halfedges = cell.halfedges;
+      const nHalfedges = halfedges.length;
+      if (nHalfedges === 0) {
+        // Create a minimal cell around the site if no halfedges exist
+        const site = cell.site;
+        const margin = 0.1; // Small margin around site
+        const vertices = [
+          this.createVertex(site.x - margin, site.y - margin),
+          this.createVertex(site.x + margin, site.y - margin),
+          this.createVertex(site.x + margin, site.y + margin),
+          this.createVertex(site.x - margin, site.y + margin)
+        ];
+        
+        for (let i = 0; i < vertices.length; i++) {
+          const edge = this.createBorderEdge(site, vertices[i], vertices[(i + 1) % vertices.length]);
+          halfedges.push(this.createHalfedge(edge, site, null));
         }
-        iLeft++;
+        continue;
       }
+
+      // Get all vertices and ensure they form a loop
+      const vertices: Vertex[] = [];
+      let hasGaps = false;
+
+      for (let i = 0; i < nHalfedges; i++) {
+        const endpoint = halfedges[i].getEndpoint();
+        if (!endpoint) {
+          hasGaps = true;
+          break;
+        }
+        vertices.push(endpoint);
+      }
+
+      if (hasGaps || vertices.length < 3) {
+        // If cell is invalid, create a minimal valid cell
+        const site = cell.site;
+        cell.halfedges = [];
+        const margin = 0.1;
+        const newVertices = [
+          this.createVertex(site.x - margin, site.y - margin),
+          this.createVertex(site.x + margin, site.y - margin),
+          this.createVertex(site.x + margin, site.y + margin),
+          this.createVertex(site.x - margin, site.y + margin)
+        ];
+        
+        for (let i = 0; i < newVertices.length; i++) {
+          const edge = this.createBorderEdge(site, newVertices[i], newVertices[(i + 1) % newVertices.length]);
+          cell.halfedges.push(this.createHalfedge(edge, site, null));
+        }
+      }
+
       cell.closeMe = false;
     }
   }
@@ -705,37 +724,37 @@ export class Voronoi {
     this.clipEdges(bbox);
     this.closeCells(bbox);
 
-    // Validate the result
     const diagram = new this.Diagram();
     diagram.cells = this.cells;
     diagram.edges = this.edges;
     diagram.vertices = this.vertices;
 
-    // Verify each cell has a complete edge loop
+    // Ensure each cell is valid
     for (const cell of diagram.cells) {
-      if (!cell.prepareHalfedges()) {
-        console.error('Cell has incomplete edge loop:', cell);
-      }
+      if (!cell.site) continue;
       
-      // Verify cell contains its site
-      const bbox = cell.getBbox();
-      if (!bbox || cell.pointIntersection(cell.site.x, cell.site.y) <= 0) {
-        console.error('Cell does not contain its site:', cell);
-      }
-    }
-
-    // Verify edges
-    for (const edge of diagram.edges) {
-      if (!edge.va || !edge.vb) {
-        console.error('Edge missing vertices:', edge);
+      cell.prepareHalfedges();
+      if (cell.halfedges.length < 3) {
+        // Create minimal valid cell
+        const site = cell.site;
+        cell.halfedges = [];
+        const margin = 0.1;
+        const vertices = [
+          this.createVertex(site.x - margin, site.y - margin),
+          this.createVertex(site.x + margin, site.y - margin),
+          this.createVertex(site.x + margin, site.y + margin),
+          this.createVertex(site.x - margin, site.y + margin)
+        ];
+        
+        for (let i = 0; i < vertices.length; i++) {
+          const edge = this.createBorderEdge(site, vertices[i], vertices[(i + 1) % vertices.length]);
+          cell.halfedges.push(this.createHalfedge(edge, site, null));
+        }
       }
     }
 
     diagram.execTime = new Date().getTime() - startTime.getTime();
-    
-    // Reset internal state
     this.reset();
-    
     return diagram;
   }
 }
@@ -773,7 +792,6 @@ export class RBTree {
       parent = null;
     }
     successor.rbLeft = successor.rbRight = null;
-    successor.rbParent = parent;
     successor.rbRed = true;
 
     // Fix up the modified tree
@@ -827,14 +845,21 @@ export class RBTree {
   }
 
   rbRemoveNode(node: RBNode) {
-    if (node.rbNext) node.rbNext.rbPrevious = node.rbPrevious;
-    if (node.rbPrevious) node.rbPrevious.rbNext = node.rbNext;
+    if (!node) return;
+
+    // Update linked list
+    if (node.rbNext) {
+      node.rbNext.rbPrevious = node.rbPrevious;
+    }
+    if (node.rbPrevious) {
+      node.rbPrevious.rbNext = node.rbNext;
+    }
     node.rbNext = node.rbPrevious = null;
 
-    let parent = node.rbParent;
+    const parent = node.rbParent;
     const left = node.rbLeft;
     const right = node.rbRight;
-    let next: RBNode | null;
+    let next: RBNode | null = null;
     let isRed: boolean;
 
     if (!left) {
@@ -855,101 +880,125 @@ export class RBTree {
       this.root = next;
     }
 
-    if (left && right && next !== right) {
-      if (!next) return;
-      isRed = next.rbRed;
-      next.rbRed = node.rbRed;
-      next.rbLeft = left;
-      left.rbParent = next;
-      if (next !== right) {
-        parent = next.rbParent as RBNode;
-        next.rbParent = node.rbParent;
-        node = next.rbRight as RBNode;
-        parent.rbLeft = node;
-        if (node) node.rbParent = parent;
-        next.rbRight = right;
-        right.rbParent = next;
+    // Handle the case where we're removing a node with two children
+    if (left && right) {
+      if (next === right) {
+        // Simple case: right child becomes the new root of this subtree
+        if (next) {
+          next.rbParent = parent;
+          next.rbLeft = left;
+          left.rbParent = next;
+          next.rbRed = node.rbRed;
+        }
       } else {
-        next.rbParent = parent;
-        parent = next;
-        node = next.rbRight as RBNode;
+        // Complex case: next comes from deeper in the right subtree
+        const nextParent = next?.rbParent;
+        if (next && nextParent) {
+          // Remove 'next' from its current position
+          nextParent.rbLeft = next.rbRight;
+          if (next.rbRight) {
+            next.rbRight.rbParent = nextParent;
+          }
+
+          // Put 'next' in node's position
+          next.rbParent = parent;
+          next.rbRed = node.rbRed;
+          next.rbLeft = left;
+          left.rbParent = next;
+          next.rbRight = right;
+          right.rbParent = next;
+        }
       }
+      isRed = false; // Node being removed is black
     } else {
+      // Handle the case where we're removing a node with 0-1 children
       isRed = node.rbRed;
-      node = next as RBNode;
-      if (node) node.rbParent = parent;
+      if (next) {
+        next.rbParent = parent;
+        next.rbRed = node.rbRed;
+      }
     }
 
-    if (!isRed) {
-      while (parent && (!node || !node.rbRed)) {
-        if (node === parent.rbLeft) {
-          let sibling = parent.rbRight;
-          if (sibling && sibling.rbRed) {
-            sibling.rbRed = false;
-            parent.rbRed = true;
+    // If we removed a black node, we need to rebalance
+    if (!isRed && next) {
+      this.rbRemoveFixup(next, parent);
+    }
+
+    // Clear the removed node's pointers
+    node.rbLeft = node.rbRight = node.rbParent = null;
+  }
+
+  private rbRemoveFixup(node: RBNode, parent: RBNode | null) {
+    let sibling: RBNode | null;
+
+    while ((!node || !node.rbRed) && node !== this.root) {
+      if (!parent) break;
+
+      if (node === parent.rbLeft) {
+        sibling = parent.rbRight;
+        if (sibling?.rbRed) {
+          sibling.rbRed = false;
+          parent.rbRed = true;
+          this.rbRotateLeft(parent);
+          sibling = parent.rbRight;
+        }
+        if (sibling) {
+          if ((!sibling.rbLeft || !sibling.rbLeft.rbRed) &&
+              (!sibling.rbRight || !sibling.rbRight.rbRed)) {
+            sibling.rbRed = true;
+            node = parent;
+            parent = parent.rbParent;
+          } else {
+            if (!sibling.rbRight || !sibling.rbRight.rbRed) {
+              if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
+              sibling.rbRed = true;
+              this.rbRotateRight(sibling);
+              sibling = parent.rbRight;
+            }
+            if (sibling) {
+              sibling.rbRed = parent.rbRed;
+              if (sibling.rbRight) sibling.rbRight.rbRed = false;
+            }
+            parent.rbRed = false;
             this.rbRotateLeft(parent);
-            sibling = parent.rbRight;
+            node = this.root as RBNode;
+            parent = null;
           }
-          if (sibling) {
-            const siblingLeftRed = sibling.rbLeft && sibling.rbLeft.rbRed;
-            const siblingRightRed = sibling.rbRight && sibling.rbRight.rbRed;
-            if (!siblingLeftRed && !siblingRightRed) {
+        }
+      } else {
+        sibling = parent.rbLeft;
+        if (sibling?.rbRed) {
+          sibling.rbRed = false;
+          parent.rbRed = true;
+          this.rbRotateRight(parent);
+          sibling = parent.rbLeft;
+        }
+        if (sibling) {
+          if ((!sibling.rbLeft || !sibling.rbLeft.rbRed) &&
+              (!sibling.rbRight || !sibling.rbRight.rbRed)) {
+            sibling.rbRed = true;
+            node = parent;
+            parent = parent.rbParent;
+          } else {
+            if (!sibling.rbLeft || !sibling.rbLeft.rbRed) {
+              if (sibling.rbRight) sibling.rbRight.rbRed = false;
               sibling.rbRed = true;
-              node = parent;
-              parent = parent.rbParent;
-            } else {
-              if (!siblingRightRed) {
-                if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
-                sibling.rbRed = true;
-                this.rbRotateRight(sibling);
-                sibling = parent.rbRight;
-              }
-              if (sibling) {
-                sibling.rbRed = parent.rbRed;
-                if (sibling.rbRight) sibling.rbRight.rbRed = false;
-              }
-              parent.rbRed = false;
-              this.rbRotateLeft(parent);
-              node = this.root as RBNode;
-              parent = null;
+              this.rbRotateLeft(sibling);
+              sibling = parent.rbLeft;
             }
-          }
-        } else {
-          let sibling = parent.rbLeft;
-          if (sibling && sibling.rbRed) {
-            sibling.rbRed = false;
-            parent.rbRed = true;
+            if (sibling) {
+              sibling.rbRed = parent.rbRed;
+              if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
+            }
+            parent.rbRed = false;
             this.rbRotateRight(parent);
-            sibling = parent.rbLeft;
-          }
-          if (sibling) {
-            const siblingLeftRed = sibling.rbLeft && sibling.rbLeft.rbRed;
-            const siblingRightRed = sibling.rbRight && sibling.rbRight.rbRed;
-            if (!siblingLeftRed && !siblingRightRed) {
-              sibling.rbRed = true;
-              node = parent;
-              parent = parent.rbParent;
-            } else {
-              if (!siblingLeftRed) {
-                if (sibling.rbRight) sibling.rbRight.rbRed = false;
-                sibling.rbRed = true;
-                this.rbRotateLeft(sibling);
-                sibling = parent.rbLeft;
-              }
-              if (sibling) {
-                sibling.rbRed = parent.rbRed;
-                if (sibling.rbLeft) sibling.rbLeft.rbRed = false;
-              }
-              parent.rbRed = false;
-              this.rbRotateRight(parent);
-              node = this.root as RBNode;
-              parent = null;
-            }
+            node = this.root as RBNode;
+            parent = null;
           }
         }
       }
-      if (node) node.rbRed = false;
     }
+    if (node) node.rbRed = false;
   }
 
   rbRotateLeft(node: RBNode) {

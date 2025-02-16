@@ -153,15 +153,32 @@ export class SimComponent implements OnInit {
           continue;
         }
 
-        if (!cell.prepareHalfedges() || cell.halfedges.length < 3) {
+        if (!cell.prepareHalfedges()) {
           console.error('Cell has invalid edges:', cell);
           continue;
         }
 
-        // Verify cell contains its site
-        const bbox = cell.getBbox();
-        if (!bbox) {
-          console.error('Cell has no bbox:', cell);
+        // Verify cell forms a complete loop
+        const halfedges = cell.halfedges;
+        let isComplete = true;
+        for (let i = 0; i < halfedges.length; i++) {
+          const current = halfedges[i];
+          const next = halfedges[(i + 1) % halfedges.length];
+          
+          const endpoint = current.getEndpoint();
+          const nextStart = next.getStartpoint();
+          
+          if (!endpoint || !nextStart || 
+              Math.abs(endpoint.x - nextStart.x) > 1e-9 || 
+              Math.abs(endpoint.y - nextStart.y) > 1e-9) {
+            console.error('Cell has discontinuous edges:', cell);
+            isComplete = false;
+            break;
+          }
+        }
+
+        if (!isComplete || halfedges.length < 3) {
+          console.error('Cell is incomplete:', cell);
           continue;
         }
       }
@@ -197,7 +214,9 @@ export class SimComponent implements OnInit {
             break;
           }
           
-          cellVertices.push(current.getStartpoint()!);
+          const startpoint = current.getStartpoint();
+          if (!startpoint) continue;
+          cellVertices.push(startpoint);
         }
 
         if (!isComplete || cellVertices.length < 3) {
