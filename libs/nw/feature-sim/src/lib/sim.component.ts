@@ -106,23 +106,82 @@ export class SimComponent implements OnInit {
       yt: -5,
       yb: 5
     };
-    this.sites = Array.from({ length: 10 }, () => Random.vector2(-5, 5));
+    
+    // Ensure sites are not too close together
+    this.sites = [];
+    const minDistance = 0.5; // Minimum distance between sites
+    
+    while (this.sites.length < 10) {
+      const newSite = Random.vector2(-5, 5);
+      let tooClose = false;
+      
+      for (const site of this.sites) {
+        const dx = site.x - newSite.x;
+        const dy = site.y - newSite.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < minDistance) {
+          tooClose = true;
+          break;
+        }
+      }
+      
+      if (!tooClose) {
+        this.sites.push(newSite);
+      }
+    }
+    
+    // Sort sites to ensure consistent processing
+    this.sites.sort((a, b) => {
+      if (a.y !== b.y) return b.y - a.y;
+      return b.x - a.x;
+    });
+    
     this.diagram = voronoi.compute(this.sites, bbox);
+    
+    // Verify diagram integrity
+    if (!this.diagram || !this.diagram.cells || this.diagram.cells.length !== this.sites.length) {
+      console.error('Invalid diagram generated:', this.diagram);
+      return;
+    }
+
+    // Clear existing meshes
+    this.scene.clear();
 
     // Process each cell in the diagram
     this.diagram.cells.forEach((cell: Cell) => {
       if (!cell.site) return;
       
       cell.prepareHalfedges();
+      
+      // Get vertices ensuring we have a complete loop
       const cellVertices: Vertex[] = [];
-      cell.halfedges.forEach(halfedge => {
-        const vertex = halfedge.getStartpoint();
-        if (vertex) {
-          cellVertices.push(vertex);
-        }
-      });
+      const halfedges = cell.halfedges;
+      
+      if (halfedges.length < 3) return;
 
-      if (cellVertices.length < 3) return;
+      // Verify we have a complete loop by checking endpoints match
+      let isComplete = true;
+      for (let i = 0; i < halfedges.length; i++) {
+        const current = halfedges[i];
+        const next = halfedges[(i + 1) % halfedges.length];
+        
+        const endpoint = current.getEndpoint();
+        const nextStart = next.getStartpoint();
+        
+        if (!endpoint || !nextStart || 
+            endpoint.x !== nextStart.x || 
+            endpoint.y !== nextStart.y) {
+          isComplete = false;
+          break;
+        }
+        
+        cellVertices.push(current.getStartpoint()!);
+      }
+
+      if (!isComplete || cellVertices.length < 3) {
+        console.warn('Incomplete cell found:', cell);
+        return;
+      }
 
       const vertices: number[] = [];
       const indices: number[] = [];
@@ -144,7 +203,6 @@ export class SimComponent implements OnInit {
         );
       }
 
-      // Create geometry for this cell
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
       geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
@@ -232,6 +290,25 @@ export class SimComponent implements OnInit {
         });
       });
       ctx.stroke();
+    }
+
+    // Draw cell indices and vertex order
+    if (this.visualizationMode === VisualizationMode.All) {
+      ctx.font = `${0.3 / scale}px Arial`;
+      ctx.fillStyle = 'black';
+      
+      this.diagram.cells.forEach((cell: Cell, index: number) => {
+        // Draw cell index
+        ctx.fillText(`${index}`, cell.site.x, cell.site.y);
+        
+        // Draw vertex order
+        cell.halfedges.forEach((halfedge, vIndex) => {
+          const vertex = halfedge.getStartpoint();
+          if (vertex) {
+            ctx.fillText(`${vIndex}`, vertex.x, vertex.y);
+          }
+        });
+      });
     }
 
     // Always draw vertices and sites
