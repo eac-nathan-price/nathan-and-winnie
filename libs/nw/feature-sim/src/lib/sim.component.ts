@@ -182,15 +182,15 @@ export class SimComponent implements OnInit {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, container.width, container.height);
     
-    // Transform coordinates
+    // Transform coordinates - flip Y axis by negating scale.y
     ctx.save();
     ctx.translate(translateX, translateY);
-    ctx.scale(scale, scale);
+    ctx.scale(scale, -scale); // Negating Y scale to flip the axis
 
-    // Draw edges with thinner lines
+    // Draw edges
     ctx.beginPath();
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 0.5 / scale; // Make lines thinner relative to scale
+    ctx.lineWidth = 0.5 / scale;
     this.diagram.edges.forEach((edge: Edge) => {
       if (!edge.va || !edge.vb) return;
       ctx.moveTo(edge.va.x, edge.va.y);
@@ -198,7 +198,23 @@ export class SimComponent implements OnInit {
     });
     ctx.stroke();
 
-    // Draw vertices (made smaller)
+    // Draw debug lines from sites to vertices
+    ctx.beginPath();
+    ctx.strokeStyle = '#0f0';
+    ctx.lineWidth = 0.3 / scale;
+    this.diagram.cells.forEach((cell: Cell) => {
+      const site = cell.site;
+      cell.halfedges.forEach(halfedge => {
+        const vertex = halfedge.getStartpoint();
+        if (vertex) {
+          ctx.moveTo(site.x, site.y);
+          ctx.lineTo(vertex.x, vertex.y);
+        }
+      });
+    });
+    ctx.stroke();
+
+    // Draw vertices
     ctx.beginPath();
     ctx.fillStyle = 'red';
     this.diagram.vertices.forEach((v: Vertex) => {
@@ -206,7 +222,7 @@ export class SimComponent implements OnInit {
     });
     ctx.fill();
 
-    // Draw sites (made smaller)
+    // Draw sites
     ctx.beginPath();
     ctx.fillStyle = '#44f';
     this.sites.forEach(site => {
