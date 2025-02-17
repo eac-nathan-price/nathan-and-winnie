@@ -79,7 +79,7 @@ export type Mejai = {
 export const mejai = {
   necreph: {
     name: 'Necreph the Shadow',
-    note: '',
+    note: 'Telports. Must have total darkness.',
     icon: '',
     evidence: [
       evidence.radioactive,
@@ -94,7 +94,7 @@ export const mejai = {
   } as Mejai,
   rathos: {
     name: 'Rathos the Damned',
-    note: '',
+    note: 'Super-mummy. Use fire.',
     icon: '',
     evidence: [
       evidence.footsteps,
@@ -109,7 +109,7 @@ export const mejai = {
   } as Mejai,
   dekan: {
     name: 'Dekan the Lost',
-    note: '',
+    note: 'Stomps around. Great hearing, poor vision.',
     icon: '',
     evidence: [
       evidence.footsteps,
@@ -124,7 +124,7 @@ export const mejai = {
   } as Mejai,
   ouphris: {
     name: 'Ouphris the Forgotten',
-    note: '',
+    note: 'Shapeshifts. Use Heka Amulet.',
     icon: '',
     evidence: [
       evidence.footsteps,
@@ -139,7 +139,7 @@ export const mejai = {
   } as Mejai,
   talgor: {
     name: 'Talgor the Perilous',
-    note: '',
+    note: 'Invisible. Use tablet, scream.',
     icon: '',
     evidence: [
       evidence.radar,
@@ -154,7 +154,7 @@ export const mejai = {
   } as Mejai,
   ataimon: {
     name: 'Ataimon the Abominable',
-    note: '',
+    note: 'Creates abominations. Flicker flashlight / camera flash.',
     icon: '',
     evidence: [
       evidence.footsteps,
@@ -169,7 +169,7 @@ export const mejai = {
   } as Mejai,
   ptahmes: {
     name: 'Ptahmes the Resilient',
-    note: '',
+    note: 'Disorientates. Look but not too long, use camera.',
     icon: '',
     evidence: [
       evidence.footsteps,
@@ -233,4 +233,3 @@ export const mejai = {
   `We are going to steal your stuff.`,
   `Will I survive?`,
  ];
- 
