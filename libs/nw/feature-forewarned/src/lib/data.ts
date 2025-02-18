@@ -74,7 +74,7 @@ export type Mejai = {
   note: string,
   icon: string,
   evidence: Evidence[]
-}
+};
 
 export const mejai = {
   necreph: {
@@ -183,7 +183,8 @@ export const mejai = {
     ]
   } as Mejai
 };
- export const questions = [
+
+export const questions = [
   `Who are you?`,
   `I will kill/ destroy you`,
   `What is your name?`,
@@ -232,4 +233,36 @@ export const mejai = {
   `Penny for your thoughts.`,
   `We are going to steal your stuff.`,
   `Will I survive?`,
- ];
+];
+
+export type Simon = {
+  name: string,
+  icon: string,
+};
+
+export const simon = [
+  {
+    name: 'Bird',
+    icon: 'bird'
+  },
+  {
+    name: 'Fish',
+    icon: 'fish'
+  },
+  {
+    name: 'Froggy',
+    icon: 'frog'
+  },
+  {
+    name: 'Lizard',
+    icon: 'lizard'
+  },
+  {
+    name: 'Scarab',
+    icon: 'scarab'
+  },
+  {
+    name: 'Snake',
+    icon: 'snake'
+  }
+];

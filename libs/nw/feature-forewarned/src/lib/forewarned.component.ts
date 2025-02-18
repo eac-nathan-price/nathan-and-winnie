@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
-import { evidence, Evidence, mejai, questions } from './data';
+import { evidence, Evidence, mejai, questions, simon, Simon } from './data';
 
 @Component({
   selector: 'lib-forewarned',
@@ -18,10 +18,12 @@ export class ForewarnedComponent implements OnInit {
   evidence = Object.values(evidence);
   mejai = Object.values(mejai);
   filteredMejai = this.mejai;
-  questions = questions;
-  
-  getSrc(evidence: Evidence) {
-    return `assets/forewarned/${evidence.icon}.png`;
+  questions = questions.sort();
+  simon = simon;
+  voice = evidence.voice;
+
+  getSrc(icon: string) {
+    return `assets/forewarned/${icon}.png`;
   }
 
   toggleObserved(evidence: Evidence) {
@@ -58,6 +60,14 @@ export class ForewarnedComponent implements OnInit {
         e.redundant = false;
       }
     });
+  }
+
+  pattern: Simon[] = [];
+  addSimon(s: Simon) {
+    this.pattern.push(s);
+  }
+  resetSimon() {
+    this.pattern = [];
   }
 
   @HostListener('window:keydown', ['$event'])
