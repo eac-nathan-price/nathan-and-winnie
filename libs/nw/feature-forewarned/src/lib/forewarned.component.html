@@ -36,9 +36,16 @@
       <mat-icon>mic</mat-icon>
     </button>
     <div class="question">
-      @for (q of questions; track $index) {
-        <div>{{ q }}</div>
-      }
+      <div class="ticker-tape">
+        @for (q of questions; track $index) {
+          <div>{{ q }}</div>
+        }
+      </div>
+      <div class="ticker-tape" aria-hidden="true">
+        @for (q of questions; track $index) {
+          <div>{{ q }}</div>
+        }
+      </div>
     </div>
   </div>
 
