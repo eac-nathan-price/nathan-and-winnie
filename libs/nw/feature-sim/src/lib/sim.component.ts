@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, OnInit, viewChild, PLATFORM_ID } from '@
 import { CommonModule } from '@angular/common';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { Voronoi, Vertex, Cell, Edge, Diagram, SiteInput } from './voronoi/voronoi.gemeni';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -47,7 +47,7 @@ class Random {
 export class SimComponent implements OnInit { 
   private platformId = inject(PLATFORM_ID);
   target = viewChild.required<ElementRef>('target');
-  scene = new THREE.Scene();
+  scene!: THREE.Scene;
   camera!: THREE.PerspectiveCamera;
   renderer!: THREE.WebGLRenderer;
   controls!: OrbitControls;
@@ -58,8 +58,11 @@ export class SimComponent implements OnInit {
   private visualizationMode = VisualizationMode.All;
 
   constructor() {
-    this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    this.camera.position.z = 5;
+    if (isPlatformBrowser(this.platformId)) {
+      this.scene = new THREE.Scene();
+      this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+      this.camera.position.z = 5;
+    }
   }
 
   ngOnInit() {
@@ -71,31 +74,35 @@ export class SimComponent implements OnInit {
     });
 
     if (isPlatformBrowser(this.platformId)) {
-      this.renderer = new THREE.WebGLRenderer();
-      this.renderer.setPixelRatio(window.devicePixelRatio);
-      
-      const container = this.target().nativeElement;
-      container.appendChild(this.renderer.domElement);
-      this.updateSize();
-      
-      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-      this.controls.enableDamping = true;
-      
-      window.addEventListener('resize', () => {
-        this.updateSize();
-        this.render2D(); // Re-render 2D on resize
-      });
-      this.renderer.setAnimationLoop(this.animate.bind(this));
-
-      this.generateVoronoi();
-      this.render2D(); // Add initial 2D render
-
-      // Add click handler for canvas
-      this.canvas().nativeElement.addEventListener('click', () => {
-        this.visualizationMode = (this.visualizationMode + 1) % 4;
-        this.render2D();
-      });
+      this.initThreeJs();
     }
+  }
+
+  private initThreeJs() {
+    this.renderer = new THREE.WebGLRenderer();
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    
+    const container = this.target().nativeElement;
+    container.appendChild(this.renderer.domElement);
+    this.updateSize();
+    
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+    
+    window.addEventListener('resize', () => {
+      this.updateSize();
+      this.render2D(); // Re-render 2D on resize
+    });
+    this.renderer.setAnimationLoop(this.animate.bind(this));
+
+    this.generateVoronoi();
+    this.render2D(); // Add initial 2D render
+
+    // Add click handler for canvas
+    this.canvas().nativeElement.addEventListener('click', () => {
+      this.visualizationMode = (this.visualizationMode + 1) % 4;
+      this.render2D();
+    });
   }
 
   generateVoronoi() {
