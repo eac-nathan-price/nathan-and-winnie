@@ -69,5 +69,27 @@
     </div>
   </div>
 
+  <div>
+    <div class="row">
+      <button mat-icon-button (click)="resetGrid()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <div class="grid">
+        @for (cell of grid; track $index) {
+          <button class="grid-cell" 
+                  [class.active]="cell"
+                  (click)="toggleCell($index)">
+            {{ $index + 1 }}
+          </button>
+        }
+      </div>
+      @if (solution.length > 0) {
+        <div class="solution">
+          Press buttons in this order: {{ solution.join(', ') }}
+        </div>
+      }
+    </div>
+  </div>
+
   <div class="heads">Baboon-North, Jackal-East, Human-South, Falcon-West</div>
 </div>

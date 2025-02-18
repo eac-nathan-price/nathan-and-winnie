@@ -93,4 +93,68 @@ export class ForewarnedComponent implements OnInit {
       route: '/forewarned',
     });
   }
+
+  // Add new properties for the 3x3 puzzle
+  grid = Array(9).fill(false);
+  solution: number[] = [];
+
+  toggleCell(index: number) {
+    this.grid[index] = !this.grid[index];
+    this.solvePuzzle();
+  }
+
+  resetGrid() {
+    this.grid = Array(9).fill(false);
+    this.solution = [];
+  }
+
+  // Get adjacent cells for a given index (including the cell itself)
+  getAffectedCells(index: number): number[] {
+    const affected = [index];
+    
+    // Add left neighbor if not on left edge
+    if (index % 3 !== 0) affected.push(index - 1);
+    
+    // Add right neighbor if not on right edge
+    if (index % 3 !== 2) affected.push(index + 1);
+    
+    // Add top neighbor
+    if (index >= 3) affected.push(index - 3);
+    
+    // Add bottom neighbor
+    if (index < 6) affected.push(index + 3);
+    
+    return affected;
+  }
+
+  solvePuzzle() {
+    // Convert current grid to target state (all cells should be true)
+    const target = Array(9).fill(true);
+    const initial = [...this.grid];
+    
+    // Try all possible combinations of button presses
+    for (let i = 0; i < 512; i++) { // 2^9 possible combinations
+      const buttonPresses: number[] = [];
+      const finalState = [...initial];
+      
+      // Convert number to binary to determine which buttons to press
+      for (let j = 0; j < 9; j++) {
+        if ((i & (1 << j)) !== 0) {
+          buttonPresses.push(j + 1);
+          // Toggle affected cells
+          this.getAffectedCells(j).forEach(idx => {
+            finalState[idx] = !finalState[idx];
+          });
+        }
+      }
+      
+      // Check if this combination solves the puzzle
+      if (finalState.every((cell, index) => cell === target[index])) {
+        this.solution = buttonPresses;
+        return;
+      }
+    }
+    
+    this.solution = []; // No solution found
+  }
 }

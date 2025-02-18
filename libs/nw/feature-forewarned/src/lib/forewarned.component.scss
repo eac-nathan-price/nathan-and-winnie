@@ -113,3 +113,34 @@
     height: 48px;
   }
 }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 240px;
+}
+
+.grid-cell {
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+
+  &.active {
+    background-color: #666;
+  }
+
+  &:hover {
+    background-color: #444;
+  }
+}
+
+.solution {
+  text-align: center;
+  margin-top: 1rem;
+}
