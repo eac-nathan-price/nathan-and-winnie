@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
-import { evidence, Evidence, mejai } from './data';
+import { evidence, Evidence, mejai, questions } from './data';
 
 @Component({
   selector: 'lib-forewarned',
@@ -18,7 +18,8 @@ export class ForewarnedComponent implements OnInit {
   evidence = Object.values(evidence);
   mejai = Object.values(mejai);
   filteredMejai = this.mejai;
-
+  questions = questions;
+  
   getSrc(evidence: Evidence) {
     return `assets/forewarned/${evidence.icon}.png`;
   }
