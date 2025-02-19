@@ -5,104 +5,10 @@ import * as THREE from 'three';
 //import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { extend } from 'angular-three';
 import { Delaunay } from "d3-delaunay";
+import { createNoise2D } from 'simplex-noise';
+import { Box2, Random } from './vector';
 
 extend(THREE);
-
-class Vector2 {
-  constructor(
-    public x: number,
-    public y: number
-  ) {}
-}
-
-class Vector3 {
-  constructor(
-    public x: number,
-    public y: number,
-    public z: number
-  ) {}
-}
-
-type Bounds2 = [
-  number, // xMin
-  number, // yMin
-  number, // xMax
-  number  // yMax
-];
-
-type Bounds3 = [
-  number, // xMin
-  number, // yMin
-  number, // zMin
-  number, // xMax
-  number, // yMax
-  number  // zMax
-];
-
-class Box2 {
-  constructor(
-    public xMin: number,
-    public yMin: number,
-    public xMax: number,
-    public yMax: number
-  ) {}
-
-  bounds() {
-    return [
-      this.xMin,
-      this.yMin,
-      this.xMax,
-      this.yMax
-    ] as Bounds2;
-  }
-}
-
-class Box3 {
-  constructor(
-    public xMin: number,
-    public yMin: number,
-    public zMin: number,
-    public xMax: number,
-    public yMax: number,
-    public zMax: number
-  ) {}
-
-  bounds() {
-    return [
-      this.xMin,
-      this.yMin,
-      this.zMin,
-      this.xMax,
-      this.yMax,
-      this.zMax
-    ] as Bounds3;
-  }
-}
-
-class Random {
-  static float(min: number, max: number) {
-    return Math.random() * (max - min) + min;
-  }
-
-  static int(min: number, max: number) {
-    return Math.floor(Random.float(min, max));
-  }
-  
-  static vector2(box: Box2) {
-    return new Vector2(
-      Random.float(box.xMin, box.xMax),
-      Random.float(box.yMin, box.yMax)
-    );
-  }
-
-  static vector3(box: Box3) {
-    return new Vector3(
-      Random.float(box.xMin, box.xMax),
-      Random.float(box.yMin, box.yMax),
-      Random.float(box.zMin, box.zMax)
-    );
-  }
-}
 
 // function computeVoronoi(points: Vector2[], box: Box2) {
 //   const delaunay = Delaunay.from(points, d => d.x, d => d.y);
@@ -144,10 +50,14 @@ export class SimComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
 
     const box = new Box2(0, 0, 800, 600);
-    const points = new Array(9).map(() => Random.vector2(box));
+    const points = new Array(9).fill(0).map(() => Random.vector2(box));
     const delaunay = Delaunay.from(points, d => d.x, d => d.y);
     const voronoi = delaunay.voronoi(box.bounds());
     console.log(voronoi);
+
+    const noise2D = createNoise2D();
+
+    console.log(noise2D(10, 20));
   }
 
   toolbar = inject(ToolbarService);
