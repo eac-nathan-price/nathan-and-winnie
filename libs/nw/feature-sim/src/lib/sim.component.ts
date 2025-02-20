@@ -1,43 +1,24 @@
 import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
-import * as THREE from 'three';
-//import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { extend } from 'angular-three';
+
+import { NgtCanvas } from 'angular-three';
 import { Delaunay } from "d3-delaunay";
 import { createNoise2D } from 'simplex-noise';
-import { Box2, Random, Vector2, Vector3 } from './vector';
 
-extend(THREE);
-
-// function computeVoronoi(points: Vector2[], box: Box2) {
-//   const delaunay = Delaunay.from(points, d => d.x, d => d.y);
-//   const voronoi = delaunay.voronoi(box.bounds()); // Clipped within bounding box
-
-//   const cells = points.map((site, i) => {
-//       const edges = [];
-//       const cell = voronoi.cellPolygon(i);
-
-//       if (cell) {
-//           for (let j = 0; j < cell.length - 1; j++) {
-//               edges.push({ start: { x: cell[j][0], y: cell[j][1] }, end: { x: cell[j + 1][0], y: cell[j + 1][1] } });
-//           }
-//       }
-
-//       return { site, edges };
-//   });
-
-//   return cells;
-// }
+import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
+import { Box2, Random, Vector2 } from './vector';
+import { SceneGraphComponent } from './scene-graph.component';
 
 @Component({
   selector: 'lib-sim',
-  imports: [CommonModule],
+  imports: [CommonModule, NgtCanvas],
   templateUrl: './sim.component.html',
   styleUrl: './sim.component.scss',
 })
 export class SimComponent implements OnInit { 
   private platformId = inject(PLATFORM_ID);
+
+  sceneGraph = SceneGraphComponent;
 
   ngOnInit() {
     this.toolbar.patch(1, {
