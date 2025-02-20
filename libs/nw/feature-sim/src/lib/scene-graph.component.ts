@@ -1,11 +1,12 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy } from '@angular/core';
 //import { Mesh, BoxGeometry } from 'three';
-
+import * as THREE from 'three';
 import { injectStore, extend, NgtArgs } from 'angular-three';
 import { OrbitControls } from 'three-stdlib';
 
 import { CubeComponent } from './cube.component';
 
+extend(THREE);
 extend({
   OrbitControls,
 });

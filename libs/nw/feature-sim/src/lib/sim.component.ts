@@ -1,16 +1,13 @@
 import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 
-import * as THREE from 'three';
-import { extend, NgtCanvas } from 'angular-three';
+import { NgtCanvas } from 'angular-three';
 import { Delaunay } from "d3-delaunay";
 import { createNoise2D } from 'simplex-noise';
 
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 import { Box2, Random, Vector2 } from './vector';
 import { SceneGraphComponent } from './scene-graph.component';
-
-extend(THREE);
 
 @Component({
   selector: 'lib-sim',
