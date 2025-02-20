@@ -23,6 +23,7 @@ interface Cell {
 @Component({
   template: `
     <ngt-orbit-controls *args="[camera(), glDomElement()]" />
+    <ngt-grid-helper />
     
     <ngt-ambient-light [intensity]="0.5" />
     <ngt-spot-light [position]="10" [intensity]="0.5 * Math.PI" [angle]="0.15" [penumbra]="1" [decay]="0" />
@@ -50,12 +51,12 @@ export class SceneGraphComponent {
       const z = noise2D(p.x, p.y) * 2;
       const cell = voronoi.cellPolygon(i).map(c => new Vector2(c[0], c[1]));
       return {
-        center: new THREE.Vector3(p.x, p.y, z),
+        center: new THREE.Vector3(p.x, z, p.y),
         border: cell.map(c => {
           const d = Vector2.distance(p, c);
-          if (d < 1) return new THREE.Vector3(c.x, c.y, z);
+          if (d < 1) return new THREE.Vector3(c.x, z, c.y);
           const nudged = Vector2.nudge(c, p, Math.min(1, d - 1));
-          return new THREE.Vector3(nudged.x, nudged.y, z);
+          return new THREE.Vector3(nudged.x, z, nudged.y);
         })
       };
     });
