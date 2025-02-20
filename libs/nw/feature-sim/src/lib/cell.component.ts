@@ -1,6 +1,7 @@
 import { Component, input, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import * as THREE from 'three';
 import { extend, NgtArgs } from 'angular-three';
+import { NgtThreeEvent } from 'angular-three';
 
 extend(THREE);
 
@@ -8,7 +9,7 @@ extend(THREE);
   selector: 'lib-cell',
   standalone: true,
   template: `
-    <ngt-mesh>
+    <ngt-mesh (click)="handleClick($event)">
       <ngt-buffer-geometry>
         <ngt-float32-buffer-attribute
           *args="['position', positions, 3]"
@@ -21,6 +22,7 @@ extend(THREE);
       <ngt-mesh
         [position]="point"
         [scale]="0.25"
+        (click)="handleClick($event)"
       >
         <ngt-box-geometry />
         <ngt-mesh-standard-material [color]="color" />
@@ -29,6 +31,7 @@ extend(THREE);
     <ngt-mesh
       [position]="centerPoint()"
       [scale]="0.5"
+      (click)="handleClick($event)"
     >
       <ngt-box-geometry />
       <ngt-mesh-standard-material [color]="color" />
@@ -44,5 +47,10 @@ export class CellComponent {
 
   protected get positions() {
     return new Float32Array(this.borderPoints().flatMap(p => [p.x, p.y, p.z]));
+  }
+
+  handleClick(event: NgtThreeEvent<MouseEvent>) {
+    event.stopPropagation();
+    console.log('Cell clicked:', event);
   }
 }

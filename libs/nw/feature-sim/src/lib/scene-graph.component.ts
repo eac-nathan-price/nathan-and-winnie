@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
-import { injectStore, extend, NgtArgs } from 'angular-three';
+import { injectStore, extend, NgtArgs, NgtThreeEvent } from 'angular-three';
 import { OrbitControls } from 'three-stdlib';
 import { Delaunay } from "d3-delaunay";
 import { createNoise2D } from 'simplex-noise';
@@ -23,7 +23,7 @@ interface Cell {
 @Component({
   template: `
     <ngt-orbit-controls *args="[camera(), glDomElement()]" />
-    <ngt-grid-helper />
+    <ngt-grid-helper (click)="handleClick($event)" />
     
     <ngt-ambient-light [intensity]="0.5" />
     <ngt-spot-light [position]="10" [intensity]="0.5 * Math.PI" [angle]="0.15" [penumbra]="1" [decay]="0" />
@@ -60,6 +60,19 @@ export class SceneGraphComponent {
         })
       };
     });
+  }
+
+  handleClick(event: NgtThreeEvent<MouseEvent>) {
+    event.stopPropagation();
+    
+    switch(event.object.type) {
+      case 'GridHelper':
+        console.log('Grid clicked at:', event.point);
+        break;
+      case 'Mesh':
+        console.log('Mesh clicked:', event.object);
+        break;
+    }
   }
 
   protected readonly Math = Math;
