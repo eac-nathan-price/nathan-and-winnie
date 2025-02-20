@@ -9,7 +9,7 @@ extend(THREE);
   selector: 'lib-cell',
   standalone: true,
   template: `
-    <ngt-mesh (click)="handleClick($event)">
+    <ngt-mesh (click)="onClick($event)">
       <ngt-buffer-geometry>
         <ngt-float32-buffer-attribute
           *args="['position', positions, 3]"
@@ -22,7 +22,7 @@ extend(THREE);
       <ngt-mesh
         [position]="point"
         [scale]="0.25"
-        (click)="handleClick($event)"
+        (click)="onClick($event)"
       >
         <ngt-box-geometry />
         <ngt-mesh-standard-material [color]="color" />
@@ -31,7 +31,7 @@ extend(THREE);
     <ngt-mesh
       [position]="centerPoint()"
       [scale]="0.5"
-      (click)="handleClick($event)"
+      (click)="onClick($event)"
     >
       <ngt-box-geometry />
       <ngt-mesh-standard-material [color]="color" />
@@ -49,7 +49,7 @@ export class CellComponent {
     return new Float32Array(this.borderPoints().flatMap(p => [p.x, p.y, p.z]));
   }
 
-  handleClick(event: NgtThreeEvent<MouseEvent>) {
+  onClick(event: NgtThreeEvent<MouseEvent>) {
     event.stopPropagation();
     console.log('Cell clicked:', event);
   }
