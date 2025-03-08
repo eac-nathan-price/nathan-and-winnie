@@ -25,6 +25,35 @@ const containsKeyword = (title: string): boolean => {
   });
 };
 
+// Counters for status updates
+let totalSeenPosts = 0;
+let newPostsCount = 0;
+let newAlertsCount = 0;
+
+// Function to update the console output on the same line
+const updateConsoleStatus = () => {
+  const now = new Date();
+  
+  // Convert to Pacific Time (PT) with 12-hour format and AM/PM
+  const ptFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+  
+  const ptTime = ptFormatter.format(now);
+  
+  const statusMessage = `Update time: ${ptTime} | Seen posts: ${totalSeenPosts} | New Posts: ${newPostsCount} | New Alerts: ${newAlertsCount}`;
+  process.stdout.clearLine(0);
+  process.stdout.cursorTo(0);
+  process.stdout.write(statusMessage);
+};
+
 const subreddit = "r/3Dprintmything/new";
 //const subreddit = 'new';
 const url = `https://www.reddit.com/${subreddit}/`;
@@ -45,9 +74,11 @@ const sendTelegramMessage = async (message: string) => {
       text: message,
       disable_web_page_preview: true
     });
-    console.log("Sent Telegram notification");
+    // console.log("\nSent Telegram notification");
+    updateConsoleStatus(); // Restore status line after log
   } catch (error) {
-    console.error("Error sending Telegram message:", error);
+    console.error("\nError sending Telegram message:", error);
+    updateConsoleStatus(); // Restore status line after error
   }
 };
 
@@ -55,9 +86,11 @@ const sendTelegramMessage = async (message: string) => {
 const sendDiscordMessage = async (message: string) => {
   try {
     await axios.post(DISCORD_WEBHOOK_URL, { content: message });
-    console.log("Sent Discord notification");
+    // console.log("\nSent Discord notification");
+    updateConsoleStatus(); // Restore status line after log
   } catch (error) {
-    console.error("Error sending Discord message:", error);
+    console.error("\nError sending Discord message:", error);
+    updateConsoleStatus(); // Restore status line after error
   }
 };
 
@@ -87,7 +120,7 @@ const sendDiscordMessage = async (message: string) => {
 
   try {
     await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
-    console.log("Page loaded successfully");
+    // console.log("Page loaded successfully");
     
     // Take a screenshot for debugging
     // await page.screenshot({ path: 'reddit-debug.png' });
@@ -95,7 +128,7 @@ const sendDiscordMessage = async (message: string) => {
     
     // Log the page HTML to see what we're working with
     const pageContent = await page.content();
-    console.log(`Page content length: ${pageContent.length} characters`);
+    // console.log(`Page content length: ${pageContent.length} characters`);
     
     let seenPosts = new Set<string>();
 
@@ -123,8 +156,6 @@ const sendDiscordMessage = async (message: string) => {
           }
         }
         
-        console.log(`Found ${posts.length} posts`);
-        
         return posts.map(post => {
           const title = post.textContent || "No Title";
           let href = "";
@@ -148,29 +179,34 @@ const sendDiscordMessage = async (message: string) => {
     // Capture initial snapshot of posts
     const initialPosts = await getPosts();
     console.log(`Initial posts found: ${initialPosts.length}`);
-    initialPosts.forEach(post => console.log(`- ${post.title}: ${post.href}`));
     
     seenPosts = new Set(initialPosts.map(post => post.href));
-    console.log(`Initialized seenPosts with ${seenPosts.size} posts`);
+    totalSeenPosts = seenPosts.size;
+    
+    // console.log("Starting monitoring...");
+    updateConsoleStatus();
 
     // Monitor for new posts every 30 seconds
     setInterval(async () => {
-      console.log('Reloading page');
       try {
+        // Reset counters for this interval
+        newPostsCount = 0;
+        newAlertsCount = 0;
+        
         await page.reload({ waitUntil: "networkidle2", timeout: 60000 });
-        console.log('Page reloaded');
 
         const newPosts = await getPosts();
-        console.log(`Found ${newPosts.length} posts after reload`);
         
         newPosts.forEach(post => {
           if (!seenPosts.has(post.href)) {
-            console.log(`New Post: ${post.title} - ${post.href}`);
+            newPostsCount++;
             seenPosts.add(post.href);
+            totalSeenPosts++;
 
             // Only send notifications if the post title contains one of the keywords
             if (containsKeyword(post.title)) {
-              console.log(`Keyword match found in: ${post.title}`);
+              newAlertsCount++;
+              console.log(`\nKeyword match found: ${post.title} - ${post.href}`);
               const message = `📢 *New Reddit Post!*\n**${post.title}**\n🔗 [View Post](${post.href})`;
 
               // Send desktop notification
@@ -183,13 +219,17 @@ const sendDiscordMessage = async (message: string) => {
               // Send Telegram and Discord notifications
               sendTelegramMessage(message);
               //sendDiscordMessage(message);
-            } else {
-              console.log(`No keyword match in: ${post.title} - skipping notification`);
+              
+              updateConsoleStatus(); // Restore status line after logs
             }
           }
         });
+        
+        // Update the console with the latest status
+        updateConsoleStatus();
       } catch (error) {
-        console.error("Error during page reload:", error);
+        console.error("\nError during page reload:", error);
+        updateConsoleStatus(); // Restore status line after error
       }
     }, 30000); // Check every 30 seconds
   } catch (error) {
