@@ -7,8 +7,26 @@ interface RedditPost {
   href: string;
 }
 
-//const subreddit = "r/3Dprintmything/new";
-const subreddit = 'new';
+// Keywords to filter posts by (case insensitive)
+const KEYWORDS = [
+  'US', 'U.S.', 'USA', 'United States', 
+  'CA', 'Cal', 'Cali', 'California', 
+  'SoCal', 'LA', 'Los Angeles', 'L.A.'
+];
+
+// Function to check if a post title contains any of the keywords
+const containsKeyword = (title: string): boolean => {
+  const lowerTitle = title.toLowerCase();
+  return KEYWORDS.some(keyword => {
+    const lowerKeyword = keyword.toLowerCase();
+    // Match keyword when it's surrounded by non-letters or at the end of the string
+    const regex = new RegExp(`(^|[^a-zA-Z])${lowerKeyword}($|[^a-zA-Z])`, 'i');
+    return regex.test(lowerTitle);
+  });
+};
+
+const subreddit = "r/3Dprintmything/new";
+//const subreddit = 'new';
 const url = `https://www.reddit.com/${subreddit}/`;
 
 // Telegram Bot Credentials
@@ -72,8 +90,8 @@ const sendDiscordMessage = async (message: string) => {
     console.log("Page loaded successfully");
     
     // Take a screenshot for debugging
-    await page.screenshot({ path: 'reddit-debug.png' });
-    console.log("Screenshot saved as reddit-debug.png");
+    // await page.screenshot({ path: 'reddit-debug.png' });
+    // console.log("Screenshot saved as reddit-debug.png");
     
     // Log the page HTML to see what we're working with
     const pageContent = await page.content();
@@ -150,18 +168,24 @@ const sendDiscordMessage = async (message: string) => {
             console.log(`New Post: ${post.title} - ${post.href}`);
             seenPosts.add(post.href);
 
-            const message = `📢 *New Reddit Post!*\n**${post.title}**\n🔗 [View Post](${post.href})`;
+            // Only send notifications if the post title contains one of the keywords
+            if (containsKeyword(post.title)) {
+              console.log(`Keyword match found in: ${post.title}`);
+              const message = `📢 *New Reddit Post!*\n**${post.title}**\n🔗 [View Post](${post.href})`;
 
-            // Send desktop notification
-            notifier.notify({
-              title: "New Reddit Post!",
-              message: post.title,
-              open: post.href
-            });
+              // Send desktop notification
+              notifier.notify({
+                title: "New Reddit Post!",
+                message: post.title,
+                open: post.href
+              });
 
-            // Send Telegram and Discord notifications
-            sendTelegramMessage(message);
-            //sendDiscordMessage(message);
+              // Send Telegram and Discord notifications
+              sendTelegramMessage(message);
+              //sendDiscordMessage(message);
+            } else {
+              console.log(`No keyword match in: ${post.title} - skipping notification`);
+            }
           }
         });
       } catch (error) {
