@@ -2,6 +2,8 @@ import puppeteer from "puppeteer";
 import notifier from "node-notifier";
 import axios from "axios";
 
+import { TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, DISCORD_WEBHOOK_URL } from "./secret";
+
 interface RedditPost {
   title: string;
   href: string;
@@ -57,13 +59,6 @@ const updateConsoleStatus = () => {
 const subreddit = "r/3Dprintmything/new";
 //const subreddit = 'new';
 const url = `https://www.reddit.com/${subreddit}/`;
-
-// Telegram Bot Credentials
-const TELEGRAM_BOT_TOKEN = "7922584287:AAG0YRVngNMNDx71CHthhIgB4N2XC_qY9WQ";
-const TELEGRAM_CHAT_ID = "7258290954";
-
-// Discord Webhook URL
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1215615615615615615/1215615615615615615";
 
 // Function to send a Telegram notification
 const sendTelegramMessage = async (message: string) => {

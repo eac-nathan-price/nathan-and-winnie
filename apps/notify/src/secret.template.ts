@@ -1,0 +1,3 @@
+export const TELEGRAM_BOT_TOKEN = "{{TELEGRAM_BOT_TOKEN}}";
+export const TELEGRAM_CHAT_ID = "{{TELEGRAM_CHAT_ID}}";
+export const DISCORD_WEBHOOK_URL = "{{DISCORD_WEBHOOK_URL}}";
