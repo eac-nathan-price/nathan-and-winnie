@@ -31,6 +31,8 @@ const containsKeyword = (title: string): boolean => {
 let totalSeenPosts = 0;
 let newPostsCount = 0;
 let newAlertsCount = 0;
+let refreshCount = 0;
+let alertCount = 0;
 
 // Function to update the console output on the same line
 const updateConsoleStatus = () => {
@@ -50,7 +52,7 @@ const updateConsoleStatus = () => {
   
   const ptTime = ptFormatter.format(now);
   
-  const statusMessage = `Update time: ${ptTime} | Seen posts: ${totalSeenPosts} | New Posts: ${newPostsCount} | New Alerts: ${newAlertsCount}`;
+  const statusMessage = `Refreshes: ${refreshCount++} | Update time: ${ptTime} | Seen posts: ${totalSeenPosts} | New Posts: ${newPostsCount} | New Alerts: ${newAlertsCount} | Alerts: ${alertCount}`;
   process.stdout.clearLine(0);
   process.stdout.cursorTo(0);
   process.stdout.write(statusMessage);
@@ -201,6 +203,7 @@ const sendDiscordMessage = async (message: string) => {
             // Only send notifications if the post title contains one of the keywords
             if (containsKeyword(post.title)) {
               newAlertsCount++;
+              alertCount++;
               console.log(`\nKeyword match found: ${post.title} - ${post.href}`);
               const message = `📢 *New Reddit Post!*\n**${post.title}**\n🔗 [View Post](${post.href})`;
 
