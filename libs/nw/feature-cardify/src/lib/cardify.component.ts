@@ -173,6 +173,52 @@ export class CardifyComponent implements OnInit {
       title: 'Cardify',
       route: '/cardify',
     });
+
+    // Add some sample text boxes for demonstration
+    this.addSampleTextBoxes();
+  }
+
+  private addSampleTextBoxes() {
+    const sampleTextBoxes: TextBox[] = [
+      {
+        id: 'title',
+        x: 10,
+        y: 5,
+        width: 80,
+        height: 15,
+        text: 'title',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      {
+        id: 'description',
+        x: 10,
+        y: 25,
+        width: 80,
+        height: 40,
+        text: 'description',
+        fontSize: 12,
+        fontWeight: 'normal',
+        textAlign: 'left',
+      },
+      {
+        id: 'cost',
+        x: 75,
+        y: 70,
+        width: 20,
+        height: 15,
+        text: 'cost',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'right',
+      },
+    ];
+
+    this.template.update(template => ({
+      ...template,
+      textBoxes: sampleTextBoxes,
+    }));
   }
 
   // Text box management
