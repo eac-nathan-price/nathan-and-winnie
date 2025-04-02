@@ -73,7 +73,7 @@
           </button>
 
           <div class="textbox-list">
-            @for (textBox of template().textBoxes; track textBox.id) {
+            @for (textBox of textBoxes; track textBox.id) {
                              <div 
                  class="textbox-item"
                  [class.selected]="isSelected(textBox)"
@@ -254,7 +254,7 @@
               <div class="card-background"></div>
               
               <!-- Text boxes -->
-              @for (textBox of template().textBoxes; track textBox.id) {
+              @for (textBox of textBoxes; track textBox.id) {
                 <div 
                   class="text-box"
                   [class.selected]="isSelected(textBox)"

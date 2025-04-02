@@ -71,6 +71,9 @@ export class CardifyComponent implements OnInit {
   height = 3.5;
   previewScale = 2; // pixels per inch for preview
 
+  // Mutable text boxes array (like teams in feud component)
+  textBoxes: TextBox[] = [];
+
   // Methods to update template dimensions
   updateWidth(width: number) {
     this.width = width;
@@ -82,87 +85,14 @@ export class CardifyComponent implements OnInit {
     this.template.update(template => ({ ...template, height }));
   }
 
-  // Methods to update text box properties
-  updateTextBoxText(textBoxId: string, text: string) {
+  private updateTemplate() {
     this.template.update(template => ({
       ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, text } : tb
-      ),
+      textBoxes: [...this.textBoxes],
     }));
   }
 
-  updateTextBoxFontSize(textBoxId: string, fontSize: number) {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, fontSize } : tb
-      ),
-    }));
-  }
 
-  updateTextBoxFontWeight(textBoxId: string, fontWeight: 'normal' | 'bold') {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, fontWeight } : tb
-      ),
-    }));
-  }
-
-  updateTextBoxTextAlign(textBoxId: string, textAlign: 'left' | 'center' | 'right') {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, textAlign } : tb
-      ),
-    }));
-  }
-
-  updateTextBoxPosition(textBoxId: string, x: number, y: number, width: number, height: number) {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, x, y, width, height } : tb
-      ),
-    }));
-  }
-
-  updateTextBoxX(textBoxId: string, x: number) {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, x } : tb
-      ),
-    }));
-  }
-
-  updateTextBoxY(textBoxId: string, y: number) {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, y } : tb
-      ),
-    }));
-  }
-
-  updateTextBoxWidth(textBoxId: string, width: number) {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, width } : tb
-      ),
-    }));
-  }
-
-  updateTextBoxHeight(textBoxId: string, height: number) {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === textBoxId ? { ...tb, height } : tb
-      ),
-    }));
-  }
 
   // UI state
   selectedTextBox = signal<TextBox | null>(null);
@@ -186,7 +116,7 @@ export class CardifyComponent implements OnInit {
   }
 
   private addSampleTextBoxes() {
-    const sampleTextBoxes: TextBox[] = [
+    this.textBoxes = [
       {
         id: 'title',
         x: 10,
@@ -222,10 +152,7 @@ export class CardifyComponent implements OnInit {
       },
     ];
 
-    this.template.update(template => ({
-      ...template,
-      textBoxes: sampleTextBoxes,
-    }));
+    this.updateTemplate();
   }
 
   // Text box management
@@ -242,19 +169,14 @@ export class CardifyComponent implements OnInit {
       textAlign: 'left',
     };
 
-    this.template.update(template => ({
-      ...template,
-      textBoxes: [...template.textBoxes, newTextBox],
-    }));
-
+    this.textBoxes.push(newTextBox);
+    this.updateTemplate();
     this.selectedTextBox.set(newTextBox);
   }
 
   removeTextBox(textBox: TextBox) {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.filter(tb => tb.id !== textBox.id),
-    }));
+    this.textBoxes = this.textBoxes.filter(tb => tb.id !== textBox.id);
+    this.updateTemplate();
 
     if (this.selectedTextBox()?.id === textBox.id) {
       this.selectedTextBox.set(null);
@@ -262,12 +184,11 @@ export class CardifyComponent implements OnInit {
   }
 
   updateTextBox(updatedTextBox: TextBox) {
-    this.template.update(template => ({
-      ...template,
-      textBoxes: template.textBoxes.map(tb => 
-        tb.id === updatedTextBox.id ? updatedTextBox : tb
-      ),
-    }));
+    const index = this.textBoxes.findIndex(tb => tb.id === updatedTextBox.id);
+    if (index !== -1) {
+      this.textBoxes[index] = updatedTextBox;
+      this.updateTemplate();
+    }
 
     if (this.selectedTextBox()?.id === updatedTextBox.id) {
       this.selectedTextBox.set(updatedTextBox);
@@ -304,11 +225,16 @@ export class CardifyComponent implements OnInit {
     const clampedX = Math.max(0, Math.min(100 - this.selectedTextBox()!.width, x));
     const clampedY = Math.max(0, Math.min(100 - this.selectedTextBox()!.height, y));
     
-    this.updateTextBox({
-      ...this.selectedTextBox()!,
-      x: clampedX,
-      y: clampedY,
-    });
+    const selectedTextBox = this.selectedTextBox()!;
+    const index = this.textBoxes.findIndex(tb => tb.id === selectedTextBox.id);
+    if (index !== -1) {
+      this.textBoxes[index] = {
+        ...selectedTextBox,
+        x: clampedX,
+        y: clampedY,
+      };
+      this.updateTemplate();
+    }
   }
 
   onMouseUp() {
