@@ -39,6 +39,7 @@ export interface CardTemplate {
 
 @Component({
   selector: 'lib-cardify',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -65,12 +66,19 @@ export class CardifyComponent implements OnInit {
     textBoxes: [],
   });
 
+  // Form control properties
+  width = 2.5;
+  height = 3.5;
+  previewScale = 2; // pixels per inch for preview
+
   // Methods to update template dimensions
   updateWidth(width: number) {
+    this.width = width;
     this.template.update(template => ({ ...template, width }));
   }
 
   updateHeight(height: number) {
+    this.height = height;
     this.template.update(template => ({ ...template, height }));
   }
 
@@ -160,11 +168,10 @@ export class CardifyComponent implements OnInit {
   selectedTextBox = signal<TextBox | null>(null);
   isDragging = signal(false);
   dragStart = signal<{ x: number; y: number } | null>(null);
-  previewScale = signal(2); // pixels per inch for preview
 
   // Computed values
-  previewWidth = computed(() => this.template().width * this.previewScale());
-  previewHeight = computed(() => this.template().height * this.previewScale());
+  previewWidth = computed(() => this.template().width * this.previewScale);
+  previewHeight = computed(() => this.template().height * this.previewScale);
 
   ngOnInit() {
     this.toolbar.patch(1, {

@@ -46,8 +46,7 @@ export const pages: Page[] = [
     subtitle: '2025',
     description: 'Generate printable cards from a spreadsheet',
     icon: 'cards',
-    tags: ['Tool'],
-    disabled: true
+    tags: ['Tool']
   },
   {
     path: 'sudoku',

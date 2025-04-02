@@ -22,7 +22,7 @@
                  step="0.1" 
                  min="0.5" 
                  max="10"
-                 [(ngModel)]="template().width"
+                 [(ngModel)]="width"
                  (ngModelChange)="updateWidth($event)"
                >
             </mat-form-field>
@@ -35,7 +35,7 @@
                  step="0.1" 
                  min="0.5" 
                  max="10"
-                 [(ngModel)]="template().height"
+                 [(ngModel)]="height"
                  (ngModelChange)="updateHeight($event)"
                >
             </mat-form-field>
@@ -44,13 +44,12 @@
           <mat-divider></mat-divider>
 
           <div class="preview-scale">
-            <label for="preview-scale">Preview Scale: {{ previewScale() }}x</label>
+            <label for="preview-scale">Preview Scale: {{ previewScale }}x</label>
             <mat-slider 
               min="1" 
               max="4" 
               step="0.5"
-              [ngModel]="previewScale()"
-              (ngModelChange)="previewScale.set($event)"
+              [(ngModel)]="previewScale"
             >
               <input matSliderThumb id="preview-scale">
             </mat-slider>
@@ -101,8 +100,7 @@
                        <mat-label>Column Name</mat-label>
                        <input 
                          matInput 
-                         [ngModel]="textBox.text"
-                         (ngModelChange)="updateTextBoxText(textBox.id, $event)"
+                         [(ngModel)]="textBox.text"
                          placeholder="Enter spreadsheet column name"
                        >
                      </mat-form-field>
@@ -115,8 +113,7 @@
                            type="number" 
                            min="8" 
                            max="72"
-                           [ngModel]="textBox.fontSize"
-                           (ngModelChange)="updateTextBoxFontSize(textBox.id, $event)"
+                           [(ngModel)]="textBox.fontSize"
                          >
                        </mat-form-field>
 
@@ -124,8 +121,7 @@
                          <mat-label>Font Weight</mat-label>
                          <select 
                            matNativeControl
-                           [ngModel]="textBox.fontWeight"
-                           (ngModelChange)="updateTextBoxFontWeight(textBox.id, $event)"
+                           [(ngModel)]="textBox.fontWeight"
                          >
                            <option value="normal">Normal</option>
                            <option value="bold">Bold</option>
@@ -138,8 +134,7 @@
                          <mat-label>Text Align</mat-label>
                          <select 
                            matNativeControl
-                           [ngModel]="textBox.textAlign"
-                           (ngModelChange)="updateTextBoxTextAlign(textBox.id, $event)"
+                           [(ngModel)]="textBox.textAlign"
                          >
                            <option value="left">Left</option>
                            <option value="center">Center</option>
@@ -158,8 +153,7 @@
                              type="number" 
                              min="0" 
                              max="100"
-                             [ngModel]="textBox.x"
-                             (ngModelChange)="updateTextBoxX(textBox.id, $event)"
+                             [(ngModel)]="textBox.x"
                            >
                          </mat-form-field>
                          <mat-form-field appearance="outline">
@@ -169,8 +163,7 @@
                              type="number" 
                              min="0" 
                              max="100"
-                             [ngModel]="textBox.y"
-                             (ngModelChange)="updateTextBoxY(textBox.id, $event)"
+                             [(ngModel)]="textBox.y"
                            >
                          </mat-form-field>
                          <mat-form-field appearance="outline">
@@ -180,8 +173,7 @@
                              type="number" 
                              min="5" 
                              max="100"
-                             [ngModel]="textBox.width"
-                             (ngModelChange)="updateTextBoxWidth(textBox.id, $event)"
+                             [(ngModel)]="textBox.width"
                            >
                          </mat-form-field>
                          <mat-form-field appearance="outline">
@@ -191,8 +183,7 @@
                              type="number" 
                              min="5" 
                              max="100"
-                             [ngModel]="textBox.height"
-                             (ngModelChange)="updateTextBoxHeight(textBox.id, $event)"
+                             [(ngModel)]="textBox.height"
                            >
                          </mat-form-field>
                       </div>
