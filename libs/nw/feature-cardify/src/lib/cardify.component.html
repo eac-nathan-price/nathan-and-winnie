@@ -1,1 +1,285 @@
-<p>cardify works!</p>
+<div class="cardify-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>Card Template Editor</h1>
+    <p>Design your card template and preview how it will look when printed</p>
+  </div>
+
+  <div class="main-content">
+    <!-- Left Panel - Controls -->
+    <div class="controls-panel">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Card Dimensions</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="dimension-controls">
+            <mat-form-field appearance="outline">
+              <mat-label>Width (inches)</mat-label>
+                             <input 
+                 matInput 
+                 type="number" 
+                 step="0.1" 
+                 min="0.5" 
+                 max="10"
+                 [(ngModel)]="template().width"
+                 (ngModelChange)="updateWidth($event)"
+               >
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Height (inches)</mat-label>
+                             <input 
+                 matInput 
+                 type="number" 
+                 step="0.1" 
+                 min="0.5" 
+                 max="10"
+                 [(ngModel)]="template().height"
+                 (ngModelChange)="updateHeight($event)"
+               >
+            </mat-form-field>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="preview-scale">
+            <label for="preview-scale">Preview Scale: {{ previewScale() }}x</label>
+            <mat-slider 
+              min="1" 
+              max="4" 
+              step="0.5"
+              [ngModel]="previewScale()"
+              (ngModelChange)="previewScale.set($event)"
+            >
+              <input matSliderThumb id="preview-scale">
+            </mat-slider>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Text Boxes</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="addTextBox()"
+            class="add-button"
+          >
+            <mat-icon>add</mat-icon>
+            Add Text Box
+          </button>
+
+          <div class="textbox-list">
+            @for (textBox of template().textBoxes; track textBox.id) {
+                             <div 
+                 class="textbox-item"
+                 [class.selected]="isSelected(textBox)"
+                 (click)="selectedTextBox.set(textBox)"
+                 (keydown.enter)="selectedTextBox.set(textBox)"
+                 (keydown.space)="selectedTextBox.set(textBox)"
+                 tabindex="0"
+               >
+                <div class="textbox-header">
+                  <span class="textbox-name">{{ textBox.text || 'Unnamed' }}</span>
+                  <button 
+                    mat-icon-button 
+                    color="warn" 
+                    (click)="removeTextBox(textBox)"
+                    class="remove-button"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+                
+                @if (isSelected(textBox)) {
+                  <div class="textbox-properties">
+                                         <mat-form-field appearance="outline">
+                       <mat-label>Column Name</mat-label>
+                       <input 
+                         matInput 
+                         [ngModel]="textBox.text"
+                         (ngModelChange)="updateTextBoxText(textBox.id, $event)"
+                         placeholder="Enter spreadsheet column name"
+                       >
+                     </mat-form-field>
+
+                    <div class="property-row">
+                                             <mat-form-field appearance="outline">
+                         <mat-label>Font Size</mat-label>
+                         <input 
+                           matInput 
+                           type="number" 
+                           min="8" 
+                           max="72"
+                           [ngModel]="textBox.fontSize"
+                           (ngModelChange)="updateTextBoxFontSize(textBox.id, $event)"
+                         >
+                       </mat-form-field>
+
+                                             <mat-form-field appearance="outline">
+                         <mat-label>Font Weight</mat-label>
+                         <select 
+                           matNativeControl
+                           [ngModel]="textBox.fontWeight"
+                           (ngModelChange)="updateTextBoxFontWeight(textBox.id, $event)"
+                         >
+                           <option value="normal">Normal</option>
+                           <option value="bold">Bold</option>
+                         </select>
+                       </mat-form-field>
+                    </div>
+
+                                         <div class="property-row">
+                       <mat-form-field appearance="outline">
+                         <mat-label>Text Align</mat-label>
+                         <select 
+                           matNativeControl
+                           [ngModel]="textBox.textAlign"
+                           (ngModelChange)="updateTextBoxTextAlign(textBox.id, $event)"
+                         >
+                           <option value="left">Left</option>
+                           <option value="center">Center</option>
+                           <option value="right">Right</option>
+                         </select>
+                       </mat-form-field>
+                     </div>
+
+                                         <div class="position-controls">
+                       <label for="position-controls">Position & Size (%)</label>
+                      <div class="position-grid">
+                                                 <mat-form-field appearance="outline">
+                           <mat-label>X</mat-label>
+                           <input 
+                             matInput 
+                             type="number" 
+                             min="0" 
+                             max="100"
+                             [ngModel]="textBox.x"
+                             (ngModelChange)="updateTextBoxX(textBox.id, $event)"
+                           >
+                         </mat-form-field>
+                         <mat-form-field appearance="outline">
+                           <mat-label>Y</mat-label>
+                           <input 
+                             matInput 
+                             type="number" 
+                             min="0" 
+                             max="100"
+                             [ngModel]="textBox.y"
+                             (ngModelChange)="updateTextBoxY(textBox.id, $event)"
+                           >
+                         </mat-form-field>
+                         <mat-form-field appearance="outline">
+                           <mat-label>Width</mat-label>
+                           <input 
+                             matInput 
+                             type="number" 
+                             min="5" 
+                             max="100"
+                             [ngModel]="textBox.width"
+                             (ngModelChange)="updateTextBoxWidth(textBox.id, $event)"
+                           >
+                         </mat-form-field>
+                         <mat-form-field appearance="outline">
+                           <mat-label>Height</mat-label>
+                           <input 
+                             matInput 
+                             type="number" 
+                             min="5" 
+                             max="100"
+                             [ngModel]="textBox.height"
+                             (ngModelChange)="updateTextBoxHeight(textBox.id, $event)"
+                           >
+                         </mat-form-field>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Import/Export</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="import-export-controls">
+            <button 
+              mat-raised-button 
+              color="accent" 
+              (click)="exportTemplate()"
+            >
+              <mat-icon>download</mat-icon>
+              Export Template
+            </button>
+            
+            <input 
+              type="file" 
+              accept=".json" 
+              (change)="importTemplate($event)" 
+              style="display: none;" 
+              #fileInput
+            >
+            <button 
+              mat-raised-button 
+              (click)="fileInput.click()"
+            >
+              <mat-icon>upload</mat-icon>
+              Import Template
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Right Panel - Preview -->
+    <div class="preview-panel">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Card Preview</mat-card-title>
+          <mat-card-subtitle>
+            {{ template().width }}" × {{ template().height }}" 
+            ({{ previewWidth() }}px × {{ previewHeight() }}px)
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="preview-container">
+            <div 
+              class="card-preview"
+              [style.width.px]="previewWidth()"
+              [style.height.px]="previewHeight()"
+              (mousemove)="onMouseMove($event)"
+              (mouseup)="onMouseUp()"
+              (mouseleave)="onMouseUp()"
+            >
+              <!-- Card background -->
+              <div class="card-background"></div>
+              
+              <!-- Text boxes -->
+              @for (textBox of template().textBoxes; track textBox.id) {
+                <div 
+                  class="text-box"
+                  [class.selected]="isSelected(textBox)"
+                  [style]="getTextBoxStyle(textBox)"
+                  (mousedown)="onMouseDown($event, textBox)"
+                >
+                  <div class="text-box-content">
+                    {{ textBox.text || 'Sample Text' }}
+                  </div>
+                  <div class="text-box-handle"></div>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
