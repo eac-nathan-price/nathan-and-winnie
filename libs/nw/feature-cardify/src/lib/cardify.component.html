@@ -22,8 +22,7 @@
                  step="0.1" 
                  min="0.5" 
                  max="10"
-                 [ngModel]="width"
-                 (ngModelChange)="onWidthChange($event)"
+                 [(ngModel)]="width"
                >
             </mat-form-field>
 
@@ -35,8 +34,7 @@
                  step="0.1" 
                  min="0.5" 
                  max="10"
-                 [ngModel]="height"
-                 (ngModelChange)="onHeightChange($event)"
+                 [(ngModel)]="height"
                >
             </mat-form-field>
           </div>

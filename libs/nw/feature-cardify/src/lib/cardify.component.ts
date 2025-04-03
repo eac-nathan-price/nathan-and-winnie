@@ -39,7 +39,6 @@ export interface CardTemplate {
 
 @Component({
   selector: 'lib-cardify',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -101,16 +100,7 @@ export class CardifyComponent implements OnInit {
     }));
   }
 
-  // Form change handlers
-  onWidthChange(width: number) {
-    this.width = width;
-    this.updateTemplateDimensions();
-  }
 
-  onHeightChange(height: number) {
-    this.height = height;
-    this.updateTemplateDimensions();
-  }
 
 
 
@@ -133,6 +123,15 @@ export class CardifyComponent implements OnInit {
 
     // Add some sample text boxes for demonstration
     this.addSampleTextBoxes();
+  }
+
+  constructor() {
+    // Watch for width and height changes to update template
+    effect(() => {
+      const currentWidth = this.width;
+      const currentHeight = this.height;
+      this.updateTemplateDimensions();
+    });
   }
 
   private addSampleTextBoxes() {
