@@ -14,13 +14,15 @@
                 <mat-form-field appearance="outline">
                   <mat-label>Width (inches)</mat-label>
                   <input matInput type="number" step="0.1" min="0.5" max="10" 
-                         [(ngModel)]="template().width" />
+                         [value]="template().width"
+                         (input)="updateTemplateWidth($event)" />
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline">
                   <mat-label>Height (inches)</mat-label>
                   <input matInput type="number" step="0.1" min="0.5" max="10" 
-                         [(ngModel)]="template().height" />
+                         [value]="template().height"
+                         (input)="updateTemplateHeight($event)" />
                 </mat-form-field>
               </div>
             </mat-card-content>
@@ -161,10 +163,10 @@
             </mat-card-header>
             <mat-card-content>
               <div class="preview-controls">
-                <mat-slider min="0.25" max="2" step="0.25" 
-                           [ngModel]="previewScale()" 
-                           (ngModelChange)="previewScale.set($event)">
-                  <input matSliderThumb />
+                <mat-slider min="0.25" max="2" step="0.25">
+                  <input matSliderThumb 
+                         [value]="previewScale()" 
+                         (valueChange)="previewScale.set($event)" />
                 </mat-slider>
                 <span>Scale: {{ previewScale() }}x</span>
               </div>
@@ -334,7 +336,7 @@
                    [style.font-size.px]="textBox.fontSize"
                    [style.font-weight]="textBox.fontWeight"
                    [style.text-align]="textBox.textAlign">
-                                 {{ spreadsheetData()[cardIndex]?.[textBox.columnName] ?? '' }}
+                                 {{ spreadsheetData()[cardIndex]?.[textBox.columnName] || '' }}
               </div>
             }
           </div>

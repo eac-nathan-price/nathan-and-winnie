@@ -10,7 +10,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -52,6 +52,7 @@ export interface SpreadsheetRow {
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
     MatInputModule,
@@ -308,5 +309,16 @@ export class CardifyComponent implements OnInit {
   // Helper method for print preview
   getPageNumbers(): number[] {
     return Array.from({ length: this.totalPages() }, (_, i) => i);
+  }
+
+  // Helper methods for template updates
+  updateTemplateWidth(event: Event) {
+    const value = +(event.target as HTMLInputElement).value;
+    this.template.update(t => ({ ...t, width: value }));
+  }
+
+  updateTemplateHeight(event: Event) {
+    const value = +(event.target as HTMLInputElement).value;
+    this.template.update(t => ({ ...t, height: value }));
   }
 }
