@@ -336,7 +336,7 @@
                    [style.font-size.px]="textBox.fontSize"
                    [style.font-weight]="textBox.fontWeight"
                    [style.text-align]="textBox.textAlign">
-                                 {{ spreadsheetData()[cardIndex]?.[textBox.columnName] || '' }}
+                                 {{ spreadsheetData()[cardIndex][textBox.columnName] || '' }}
               </div>
             }
           </div>
