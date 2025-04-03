@@ -92,6 +92,26 @@ export class CardifyComponent implements OnInit {
     }));
   }
 
+  // Watchers for form properties
+  private updateTemplateDimensions() {
+    this.template.update(template => ({
+      ...template,
+      width: this.width,
+      height: this.height,
+    }));
+  }
+
+  // Form change handlers
+  onWidthChange(width: number) {
+    this.width = width;
+    this.updateTemplateDimensions();
+  }
+
+  onHeightChange(height: number) {
+    this.height = height;
+    this.updateTemplateDimensions();
+  }
+
 
 
   // UI state
