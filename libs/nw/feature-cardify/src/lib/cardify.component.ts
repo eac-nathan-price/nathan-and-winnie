@@ -292,4 +292,20 @@ export class CardifyComponent implements OnInit {
   onPreviewDragOver(event: DragEvent) {
     event.preventDefault();
   }
+
+  // Helper method for print preview
+  getCardsForPage(pageIndex: number): number[] {
+    const cardsPerPage = this.cardsPerPage();
+    const startIndex = pageIndex * cardsPerPage;
+    const endIndex = Math.min(startIndex + cardsPerPage, this.spreadsheetData().length);
+    return Array.from({ length: endIndex - startIndex }, (_, i) => startIndex + i);
+  }
+
+  // Helper method for template
+  protected readonly Array = Array;
+
+  // Helper method for print preview
+  getPageNumbers(): number[] {
+    return Array.from({ length: this.totalPages() }, (_, i) => i);
+  }
 }

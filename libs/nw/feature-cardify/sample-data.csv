@@ -1,0 +1,11 @@
+title,description,cost,type,rarity
+Fireball,A powerful spell that deals 6 damage to target creature,3,Spell,Common
+Lightning Bolt,Deal 3 damage to any target,1,Spell,Common
+Giant Growth,Target creature gets +3/+3 until end of turn,1,Spell,Common
+Healing Salve,Prevent the next 3 damage that would be dealt to target creature or player this turn,1,Spell,Common
+Dark Ritual,Add BBB to your mana pool,1,Spell,Common
+Counterspell,Counter target spell,2,Spell,Uncommon
+Swords to Plowshares,Exile target creature. Its controller gains life equal to its power,1,Spell,Uncommon
+Wrath of God,Destroy all creatures. They can't be regenerated,4,Spell,Rare
+Black Lotus,Add three mana of any one color to your mana pool,0,Artifact,Mythic
+Ancestral Recall,Target player draws three cards,1,Spell,Mythic 
