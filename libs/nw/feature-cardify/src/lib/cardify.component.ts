@@ -21,7 +21,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ToolbarService } from '@nathan-and-winnie/feature-toolbar';
 
@@ -62,7 +62,8 @@ export interface SpreadsheetRow {
     MatChipsModule,
     MatSelectModule,
     MatOptionModule,
-    MatTabsModule,
+    MatTabGroup,
+    MatTab,
     MatCheckboxModule,
   ],
   templateUrl: './cardify.component.html',

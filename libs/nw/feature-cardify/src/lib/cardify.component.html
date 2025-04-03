@@ -1,5 +1,5 @@
 <div class="cardify-container">
-  <mat-tabs>
+  <mat-tab-group>
     <!-- Template Editor Tab -->
     <mat-tab label="Template Editor">
       <div class="editor-layout">
@@ -40,7 +40,9 @@
                 @for (textBox of template().textBoxes; track textBox.id) {
                   <div class="textbox-item" 
                        [class.selected]="selectedTextBoxId() === textBox.id"
-                       (click)="selectedTextBoxId.set(textBox.id)">
+                       (click)="selectedTextBoxId.set(textBox.id)"
+                       (keydown.enter)="selectedTextBoxId.set(textBox.id)"
+                       tabindex="0">
                     <div class="textbox-header">
                       <span>{{ textBox.columnName || 'Unnamed' }}</span>
                       <button mat-icon-button (click)="removeTextBox(textBox.id); $event.stopPropagation()">
@@ -187,8 +189,10 @@
                          [class.selected]="selectedTextBoxId() === textBox.id"
                          draggable="true"
                          (dragstart)="onTextBoxDragStart($event, textBox)"
-                         (click)="selectedTextBoxId.set(textBox.id)">
-                      {{ textBox.columnName || 'Sample Text' }}
+                                                  (click)="selectedTextBoxId.set(textBox.id)"
+                         (keydown.enter)="selectedTextBoxId.set(textBox.id)"
+                         tabindex="0">
+                       {{ textBox.columnName || 'Sample Text' }}
                     </div>
                   }
                 </div>
@@ -309,7 +313,7 @@
         }
       </div>
     </mat-tab>
-  </mat-tabs>
+  </mat-tab-group>
 </div>
 
 <!-- Print Preview (hidden by default) -->
@@ -330,7 +334,7 @@
                    [style.font-size.px]="textBox.fontSize"
                    [style.font-weight]="textBox.fontWeight"
                    [style.text-align]="textBox.textAlign">
-                {{ spreadsheetData()[cardIndex]?.[textBox.columnName] || '' }}
+                                 {{ spreadsheetData()[cardIndex]?.[textBox.columnName] ?? '' }}
               </div>
             }
           </div>
